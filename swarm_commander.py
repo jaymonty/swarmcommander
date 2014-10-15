@@ -23,6 +23,13 @@ import sys
 from SwarmCommander.modules.lib import sc_state
 from SwarmCommander.modules import sc_cli
 
+#Need this for using curses -- couldn't figure out how to put it in the module.
+#Due to this decision:
+#If ever I want a GUI-only Swarm Commander w/o a CLI I will probably need
+#to make a new swarm_commander_gui.py file to replace the
+#swarm_command.py file.
+from curses import wrapper
+
 #exit with message if we're not using Python 3:
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
@@ -31,5 +38,13 @@ state = sc_state.SCState()
 
 cli_mod = sc_cli.SC_CLI_Module(state)
 
-print ("TODO: Swarm Commander. :)")
+def main(stdscr):
+    cli_mod.main_loop(stdscr)
 
+wrapper(main)
+
+#unload modules here as necessary.
+
+#do any other cleanup here as necessary.
+
+print("Your Swarm Commander Session has ended.\n")

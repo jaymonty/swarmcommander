@@ -10,19 +10,20 @@ class SCModule(object):
     Base class for all Swarm Commander modules
     '''
 
-    def __init__(self, sc_state, name, description, public=False):
+    def __init__(self, sc_state, name, description):
         '''
         Constructor
 
         if public is True then other modules can find this module with
         module('name')
         '''
-        self.__sc_state = sc_state
+        self.sc_state = sc_state
         self.__name = name
         self.__description = description
 
-        if public:
-            sc_state.add_public_module(name, self)
+        #this method has the extra feature of checking to see if the module
+        #has already been loaded:
+        sc_state.add_loaded_module(name, self)
 
     #methods defined as abstract must be implemented by inheriting class
     @abc.abstractmethod
@@ -73,7 +74,7 @@ class SCModule(object):
     #these methods are not really meant to be implemented by inheriting classes,
     #but if they are their behavior is overriden.
     def module(self, name):
-        '''Find a public module (will return None for private modules) '''
+        '''Find a module '''
         return self.sc_state.module(name)
 
     def say (self, msg, prority='important'):

@@ -2,7 +2,7 @@ from setuptools import setup
 
 import sys
 
-version = "0.0.2"
+version = "0.0.3"
 
 #require python3
 #exit with message if we're not using Python 3:
@@ -28,6 +28,7 @@ setup(name='SwarmCommander',
       license='TBD',
       packages=['SwarmCommander',
                 'SwarmCommander.modules',
+                'SwarmCommander.modules.sc_map',
                 'SwarmCommander.modules.lib'],
       #note that we do not include all the real dependencies here (like matplotlib etc)
       # as that breaks the pip install. It seems that pip is not smart enough to
