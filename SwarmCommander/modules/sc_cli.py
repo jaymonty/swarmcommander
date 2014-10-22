@@ -5,7 +5,7 @@
 """
 from SwarmCommander.modules.lib import sc_module
 
-import curses
+import curses, traceback
 
 class SC_CLI_Module(sc_module.SCModule):
     def __init__(self, sc_state):
@@ -13,9 +13,26 @@ class SC_CLI_Module(sc_module.SCModule):
         self.time_to_quit = False
         self.stdscr = None
 
+        self.__command_map = {
+            'help'      : (self.cmd_help, 'List of Swarm Commander Commands'),
+            'module'    : (self.cmd_module, 'Module commmands'),
+            'quit'      : (self.cmd_quit, 'Exit Swarm Commander')
+        }
+
     def unload(self):
         ''' Called when CLI module is unloaded '''
         pass
+
+    def cmd_help(self, args):
+        self.stdscr.addstr("Swarm Commander commands:\n")
+        k = sorted(self.__command_map.keys())
+        k.sort()
+        for cmd in k:
+            (fn, help) = self.__command_map[cmd]
+            self.stdscr.addstr(cmd)
+            self.stdscr.addstr(":\t\t")
+            self.stdscr.addstr(help)
+            self.stdscr.addstr("\n")
 
     def cmd_module(self, args):
         '''"module" command processing'''
@@ -39,27 +56,45 @@ class SC_CLI_Module(sc_module.SCModule):
             except Exception as e:
                 self.stdscr.addstr(str(e))
                 self.stdscr.addstr("\n")
+
+        elif args[0] == "unload":
+            if len(args) < 2:
+                self.stdscr.addstr("usage: module unload <module_name>\n")
+                return
+            try:
+                self.sc_state.unload_module(args[1])
+            except Exception as e:
+                self.stdscr.addstr(str(e))
+                self.stdscr.addstr("\n")
+
         else:
             self.stdscr.addstr(usage)
 
-    def process_command(self, c_bytes):
-        ''' Process a command given by the user at the command line '''
+    def cmd_quit(self, args):
+        self.cmd_module(["unload", "qt_gui"])
+        self.time_to_quit = True
+
+    def prepare_command(self, c_bytes):
         #turn curses command from bytes into string:
         c = c_bytes.decode("utf-8")
 
         c_tokens = c.split(" ")
+        return c_tokens
 
-        if c_tokens[0] == 'help':
-            self.stdscr.addstr("Swarm Commander commands:\n")
-            self.stdscr.addstr("help\n")
-            self.stdscr.addstr("module\n")
-            self.stdscr.addstr("quit\n")
-        elif c_tokens[0] == 'module':
-            self.cmd_module(c_tokens[1:])
-        elif c_tokens[0] == 'quit':
-            self.time_to_quit = True
-        elif c_tokens[0] != '':
+    def process_command(self, c_tokens):
+        ''' Process a command given by the user at the command line '''
+        cmd = c_tokens[0]
+        if (cmd == ""):
+            return #nothing to do
+        elif (cmd not in self.__command_map.keys()):
             self.stdscr.addstr("Unrecognized command\n")
+        else:
+            (fn, help) = self.__command_map[cmd]
+            try:
+                fn(c_tokens[1:])
+            except Exception as e:
+                print("ERROR in command: %s" % str(e))
+                traceback.print_exc()
 
     def main_loop(self, stdscr):
         ''' called by external python program to start the main CLI loop '''
@@ -73,8 +108,10 @@ class SC_CLI_Module(sc_module.SCModule):
             stdscr.refresh()
 
             command = stdscr.getstr()
+            c_tokens = self.prepare_command(command)
+            cmd = c_tokens[0]
         
-            self.process_command(command)
+            self.process_command(c_tokens)
 
 def init(sc_state):
     '''faciliates dynamic inialization of the module '''
