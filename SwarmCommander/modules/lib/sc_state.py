@@ -7,7 +7,7 @@
 
 from SwarmCommander.modules.lib import sc_module
 
-import sys, pip, zipfile, zipimport
+import sys, pip, traceback, zipfile, zipimport
 
 class SCState(object):
     '''
@@ -17,7 +17,7 @@ class SCState(object):
 
     def __init__(self):
         self.__loaded_modules = {}
-        self.__module_paths = []
+        self.__module_path = 'SwarmCommander.modules.sc_'
         
     def module(self, name):
         ''' Find a module. Return none if no module of that name, or if module is private. '''
@@ -49,22 +49,55 @@ class SCState(object):
             if next_file.startswith("SwarmCommander/modules/sc_") and not next_file.endswith(".pyc"):
                 next_module = next_file.replace("SwarmCommander/modules/sc_","")
                 next_module = next_module.replace(".py","")
-                if (next_module.rfind("/") != -1):
+                if next_module.rfind("/") != -1:
                     next_module = next_module[0:next_module.rfind("/")]
-                file_list.append(next_module)
+                if next_module not in file_list:
+                    file_list.append(next_module)
 
         return file_list        
+
+    def get_module_full_path(self, module_name):
+        modpath = '%s%s' % (self.__module_path, module_name)
+        return modpath
+
+    def unload_module(self, module_name):
+        ''' Attemp to unload a module.  Throws an exception if unable to unload the module '''
+
+        mod = self.module(module_name)
+
+        if mod == None:
+            raise Exception('Module not loaded')
+            return
+
+        if hasattr(mod, 'unload'):
+            mod.unload()
+        else:
+            raise Exception('Module has no unload method')
+            return
+
+        #Removes the module from the dictionary of loaded modules
+        del self.__loaded_modules[module_name]
+
 
     def load_module(self, module_name):
         ''' Attempt to load a module.  Throws an exception if unable to load module '''
         if self.module(module_name) != None:
             raise Exception('Module already loaded')
             return
-        modpath = 'SwarmCommander.modules.sc_%s' % module_name
         try:
-            m = self.import_package(modpath)
-        except:
-            raise Exception('Module not found')
+            m = self.import_package(self.get_module_full_path(module_name))
+        except Exception:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            #print(dir(e))
+            #print(e.msg)
+            #e.print_file_and_line()
+            
+            #print(repr(traceback.format_exception(exc_type, exc_value,
+            #                              exc_traceback)))
+
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
+
+            raise Exception('Module not loadable')
             return
         
         module = m.init(self)
@@ -80,7 +113,7 @@ class SCState(object):
             return
 
         if not isinstance(mod, sc_module.SCModule):
-            err_str = "Cannot module " + name + " as a loaded module: it's not an SCModule"
+            err_str = "Cannot add module " + name + " as a loaded module: it's not an SCModule"
             raise Exception (err_str)
             return
 
@@ -107,7 +140,7 @@ class SCState(object):
         except ImportError:
             self.clear_zipimport_cache()
             mod = __import__(name)
-        
+       
         components = name.split('.')
         for comp in components[1:]:
             mod = getattr(mod, comp)
