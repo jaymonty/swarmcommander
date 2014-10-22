@@ -17,6 +17,11 @@ To this point installation only tested for Ubuntu.
 
 You need at least Python 3.4 and setuptools for Python 3.  
 
-Then:
+You need a curses library as the CLI is implemented with curses.
 
-python3 setup.py build install --user
+You need PyQt 5 for Python 3 for the GUI.
+
+When you've got all the dependencies, you install Swarm Commander with this command:
+   
+    python3 setup.py build install --user
+

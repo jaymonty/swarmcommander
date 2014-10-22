@@ -1,13 +1,21 @@
+#!/usr/bin/env python3
+
 from setuptools import setup
 
-import sys
+import sys, os
 
-version = "0.0.3"
+version = "0.0.4"
 
 #require python3
 #exit with message if we're not using Python 3:
 if sys.version_info[0] < 3:
     raise "Must be using Python 3"
+
+#first generate all code from Qt .ui files as necessary
+orig_dir = os.getcwd()
+os.chdir("SwarmCommander/modules/sc_qt_gui")
+os.system("make")
+os.chdir(orig_dir)
 
 setup(name='SwarmCommander',
       version=version,
@@ -28,7 +36,8 @@ setup(name='SwarmCommander',
       license='TBD',
       packages=['SwarmCommander',
                 'SwarmCommander.modules',
-                'SwarmCommander.modules.sc_map',
+                'SwarmCommander.modules.sc_map_tiler',
+                'SwarmCommander.modules.sc_qt_gui',
                 'SwarmCommander.modules.lib'],
       #note that we do not include all the real dependencies here (like matplotlib etc)
       # as that breaks the pip install. It seems that pip is not smart enough to

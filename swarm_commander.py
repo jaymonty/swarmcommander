@@ -18,10 +18,11 @@ The developers and maintainers of the mavlink protocol and the PX4/Pixhawk for
 their same spirit of openess.
 '''
 
-import sys
+import sys, threading, time
 
 from SwarmCommander.modules.lib import sc_state
 from SwarmCommander.modules import sc_cli
+from SwarmCommander.modules import sc_qt_gui
 
 #Need this for using curses -- couldn't figure out how to put it in the module.
 #Due to this decision:
@@ -34,12 +35,36 @@ from curses import wrapper
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
 
-state = sc_state.SCState()
+#running cli in a separate thread:
+class CLI_Thread(threading.Thread):
+    def __init__(self, cli_mod, stdscr):
+        threading.Thread.__init__(self)
+        self.__cli_mod = cli_mod
+        self.__stdscr = stdscr
 
-cli_mod = sc_cli.SC_CLI_Module(state)
+    def run(self):
+        self.__cli_mod.main_loop(self.__stdscr)
 
 def main(stdscr):
-    cli_mod.main_loop(stdscr)
+    state = sc_state.SCState()
+    cli_mod = sc_cli.SC_CLI_Module(state) 
+    
+    #First start CLI in its own thread
+    cli_thread = CLI_Thread(cli_mod, stdscr)
+    #makes the cli thread a daemon so that the cli will automatically
+    #exit when the main thread (GUI thread) exits.
+    cli_thread.setDaemon(True) 
+    cli_thread.start()
+
+    #Now start Qt application in main thread.  Note that Qt doesn't like being
+    #run in any thread other than the main thread.
+    qt_mod = sc_qt_gui.SC_QtGUIModule(state)
+    qt_mod.start_app()
+
+    #if the gui quits, we're outta here:
+    cli_mod.time_to_quit = True
+    #give the cli a chance to shutdown
+    time.sleep(1)
 
 wrapper(main)
 
