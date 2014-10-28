@@ -7,5 +7,6 @@ killall ArduPlane.elf
 killall JSBSim
 killall mavproxy.py
 sudo killall launch_payload_container.sh
+killall roslaunch
 killall xterm
 sudo killall xterm
