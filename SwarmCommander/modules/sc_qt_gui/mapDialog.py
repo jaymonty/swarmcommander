@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mapDialog.ui'
 #
-# Created: Thu Oct 16 08:22:25 2014
+# Created: Mon Oct 27 08:49:52 2014
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
