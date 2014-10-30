@@ -8,8 +8,9 @@
 from SwarmCommander.modules.lib import sc_module
 
 from PyQt5.QtWidgets import QApplication, QDialog
+from PyQt5.QtCore import QTimer
 from SwarmCommander.modules.sc_qt_gui.mapDialog import Ui_mapDialog
-from SwarmCommander.modules.sc_qt_gui.dashboardDialog import Ui_dashboardDialog
+from SwarmCommander.modules.sc_qt_gui.dashboardDialogWrapper import DashboardDialog
 
 import sys
 
@@ -22,18 +23,26 @@ class SC_QtGUIModule(sc_module.SCModule):
         self.__mapUi = Ui_mapDialog()
         self.__mapUi.setupUi(self.__mapDialog)
 
-        self.__dashboardDialog = QDialog()
-        self.__dashboardUi = Ui_dashboardDialog()
-        self.__dashboardUi.setupUi(self.__dashboardDialog)
+        self.__dashboardDialog = DashboardDialog(self.sc_state)
                                           
         #self.__mapDialog.show()
-        self.__dashboardDialog.show()        
+        self.__dashboardDialog.show()
+
+        #periodic updates...
+        self.__updater = QTimer()
+        self.__updater.setInterval(500)
+        self.__updater.timeout.connect(self.time_to_update)
+        self.__updater.start();
 
     def start_app(self):
         sys.exit(self.__app.exec_())
 
     def end_app(self):
         QApplication.quit()
+
+    def time_to_update(self):
+        #update dashboard and map
+        self.__dashboardDialog.update_uav_states()
 
     def unload(self):
         #do any cleanup here
