@@ -56,13 +56,17 @@ def main(stdscr):
     cli_thread.setDaemon(True) 
     cli_thread.start()
 
+    #load necessary modules---------
+    state.load_module('acs_network')
+    #-----------------
+
     #Now start Qt application in main thread.  Note that Qt doesn't like being
     #run in any thread other than the main thread.
     qt_mod = sc_qt_gui.SC_QtGUIModule(state)
     qt_mod.start_app()
 
     #if the gui quits, we're outta here:
-    cli_mod.time_to_quit = True
+    state.unload_all_modules()
     #give the cli a chance to shutdown
     time.sleep(1)
 
