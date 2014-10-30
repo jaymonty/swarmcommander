@@ -18,8 +18,7 @@ fi
 #need the sudo passwd
 sudo echo "Ensuring we have sudo credentials available."
 
-#TODO: later assume this script has been installed (remove "./")
-./multi-sitl-cleanup.bash
+multi-sitl-cleanup.bash
 
 i=1
 while [ $i -le $1 ]

@@ -4,7 +4,7 @@ from setuptools import setup
 
 import sys, os
 
-version = "0.0.4"
+version = "0.0.5"
 
 #require python3
 #exit with message if we're not using Python 3:
@@ -36,6 +36,7 @@ setup(name='SwarmCommander',
       license='TBD',
       packages=['SwarmCommander',
                 'SwarmCommander.modules',
+                'SwarmCommander.modules.sc_acs_network',
                 'SwarmCommander.modules.sc_map_tiler',
                 'SwarmCommander.modules.sc_qt_gui',
                 'SwarmCommander.modules.lib'],
@@ -47,7 +48,9 @@ setup(name='SwarmCommander',
       #Also appears to not intall python 3 versions of what's in the list 
       #(at least on Ubuntu as of this writing)
       install_requires=['pyserial'],
-      scripts=['swarm_commander.py']
+      scripts=['swarm_commander.py',
+               'multi-sitl-start.bash',
+               'multi-sitl-cleanup.bash']
       #TODO: package_data: see MAVProxy setup.py for an example
       #TODO: don't forget to add the commad at the end of the previous line :)
       #package_data={'SwarmCommander':
