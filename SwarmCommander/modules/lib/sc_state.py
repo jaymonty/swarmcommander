@@ -1,5 +1,5 @@
 """
-    Swarm Commander State class.  
+    Swarm Commander State Module.  
     
     Holds global state information for the entire application.
     A reference to the State class is passed to modules.
@@ -7,7 +7,7 @@
 
 from SwarmCommander.modules.lib import sc_module
 
-import sys, pip, traceback, zipfile, zipimport
+import sys, pip, traceback, zipfile, zipimport, time
 
 class SCState(object):
     '''
@@ -16,8 +16,25 @@ class SCState(object):
     '''
 
     def __init__(self):
+        #module state
         self.__loaded_modules = {}
         self.__module_path = 'SwarmCommander.modules.sc_'
+
+        #UAV state table
+        self.uav_states = {}
+
+        #modules wanting UAV updates
+        self.__modules_wanting_uav_updates = []
+
+    def update_uav_state(self, id, name=None):
+        if id not in self.uav_states:
+            self.uav_states[id] = {}
+
+        if name != None:
+            self.uav_states[id]['name'] = name
+
+        self.uav_states[id]['last_update'] = int(time.time())
+
         
     def module(self, name):
         ''' Find a module. Return none if no module of that name, or if module is private. '''
@@ -78,6 +95,9 @@ class SCState(object):
         #Removes the module from the dictionary of loaded modules
         del self.__loaded_modules[module_name]
 
+    def unload_all_modules(self): 
+        for name,module in self.__loaded_modules.items():
+            self.unload_module(name)
 
     def load_module(self, module_name):
         ''' Attempt to load a module.  Throws an exception if unable to load module '''
