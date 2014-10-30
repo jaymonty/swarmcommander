@@ -21,7 +21,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
     def unload(self):
         ''' Called when CLI module is unloaded '''
-        pass
+        self.time_to_quit = True
 
     def cmd_help(self, args):
         self.stdscr.addstr("Swarm Commander commands:\n")
