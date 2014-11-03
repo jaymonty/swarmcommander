@@ -49,18 +49,15 @@ else
     multi-sitl-cleanup.bash
 fi
 
-#make sure ArduPlane has been built:
-if [ ! -f /tmp/ArduPlane.elf ]; then
+#make sure ArduPlane build is up to date:
 pushd $ACS_ROOT/ardupilot/ArduPlane || {
-    echo "Failed to change to vehicle directory for ArduPlane, unable to make."
-    exit -3
+    echo "Failed to change to vehicle directory for ArduPlane, unable to update build."
 }
     make sitl -j4 || {
         make clean
         make sitl -j4    
     }
 popd
-fi
 
 i=1
 total_sitls=$1
@@ -96,6 +93,6 @@ do
 done
 
 if [ $USE_CONTAINERS != 1 ]; then
-   /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/repeater.py -b 5555 $total_sitls" & 
+   /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/repeater.py -b 5555 $total_sitls & 
 fi
 
