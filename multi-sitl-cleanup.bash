@@ -22,9 +22,9 @@ if [ $USE_CONTAINERS == 1 ]; then
     sudo killall launch_payload.sh
     sudo killall roslaunch
 else
-    killall launch_payload.sh
-    killall roslaunch
     killall repeater.py
+    killall roslaunch
+    killall launch_payload.sh
 fi
 
 if [ $USE_CONTAINERS == 1 ]; then 

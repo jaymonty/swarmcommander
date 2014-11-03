@@ -55,7 +55,10 @@ pushd $ACS_ROOT/ardupilot/ArduPlane || {
     echo "Failed to change to vehicle directory for ArduPlane, unable to make."
     exit -3
 }
-    make sitl -j4
+    make sitl -j4 || {
+        make clean
+        make sitl -j4    
+    }
 popd
 fi
 
@@ -93,6 +96,6 @@ do
 done
 
 if [ $USE_CONTAINERS != 1 ]; then
-   $ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/repeater.py -b 5555 $total_sitls & 
+   /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/repeater.py -b 5555 $total_sitls" & 
 fi
 
