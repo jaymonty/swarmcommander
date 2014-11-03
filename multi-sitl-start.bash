@@ -1,7 +1,32 @@
 #!/bin/bash
 
+usage()
+{
+cat <<EOF
+Usage: $0 [options] num_SITLS [sitl_root_dir] [template_eeprom.bin]
+Options:
+    -C                      Start a linux container for each payload SITL
+EOF
+}
+
+USE_CONTAINERS=0
+
+#parse options
+while getopts ":Ch" opt; do
+    case $opt in    
+        C)
+            USE_CONTAINERS=1
+            ;;
+        h)
+            usage
+            exit 0
+            ;;            
+    esac
+done
+shift $((OPTIND-1))
+
 if [ $# -lt 1 ]; then
-    echo "Usage $0 num_SITLs [sitl_root_dir] [template_eeprom.bin]"
+    usage
     exit -45
 fi
 
@@ -15,13 +40,28 @@ if [ $# -ge 3 ]; then
     template_eeprom_path=$3
 fi
 
-#need the sudo passwd
-sudo echo "Ensuring we have sudo credentials available."
+#need the sudo passwd if using -C argument
+if [ $USE_CONTAINERS == 1 ]; then 
+    echo "Making Containers. "
+    sudo echo "Ensuring we have sudo credentials available."
+    multi-sitl-cleanup.bash -C
+else
+    multi-sitl-cleanup.bash
+fi
 
-multi-sitl-cleanup.bash
+#make sure ArduPlane has been built:
+if [ ! -f /tmp/ArduPlane.elf ]; then
+pushd $ACS_ROOT/ardupilot/ArduPlane || {
+    echo "Failed to change to vehicle directory for ArduPlane, unable to make."
+    exit -3
+}
+    make sitl -j4
+popd
+fi
 
 i=1
-while [ $i -le $1 ]
+total_sitls=$1
+while [ $i -le $total_sitls ]
 do
     echo "Starting SITL $i";
 
@@ -36,15 +76,23 @@ do
     fi
     
     #run_in_terminal_window.sh "sim_vehicle.sh -I $i -v ArduPlane -L McMillan --aircraft testingDashboard --mission 0 --map --console"
-    /usr/bin/xterm -hold -e "sim_vehicle.sh -N -I $i -v ArduPlane -L McMillan --aircraft testingDashboard --mission 0" &
+    /usr/bin/xterm -hold -e "sim_vehicle.sh -N -I $i -v ArduPlane -L McMillan --aircraft testing --mission 0" &
 
     #Give each autopilot portion of SITL a chance to get started
     sleep 5
 
     cd $ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils
 
-    sudo -E /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload_container.sh $i $USER" &
+    if [ $USE_CONTAINERS == 1 ]; then 
+        sudo -E /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -C -R $USER $i" &
+    else
+        /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh $i" &
+    fi  
 
     i=$(( $i + 1 ))
 done
+
+if [ $USE_CONTAINERS != 1 ]; then
+   $ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/repeater.py -b 5555 $total_sitls & 
+fi
 
