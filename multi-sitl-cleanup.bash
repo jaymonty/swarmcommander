@@ -19,8 +19,8 @@ killall ArduPlane.elf
 killall JSBSim
 killall mavproxy.py
 if [ $USE_CONTAINERS == 1 ]; then 
-    sudo killall launch_payload.sh
     sudo killall roslaunch
+    sudo killall launch_payload.sh
 else
     killall repeater.py
     killall roslaunch
