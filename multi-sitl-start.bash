@@ -6,16 +6,21 @@ cat <<EOF
 Usage: $0 [options] num_SITLS [sitl_root_dir] [template_eeprom.bin]
 Options:
     -C                      Start a linux container for each payload SITL
+    -I			    Starting index for the group of SITLs
 EOF
 }
 
 USE_CONTAINERS=0
+START_INDEX=1
 
 #parse options
-while getopts ":Ch" opt; do
+while getopts ":I:Ch" opt; do
     case $opt in    
         C)
             USE_CONTAINERS=1
+            ;;
+	I)
+            START_INDEX=$OPTARG
             ;;
         h)
             usage
@@ -59,8 +64,8 @@ pushd $ACS_ROOT/ardupilot/ArduPlane || {
     }
 popd
 
-i=1
-total_sitls=$1
+i=$START_INDEX
+total_sitls=$(( $1 + $START_INDEX - 1 ))
 while [ $i -le $total_sitls ]
 do
     echo "Starting SITL $i";
@@ -93,6 +98,6 @@ do
 done
 
 if [ $USE_CONTAINERS != 1 ]; then
-   /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/repeater.py -b 5555 $total_sitls & 
+   /usr/bin/xterm -hold -e $ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/repeater.py -b 5555 $total_sitls & 
 fi
 
