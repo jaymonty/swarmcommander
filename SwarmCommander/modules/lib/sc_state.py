@@ -21,21 +21,31 @@ class SCState(object):
         self.__module_path = 'SwarmCommander.modules.sc_'
 
         #UAV state table
+        #TODO: this needs to be a better data stuct than a dictionary...
+        #probably a class instead (avoids string lookups)
         self.uav_states = {}
 
         #modules wanting UAV updates
         self.__modules_wanting_uav_updates = []
 
-    def update_uav_state(self, id, name=None):
+    def update_uav_state(self, id, msg):
         if id not in self.uav_states:
             self.uav_states[id] = {}
 
-        if name != None:
-            self.uav_states[id]['name'] = name
+        #TODO: verify this is a FlightStatus message
+        #TODO: support other message types
+        name = msg.name
+
+        #TODO: remove this workaround when we switch everthing to Python3:
+        name = name[2:name.find("\\x00")]
+
+        self.uav_states[id]['name'] = name
+        self.uav_states[id]['mode'] = msg.mode
+        self.uav_states[id]['batt_rem'] = msg.batt_rem 
+        self.uav_states[id]['gps_sats'] = msg.gps_sats
 
         self.uav_states[id]['last_update'] = int(time.time())
 
-        
     def module(self, name):
         ''' Find a module. Return none if no module of that name, or if module is private. '''
         if name in self.__loaded_modules:
