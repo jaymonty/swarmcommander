@@ -35,6 +35,19 @@ class DashboardDialog(QDialog):
         self.__ID_COL = 0
         self.__NAME_COL = 1
         self.__LINK_COL = 2
+        self.__BATT_REM_COL = 3
+        self.__GPS_SATS_COL = 4
+        self.__MODE_COL = 5
+
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 30)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 30)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 30)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_SATS_COL, 30)
+        #end table stuff ------------------
+
+        #sigs and slots
+        self.__dashboardUi.btn_RTL.clicked.connect(self.rtl_button_pushed)
+        self.__dashboardUi.btn_AUTO.clicked.connect(self.auto_button_pushed)
 
     def update_uav_states(self):
         for id in self.sc_state.uav_states.keys():
@@ -45,7 +58,7 @@ class DashboardDialog(QDialog):
 
         for id, uav_state in self.sc_state.uav_states.items():
             if (self.__uav_update_map[id] < uav_state['last_update']):
-                self.update_uav_row(id, uav_state['name'])
+                self.update_uav_row(id, uav_state)
                 #link green
                 self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
                     self.__LINK_COL).setBackground(QBrush(QColor(0,255,0)))
@@ -57,8 +70,6 @@ class DashboardDialog(QDialog):
                 #link yellow
                 self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
                     self.__LINK_COL).setBackground(QBrush(QColor(255,255,0)))
-            
-                
 
     def add_uav_to_dashboard(self, uav_id):
         #add a new table row
@@ -85,19 +96,36 @@ class DashboardDialog(QDialog):
         self.init_row(uav_id)
 
     def init_row(self, id):
-        name_item = QTableWidgetItem()
-        link_item = QTableWidgetItem()
-        
         row = self.__uav_row_map[id]        
         
-        self.__dashboardUi.tableWidget.setItem(row, self.__NAME_COL, name_item)
-        self.__dashboardUi.tableWidget.setItem(row, self.__LINK_COL, link_item)
+        self.__dashboardUi.tableWidget.setItem(row, self.__NAME_COL, 
+                QTableWidgetItem())
+        self.__dashboardUi.tableWidget.setItem(row, self.__LINK_COL,
+                QTableWidgetItem())
+        self.__dashboardUi.tableWidget.setItem(row, self.__BATT_REM_COL,
+                QTableWidgetItem())
+        self.__dashboardUi.tableWidget.setItem(row, self.__GPS_SATS_COL,
+                QTableWidgetItem())
+        self.__dashboardUi.tableWidget.setItem(row, self.__MODE_COL,
+                QTableWidgetItem())
 
-    def update_uav_row(self, id, name):        
+    def update_uav_row(self, id, uav_state):        
         row = self.__uav_row_map[id]        
         
-        self.__dashboardUi.tableWidget.item(row, self.__NAME_COL).setText(name)
+        self.__dashboardUi.tableWidget.item(row, self.__NAME_COL).setText(uav_state['name'])
+        self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(str(uav_state['batt_rem']))
+        self.__dashboardUi.tableWidget.item(row, self.__GPS_SATS_COL).setText(str(uav_state['gps_sats']))
+        self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(str(uav_state['mode']))
 
         self.__uav_update_map[id] = int(time.time())
 
+    def rtl_button_pushed(self):
+        net_mod = self.sc_state.module('acs_network')
+        if net_mod is not None:
+            net_mod.change_mode_all_aircraft(0)
+
+    def auto_button_pushed(self):
+        net_mod = self.sc_state.module('acs_network')
+        if net_mod is not None:
+            net_mod.change_mode_all_aircraft(4)
 
