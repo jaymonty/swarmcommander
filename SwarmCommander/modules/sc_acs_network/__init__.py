@@ -8,7 +8,7 @@ from SwarmCommander.modules.lib import sc_module
 from ap_lib.acs_socket import Socket
 from ap_lib import acs_messages
 
-import threading
+import threading, time
 
 class SC_ACS_Network_Module(sc_module.SCModule):
     def __init__(self, sc_state):
@@ -18,6 +18,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         #more than SITL
         port = 5554
         device = 'sitl_bridge'
+        #device = 'wlan1'
         my_ip = None
         bcast_ip = None
 
@@ -32,14 +33,9 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.__t.start()
    
     def process_flight_status(self, msg):
-        name = msg.name
-
-        #TODO: remove this workaround when we switch everthing to Python3:
-        name = name[2:name.find("\\x00")]
-
         #print("%d %s %d %d" % (msg.msg_src, name, msg.armed, msg.mode))
 
-        self.sc_state.update_uav_state(msg.msg_src, name)
+        self.sc_state.update_uav_state(msg.msg_src, msg)
 
     def read_socket(self):
         while not self.__time_to_stop:
@@ -57,6 +53,25 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
         self.__time_to_stop = True
 
+    def send_message_to(self, id, message):
+        message.msg_dst = id
+        cur_time = time.time()
+        message.msg_secs = int(cur_time)
+        message.msg_nsecs = int(1e9 * (cur_time - int(cur_time)))
+        
+        res = None
+        try:
+            res = self.__sock.send(message)
+        except Exception as ex:
+            print (ex.args)
+        return res
+
+    def change_mode_all_aircraft(self, mode):
+        for id,name in self.sc_state.uav_states.items():
+            message = acs_messages.Mode()
+            message.mode = mode
+
+            self.send_message_to(id, message)
 
 def init(sc_state):
     '''facilitate dynamic initialization of the module '''
