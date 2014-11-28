@@ -47,6 +47,10 @@ class SC_ACS_Network_Module(sc_module.SCModule):
             if isinstance(msg, acs_messages.FlightStatus):
                 self.process_flight_status(msg)
 
+            #give up the CPU for a bit
+            #(0.05 secs -> about 20 Hz read rate
+            time.sleep(0.05)
+
     def unload(self):
         ''' Called when ACS Network modoule is unloaded'''
         #cleanup open sockets, shut down threads etc.
