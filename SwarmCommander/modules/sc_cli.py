@@ -15,6 +15,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
         self.__command_map = {
             'help'      : (self.cmd_help, 'List of Swarm Commander Commands'),
+            'map'       : (self.cmd_map, 'Map commands'),
             'module'    : (self.cmd_module, 'Module commmands'),
             'quit'      : (self.cmd_quit, 'Exit Swarm Commander')
         }
@@ -33,6 +34,24 @@ class SC_CLI_Module(sc_module.SCModule):
             self.stdscr.addstr(":\t\t")
             self.stdscr.addstr(help)
             self.stdscr.addstr("\n")
+
+    def cmd_map(self, args):
+        '''"map" command processing'''
+        usage = "usage: map <prefetch|show|hide>\n"
+
+        #make sure we have the necessary modules loaded before trying these commands:
+        if self.sc_state.module('map_tiler') is None:
+            self.stdscr.addstr("Load map_tiler module first\n")
+            return
+
+        if len(args) < 1:
+            self.stdscr.addstr(usage)
+            return
+        elif args[0] == "prefetch":
+            #TODO: allow prefetching at an arbitrary location
+            self.sc_state.module('map_tiler').prefetch() 
+        else:
+            self.stdscr.addstr(usage)
 
     def cmd_module(self, args):
         '''"module" command processing'''
