@@ -47,7 +47,7 @@ class SCState(object):
         self.uav_states[id]['last_update'] = int(time.time())
 
     def module(self, name):
-        ''' Find a module. Return none if no module of that name, or if module is private. '''
+        ''' Find a loaded module. Return none if no loaded module of that name, or if module is private. '''
         if name in self.__loaded_modules:
             return self.__loaded_modules[name]
         
