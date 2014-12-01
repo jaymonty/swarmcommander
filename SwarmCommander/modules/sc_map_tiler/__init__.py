@@ -146,7 +146,7 @@ class TileInfoScaled(TileInfo):
 
 
 class SC_MapTilerModule(sc_module.SCModule):
-    def __init__(self, sc_state, lat, lon, min_zoom=1, max_zoom=19, cache_path=None, cache_size=500, service='OviHybrid', refresh_age=30*24*60*60):
+    def __init__(self, sc_state, lat, lon, min_zoom=0, max_zoom=20, cache_path=None, cache_size=500, service='OviHybrid', refresh_age=30*24*60*60):
         super(SC_MapTilerModule, self).__init__(sc_state, "map_tiler", "map module")
         
         self.__current_tile_service = service
@@ -180,7 +180,15 @@ class SC_MapTilerModule(sc_module.SCModule):
         self.__tile_cache = OrderedDict()
 
     def tile_img_from_file(file_path):
-        img = Image.open(file_path) 
+        #img = Image.open(file_path)
+        #return img
+
+        #couldn't figure out how to convert from PIL.Image to
+        #raw bytes.  Punting for now and storing image in GUI library instead.
+        #If I ever get more than one GUI library I will need to come back
+        #and address this
+
+        return None
 
     def tiles_pending(self):
         '''return number of tiles pending download'''
@@ -209,7 +217,7 @@ class SC_MapTilerModule(sc_module.SCModule):
 
         # choose a zoom level if not provided
         if zoom is None:
-            zooms = range(self.min_zoom, self.max_zoom+1)
+            zooms = range(self.__min_zoom, self.__max_zoom+1)
         else:
             zooms = [zoom]
         for zoom in zooms:
@@ -258,19 +266,19 @@ class SC_MapTilerModule(sc_module.SCModule):
         key = tile.key()
         if key in self.__tile_cache:
             img = self.__tile_cache[key]
-                if img is None or img == self.__unavailable:
-                    #TODO
-                    #img = self.load_tile_lowres(tile)
-                    pass
-                    if img is None:
-                        img = self.__unavailable
+            if img is None or img == self.__unavailable:
+                #TODO
+                #img = self.load_tile_lowres(tile)
+                pass
+                if img is None:
+                    img = self.__unavailable
 
-                        #TODO: this thing is not actually in the cache,
-                        #maybe clean it out?  How to handle the case where
-                        #the server is completely unavailable? -- I don't 
-                        #want to try to fetch forever, nor do I want to give
-                        #up too soon.
-                    return img
+                #TODO: this thing is not actually in the cache,
+                #maybe clean it out?  How to handle the case where
+                #the server is completely unavailable? -- I don't 
+                #want to try to fetch forever, nor do I want to give
+                #up too soon.
+                return img
 
         #not in cache if we made it here
         path = self.tile_to_path(tile)
@@ -293,7 +301,7 @@ class SC_MapTilerModule(sc_module.SCModule):
 
         image = None
         try:
-            image = Image.open(path)
+            image = self.tile_img_from_file(path)
         except:
             #unalbe to load the image
             image = None
@@ -414,6 +422,8 @@ class SC_MapTilerModule(sc_module.SCModule):
         for next_tile_info in tile_info_list:
             self.load_tile(next_tile_info)
 
+    def set_max_zoom(self, zoom_level):
+        self.__max_zoom = zoom_level
 
     def unload(self):
         pass
