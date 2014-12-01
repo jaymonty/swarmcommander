@@ -37,7 +37,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
     def cmd_map(self, args):
         '''"map" command processing'''
-        usage = "usage: map <prefetch|show|hide>\n"
+        usage = "usage: map <prefetch|show|hide|location>\n"
 
         #make sure we have the necessary modules loaded before trying these commands:
         if self.sc_state.module('map_tiler') is None:
@@ -47,6 +47,22 @@ class SC_CLI_Module(sc_module.SCModule):
         if len(args) < 1:
             self.stdscr.addstr(usage)
             return
+        elif args[0] == "location":
+            if len(args) < 3:
+                self.stdscr.addstr("usage: map location lat lon <zoom>\n")
+                return
+
+            lat = float(args[1])
+            lon = float(args[2])
+            zoom = 15
+            if len(args) >= 4:
+                zoom = int(args[3])
+
+            if self.sc_state.module('qt_gui') != None:
+                self.sc_state.module('qt_gui').set_map_location(lat, lon, zoom)
+            else:
+                self.stdscr.addstr("Add qt_gui module first.\n")
+
         elif args[0] == "prefetch":
             #TODO: allow prefetching at an arbitrary location
             self.sc_state.module('map_tiler').prefetch() 
@@ -68,7 +84,7 @@ class SC_CLI_Module(sc_module.SCModule):
                 self.stdscr.addstr("\n")
         elif args[0] == "load":
             if len(args) < 2:
-                self.stdscr.addstr("usage: module load <module_name>\n")
+                self.stdscr.addstr("usage: module load module_name\n")
                 return
             try:
                 self.sc_state.load_module(args[1])
@@ -78,7 +94,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
         elif args[0] == "unload":
             if len(args) < 2:
-                self.stdscr.addstr("usage: module unload <module_name>\n")
+                self.stdscr.addstr("usage: module unload module_name\n")
                 return
             try:
                 self.sc_state.unload_module(args[1])
