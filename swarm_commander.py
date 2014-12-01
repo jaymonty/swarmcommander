@@ -58,6 +58,7 @@ def main(stdscr):
 
     #load necessary modules---------
     state.load_module('acs_network')
+    state.load_module('map_tiler')
     #-----------------
 
     #Now start Qt application in main thread.  Note that Qt doesn't like being
