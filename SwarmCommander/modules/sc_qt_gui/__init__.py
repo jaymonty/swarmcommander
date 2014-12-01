@@ -9,7 +9,7 @@ from SwarmCommander.modules.lib import sc_module
 
 from PyQt5.QtWidgets import QApplication, QDialog
 from PyQt5.QtCore import QTimer
-from SwarmCommander.modules.sc_qt_gui.mapDialog import Ui_mapDialog
+from SwarmCommander.modules.sc_qt_gui.mapWidgetWrapper import MapWidget
 from SwarmCommander.modules.sc_qt_gui.dashboardDialogWrapper import DashboardDialog
 
 import sys
@@ -19,13 +19,11 @@ class SC_QtGUIModule(sc_module.SCModule):
         super(SC_QtGUIModule, self).__init__(sc_state, "qt_gui", "qt_gui module")
         self.__app = QApplication([])
         
-        self.__mapDialog = QDialog()
-        self.__mapUi = Ui_mapDialog()
-        self.__mapUi.setupUi(self.__mapDialog)
+        self.__mapWidget = MapWidget(self.sc_state)
 
         self.__dashboardDialog = DashboardDialog(self.sc_state)
                                           
-        #self.__mapDialog.show()
+        self.__mapWidget.show()
         self.__dashboardDialog.show()
 
         #periodic updates...
@@ -37,19 +35,19 @@ class SC_QtGUIModule(sc_module.SCModule):
     def start_app(self):
         sys.exit(self.__app.exec_())
 
-    def end_app(self):
-        QApplication.quit()
-
     def time_to_update(self):
         #update dashboard and map
         self.__dashboardDialog.update_uav_states()
 
+    def set_map_location(self, lat, lon, zoom):
+        self.__mapWidget.setView(lat, lon, zoom)
+
     def unload(self):
         #do any cleanup here
-        self.__mapDialog.done(0)
+        self.__mapWidget.done(0)
         self.__dashboardDialog.done(0)
         
-        self.end_app()
+        QApplication.quit()
 
 def init(sc_state):
     '''facilitates dynamic initialization of the module'''

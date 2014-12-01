@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Thu Nov 13 05:12:02 2014
+# Created: Fri Nov 28 17:33:27 2014
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
