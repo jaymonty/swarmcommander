@@ -39,9 +39,6 @@ class SC_QtGUIModule(sc_module.SCModule):
         #update dashboard and map
         self.__dashboardDialog.update_uav_states()
 
-    def set_map_location(self, lat, lon, zoom):
-        self.__mapWidget.setView(lat, lon, zoom)
-
     def unload(self):
         #do any cleanup here
         self.__mapWidget.done(0)

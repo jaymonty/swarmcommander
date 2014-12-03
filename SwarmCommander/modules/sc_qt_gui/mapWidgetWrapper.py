@@ -10,7 +10,8 @@
 
 from PyQt5.QtWidgets import QDialog, QGraphicsScene, QGraphicsItemGroup
 from PyQt5.QtWidgets import QGraphicsRectItem
-from PyQt5.QtGui import QPixmap, QBrush, QTransform
+from PyQt5.QtGui import QPixmap, QBrush, QTransform, QPen
+from PyQt5.QtCore import Qt
 
 from SwarmCommander.modules.sc_qt_gui.mapWidget import Ui_MapWidget
 
@@ -47,9 +48,23 @@ class MapWidget(QDialog):
         #(higher numbered detail layers are intended for "zooming in")
         self.setupDetailLayers()
 
+        #slots
+        self.__view.just_zoomed.connect(self.onZoom)
+
+        #print("Attempting zoomTo\n")
+        #self.__view.zoomTo(35.720428, -120.769924, 9)
+
     def rectKey(self, x, y):
         '''rect_tiles key'''
         return (self.__current_detail_layer, x, y)
+
+    #returns (min_lat, max_lat, min_lon, max_lon) as a tuple
+    def extentsOfVisibleWorld(self):
+        topLeft = self.__view.mapToScene(0,0)
+        bottomRight = self.__view.mapToScene(self.__view.width(), 
+                                             self.__view.height())
+
+        return (-topLeft.y(), -bottomRight.y(), topLeft.x(), bottomRight.x())
 
     def setupDetailLayers(self):
         #setup detail layers 0-20
@@ -68,25 +83,25 @@ class MapWidget(QDialog):
         self.__detail_layers[layerNum].show()
         self.__current_detail_layer = layerNum
 
-        self.__tiler.set_max_zoom(self.__current_detail_layer)
-        self.__tiler.prefetch()
+        self.__tiler.set_max_zoom(self.__current_detail_layer+1)
+        #self.__tiler.prefetch()
 
         self.addTilesToCurrentDetailLayer()
 
     def addTilesToCurrentDetailLayer(self):
-        pixel_width = self.__mapWidgetUi.graphicsView.width()
-        pixel_height = self.__mapWidgetUi.graphicsView.height()
+        pixel_width = self.__view.width()
+        pixel_height = self.__view.height()
 
-        print ("w, h: ", pixel_width, pixel_height, "\n")
-
-        tile_info_list = self.__tiler.area_to_tile_list(self.__current_lat, self.__current_lon, self.__mapWidgetUi.graphicsView.width(), self.__mapWidgetUi.graphicsView.height(), self.__current_ground_width, self.__current_detail_layer)
-       
-        print (tile_info_list, ", len: ", len(tile_info_list), "\n")
+        (latTop, latBottom, lonLeft, lonRight) = self.extentsOfVisibleWorld()
+        print("Extents:", latTop, latBottom, lonLeft, lonRight, "\n")
+        tile_info_list = self.__tiler.area_to_tile_list_lat_lon(latTop, latBottom,
+                lonLeft, lonRight, self.__current_detail_layer)
 
         for next_tile_info in tile_info_list:
-            #if Rectangle already exists, don't create it again unless its empty:
+            #if Rectangle already exists, don't create it again unless its
+            #texture image is empty:
             key = self.rectKey(next_tile_info.x, next_tile_info.y)
-            if key in self.__rect_tiles:
+            if key in self.__rect_tiles and self.__rect_tiles[key].brush().texture().width() != 0:
                 continue
             
             factor = float(1<<self.__current_detail_layer)
@@ -95,14 +110,19 @@ class MapWidget(QDialog):
             height = 180. / factor
 
             x = -180. + width * next_tile_info.x
-            y = 90. - height * next_tile_info.y
+            y = -90. + height * next_tile_info.y
 
             #create rectangle for the TileInfo and put them into the scene
             self.__rect_tiles[key] = QGraphicsRectItem(x, y, width, height, self.__detail_layers[self.__current_detail_layer])
             #add raster data to the rect tile
             self.__tiler.load_tile(next_tile_info)
-            pm = QPixmap(self.__tiler.tile_to_path(next_tile_info))
-            print("Pixmap width: ", pm.width())
+            #no border
+            self.__rect_tiles[key].setPen(QPen(Qt.NoPen))       
+            pm = QPixmap(self.__tiler.tile_to_path(next_tile_info))  
+            if pm.width() != 256:
+                #print("Probably didn't get tile:", next_tile_info.x, next_tile_info.y, "\n")
+                #TODO: add this tile to a list to re-check for texture image later
+                pass
            
             brush_trans = QTransform()
             brush_trans.translate(x, y)
@@ -116,12 +136,6 @@ class MapWidget(QDialog):
             #add rect tile to appropriate detail layer
             self.__detail_layers[self.__current_detail_layer].addToGroup(self.__rect_tiles[key])
 
-    def setView(self, lat, lon, zoom):
-        """point the map at the appropriate location and zoom level"""
-       
-        #ensure that scene objects are available to look at at this location
-
-        #convert lat/lon/zoom to x/y/z
-        #(x,y) = self.sc_state.module("map_tiler").coord_to_pixel
-        pass
+    def onZoom(self, zoom_level):
+        self.setCurrentDetailLayer(zoom_level)
 
