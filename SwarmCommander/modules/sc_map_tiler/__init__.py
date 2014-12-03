@@ -148,7 +148,8 @@ class TileInfoScaled(TileInfo):
 class SC_MapTilerModule(sc_module.SCModule):
     def __init__(self, sc_state, lat, lon, min_zoom=0, max_zoom=20, cache_path=None, cache_size=500, service='OviHybrid', refresh_age=30*24*60*60):
         super(SC_MapTilerModule, self).__init__(sc_state, "map_tiler", "map module")
-        
+        self.__debug = False
+
         self.__current_tile_service = service
         self.__tile_fetching_thread = None
         self.__tile_delay = 0.3
@@ -194,17 +195,51 @@ class SC_MapTilerModule(sc_module.SCModule):
         '''return number of tiles pending download'''
         return len(self.__downloads_pending)
 
+    #TODO: may be able to get rid of this method in favor of coord_to_tile2
     def coord_to_tile(self, lat, lon, zoom):
         '''convert lat/lon/zoom to a TileInfo'''
         world_tiles = 1<<zoom
-        x = world_tiles / 360.0 * (lon + 180.0)
-        tiles_pre_radian = world_tiles / (2 * math.pi)
-        e = math.sin(lat * (1/180.*math.pi))
-        y = world_tiles/2 + 0.5*math.log((1+e)/(1-e)) * (-tiles_pre_radian)
+        x = float(world_tiles) / 360.0 * (lon + 180.0)
+        tiles_pre_radian = float(world_tiles) / (2.0 * math.pi)
+        e = math.sin(lat * (1.0/180.0*math.pi))
+        y = float(world_tiles)/2.0 + 0.5*math.log((1.0+e)/(1.0-e)) * (-tiles_pre_radian)
+
         offsetx = int((x - int(x)) * TILES_WIDTH)
         offsety = int((y - int(y)) * TILES_HEIGHT)
         return TileInfo((int(x) % world_tiles, int(y) % world_tiles), zoom, self.__service, offset=(offsetx, offsety))
 
+    def coord_to_tile2(self, lat, lon, zoom):
+        '''convert lat/lon/zoom to a tuple (x,y) cooresponding to an x,y coord of a tile'''
+        tiles_per_row = float(1<<zoom)
+
+        x = int( ((lon + 180.0) / 360.0) * tiles_per_row)
+        y = int( ((-lat + 90.0) / 180.0) * tiles_per_row)
+
+        return (x,y)
+
+    def area_to_tile_list_lat_lon(self, lat_top, lat_bottom, lon_left, lon_right, zoom):
+        if lat_top >= 90.0:
+            lat_top = 89.99999
+        if lat_bottom <= -90.0:
+            lat_bottom = -89.99999
+        if lon_left <= -180.0:
+            lon_left = -179.99999
+        if lon_right >= 180.0:
+            lon_right = 179.99999
+
+        (tile_min_x, tile_min_y) = self.coord_to_tile2(lat_top, lon_left, zoom)
+        (tile_max_x, tile_max_y) = self.coord_to_tile2(lat_bottom, lon_right, zoom)
+
+        ret = []
+
+        #put some TileInfos in a list and return them
+        for y in range(tile_min_y, tile_max_y+1):
+            for x in range(tile_min_x, tile_max_x+1):
+                ret.append(TileInfo((x,y), zoom, self.__service))
+
+        return ret
+
+    #TODO: may be able to get rid of this method in favor of area_to_tile_list_lat_lon
     def area_to_tile_list(self, lat, lon, width, height, ground_width, zoom=None):
         #make sure we don't have ints where we dont want them
         ground_width = float(ground_width)
@@ -336,8 +371,8 @@ class SC_MapTilerModule(sc_module.SCModule):
             path = self.tile_to_path(tile_info)
             key = tile_info.key()
 
-            #if self.debug:
-            print("Downloading %s [%u left]" % (url, self.tiles_pending()))
+            if self.__debug:
+                print("Downloading %s [%u left]" % (url, self.tiles_pending()))
                 
             try:
                 r = http.request('GET', url)
@@ -354,8 +389,8 @@ class SC_MapTilerModule(sc_module.SCModule):
                     self.__tile_cache[key] = self.__unavailable
 
                 self.__downloads_pending.pop(key)
-                #if self.debug:
-                print("Failed %s: %s" % (url, str(e)))
+                if self.__debug:
+                    print("Failed %s: %s" % (url, str(e)))
                 
                 continue
 
@@ -365,7 +400,7 @@ class SC_MapTilerModule(sc_module.SCModule):
 
                 self._download_pending.pop(key)
 
-                if self.debug:
+                if self.__debug:
                     print("non-image response %s" % url)
                 continue
             else:
@@ -376,8 +411,8 @@ class SC_MapTilerModule(sc_module.SCModule):
             # see if its a blank/unavailable tile
             md5 = hashlib.md5(img).hexdigest()
             if md5 in BLANK_TILES:
-                #if self.debug:
-                print("blank tile %s" % url)
+                if self.__debug:
+                    print("blank tile %s" % url)
                 if not key in self.__tile_cache:
                     self.__tile_cache[key] = self.__unavailable
 
