@@ -152,13 +152,14 @@ class SC_MapTilerModule(sc_module.SCModule):
 
         self.__current_tile_service = service
         self.__tile_fetching_thread = None
-        self.__tile_delay = 0.3
+        self.__tile_delay = 0.1
         # A dictionary of TileInfo objects to attempt to download:
         self.__downloads_pending = {}
         self.__refresh_age=refresh_age
 
-        self.__unavailable = SC_MapTilerModule.tile_img_from_file("/home/maday/test_tiling/unavailable.jpg");
-
+        #TODO: "Unavailable" and "Loading..." tiles
+        #self.__unavailable = SC_MapTilerModule.tile_img_from_file("/home/maday/test_tiling/unavailable.jpg");
+        self.__unavailable = None
         self.__lat = lat 
         self.__lon = lon
         self.__max_zoom = max_zoom
@@ -303,6 +304,10 @@ class SC_MapTilerModule(sc_module.SCModule):
                 #the server is completely unavailable? -- I don't 
                 #want to try to fetch forever, nor do I want to give
                 #up too soon.
+
+                #TODO NOTE: No longer using the cache -- the GUI is responsible
+                #for caching.  Need to delete this caching section and then
+                #refactor this class as neccessary.
                 return img
 
         #not in cache if we made it here
@@ -439,8 +444,6 @@ class SC_MapTilerModule(sc_module.SCModule):
     #TODO: add lat, lon, width, height, ground_size args for arbitrary location
     def prefetch(self, width=1024, height=1024, ground_width=5000):
         for next_zoom in range(self.__min_zoom, self.__max_zoom+1):
-            print("Zoom Level: ", next_zoom)
-            
             tile_info_list = self.area_to_tile_list(self.__lat, self.__lon, width, height, ground_width, next_zoom)
             tile_info_list[0].print()
 
