@@ -51,8 +51,7 @@ class MapWidget(QDialog):
         #slots
         self.__view.just_zoomed.connect(self.onZoom)
 
-        #print("Attempting zoomTo\n")
-        #self.__view.zoomTo(35.720428, -120.769924, 9)
+        self.__view.zoomTo(35.720428, -120.769924, 16)
 
     def rectKey(self, x, y):
         '''rect_tiles key'''
@@ -65,6 +64,15 @@ class MapWidget(QDialog):
                                              self.__view.height())
 
         return (-topLeft.y(), -bottomRight.y(), topLeft.x(), bottomRight.x())
+
+    #returns a list of TileInfos that are currently visible
+    def tilesInVisibleWorld(self):
+        (latTop, latBottom, lonLeft, lonRight) = self.extentsOfVisibleWorld()
+        #print("Extents:", latTop, latBottom, lonLeft, lonRight, "\n")
+        tile_info_list = self.__tiler.area_to_tile_list_lat_lon(latTop, latBottom,
+                lonLeft, lonRight, self.__current_detail_layer)
+
+        return tile_info_list
 
     def setupDetailLayers(self):
         #setup detail layers 0-20
@@ -88,54 +96,84 @@ class MapWidget(QDialog):
 
         self.addTilesToCurrentDetailLayer()
 
-    def addTilesToCurrentDetailLayer(self):
-        pixel_width = self.__view.width()
-        pixel_height = self.__view.height()
+    def createRectFromTileInfo(self, tile_info):
+        #if Rectangle already exists, don't create it again
+        key = self.rectKey(tile_info.x, tile_info.y)
+        if key in self.__rect_tiles:
+            return self.__rect_tiles[key]
 
-        (latTop, latBottom, lonLeft, lonRight) = self.extentsOfVisibleWorld()
-        print("Extents:", latTop, latBottom, lonLeft, lonRight, "\n")
-        tile_info_list = self.__tiler.area_to_tile_list_lat_lon(latTop, latBottom,
-                lonLeft, lonRight, self.__current_detail_layer)
+        factor = float(1<<self.__current_detail_layer)
+
+        width = 360. / factor 
+        height = 170. / factor
+
+        x = -180. + width * tile_info.x
+        y = -85. + height * tile_info.y
+
+        #create rectangle for the TileInfo and put them into the scene
+        self.__rect_tiles[key] = QGraphicsRectItem(x, y, width, height, self.__detail_layers[self.__current_detail_layer])
+        #add raster data to the rect tile
+        self.__tiler.load_tile(tile_info)
+        #no border
+        self.__rect_tiles[key].setPen(QPen(Qt.NoPen))
+
+        #remember the tiling data
+        self.__rect_tiles[key].setData(0, tile_info)
+
+        #attempt to add tile texture to rectangle:
+        self.textureRect(self.__rect_tiles[key])
+
+        return self.__rect_tiles[key]
+
+    def addTilesToCurrentDetailLayer(self):
+        tile_info_list = self.tilesInVisibleWorld()
 
         for next_tile_info in tile_info_list:
-            #if Rectangle already exists, don't create it again unless its
-            #texture image is empty:
-            key = self.rectKey(next_tile_info.x, next_tile_info.y)
-            if key in self.__rect_tiles and self.__rect_tiles[key].brush().texture().width() != 0:
-                continue
-            
-            factor = float(1<<self.__current_detail_layer)
+            next_rect = self.createRectFromTileInfo(next_tile_info)
 
-            width = 360. / factor 
-            height = 180. / factor
-
-            x = -180. + width * next_tile_info.x
-            y = -90. + height * next_tile_info.y
-
-            #create rectangle for the TileInfo and put them into the scene
-            self.__rect_tiles[key] = QGraphicsRectItem(x, y, width, height, self.__detail_layers[self.__current_detail_layer])
-            #add raster data to the rect tile
-            self.__tiler.load_tile(next_tile_info)
-            #no border
-            self.__rect_tiles[key].setPen(QPen(Qt.NoPen))       
-            pm = QPixmap(self.__tiler.tile_to_path(next_tile_info))  
-            if pm.width() != 256:
-                #print("Probably didn't get tile:", next_tile_info.x, next_tile_info.y, "\n")
-                #TODO: add this tile to a list to re-check for texture image later
-                pass
-           
-            brush_trans = QTransform()
-            brush_trans.translate(x, y)
-            #TODO: deal with the hardcoded 256s (width and height of tiles)
-            brush_trans.scale(width/256.0, height/256.0) 
-
-            qb = QBrush(pm)
-            qb.setTransform(brush_trans)
-            self.__rect_tiles[key].setBrush(qb)
-            
             #add rect tile to appropriate detail layer
-            self.__detail_layers[self.__current_detail_layer].addToGroup(self.__rect_tiles[key])
+            self.__detail_layers[self.__current_detail_layer].addToGroup(next_rect)
 
+    #returns True if texture successfully applied, False otherwise
+    def textureRect(self, rect_tile):
+        tile_info = rect_tile.data(0)
+
+        pm = QPixmap(self.__tiler.tile_to_path(tile_info))  
+        if pm.width() != 256:
+            #print("Probably didn't get tile:", next_tile_info.x, next_tile_info.y, "\n")
+            return False
+
+        topLeft = rect_tile.boundingRect().topLeft()
+        bottomRight = rect_tile.boundingRect().bottomRight()   
+
+        brush_trans = QTransform()
+        brush_trans.translate(topLeft.x(), topLeft.y())
+
+        width = bottomRight.x() - topLeft.x()
+        height = bottomRight.y() - topLeft.y()
+        #TODO: deal with the hard coded 256s (width and height of tiles)
+        brush_trans.scale(width/256.0, height/256.0)
+
+        qb = QBrush(pm)
+        qb.setTransform(brush_trans)
+        rect_tile.setBrush(qb)
+   
+        return True
+
+    def checkForNewTextures(self):
+        rects_that_now_have_textures = []
+        #ONLY care about rects in the current view:
+        tile_info_list = self.tilesInVisibleWorld()
+
+        for next_tile_info in tile_info_list:
+            key = self.rectKey(next_tile_info.x, next_tile_info.y)
+            # make sure key exists in self.__rect_tiles
+            if key not in self.__rect_tiles:
+                self.createRectFromTileInfo(next_tile_info)
+            
+            if self.__rect_tiles[key].brush().texture().width() != 256:
+                self.textureRect(self.__rect_tiles[key])
+            
     def onZoom(self, zoom_level):
         self.setCurrentDetailLayer(zoom_level)
 

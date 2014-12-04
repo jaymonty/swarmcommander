@@ -36,8 +36,11 @@ class SC_QtGUIModule(sc_module.SCModule):
         sys.exit(self.__app.exec_())
 
     def time_to_update(self):
-        #update dashboard and map
+        #update dashboard and map:
         self.__dashboardDialog.update_uav_states()
+
+        #check for new textures for the map:
+        self.__mapWidget.checkForNewTextures()
 
     def unload(self):
         #do any cleanup here
