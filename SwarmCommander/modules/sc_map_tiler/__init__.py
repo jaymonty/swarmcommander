@@ -213,15 +213,15 @@ class SC_MapTilerModule(sc_module.SCModule):
         tiles_per_row = float(1<<zoom)
 
         x = int( ((lon + 180.0) / 360.0) * tiles_per_row)
-        y = int( ((-lat + 90.0) / 180.0) * tiles_per_row)
+        y = int( ((-lat + 85.0) / 170.0) * tiles_per_row)
 
         return (x,y)
 
     def area_to_tile_list_lat_lon(self, lat_top, lat_bottom, lon_left, lon_right, zoom):
-        if lat_top >= 90.0:
-            lat_top = 89.99999
-        if lat_bottom <= -90.0:
-            lat_bottom = -89.99999
+        if lat_top >= 85.0:
+            lat_top = 85.0
+        if lat_bottom <= -85.0:
+            lat_bottom = -85.0
         if lon_left <= -180.0:
             lon_left = -179.99999
         if lon_right >= 180.0:
@@ -395,10 +395,10 @@ class SC_MapTilerModule(sc_module.SCModule):
                 continue
 
             if 'content-type' not in headers or headers['content-type'].find('image') == -1:
-                if not key in self._tile_cache:
-                    self._tile_cache[key] = self.__unavailable
+                if not key in self.__tile_cache:
+                    self.__tile_cache[key] = self.__unavailable
 
-                self._download_pending.pop(key)
+                self.__downloads_pending.pop(key)
 
                 if self.__debug:
                     print("non-image response %s" % url)
