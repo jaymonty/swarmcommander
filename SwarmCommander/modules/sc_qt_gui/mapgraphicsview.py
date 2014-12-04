@@ -16,6 +16,7 @@ import math
 class MapGraphicsView(QGraphicsView):
     #signals
     just_zoomed = pyqtSignal(int)
+    just_panned = pyqtSignal(float, float)
 
     def __init__(self, parent = 0):
         QGraphicsView.__init__(self, parent)
@@ -31,8 +32,10 @@ class MapGraphicsView(QGraphicsView):
     def mouseReleaseEvent(self, event):
         sceneCoords = self.mapToScene(event.x(), event.y())
 
-        print("Scene coords: ", sceneCoords, "\n")
-        print("Screen coords: (", event.x(), event.y(), ")\n")
+        #print("Scene coords: ", sceneCoords, "\n")
+        #print("Screen coords: (", event.x(), event.y(), ")\n")
+
+        self.just_panned.emit(-sceneCoords.y(), sceneCoords.x())
 
     def wheelEvent(self, event):
         delta = event.angleDelta().y()
@@ -64,18 +67,23 @@ class MapGraphicsView(QGraphicsView):
 
         #signal anybody who wants to know about the zoom
         self.just_zoomed.emit(self.__current_zoom)
+        #a zoom often results in a recentering of the view:
+        self.just_panned.emit(-sceneCoords.y(), sceneCoords.x())
 
-        print ("Current Zoom:", self.__current_zoom)
-    
     def getCurrentZoom(self):
         return self.__current_zoom
 
-    #TODO: fix; not working yet
-    def zoomTo(self, lat, lon, zoom):
+    def zoomTo(self, zoom, lat = None, lon = None):
         delta_zoom = zoom - self.__current_zoom
 
         if self.__current_zoom + delta_zoom < 0 or self.__current_zoom + delta_zoom > self.__max_zoom or delta_zoom == 0:
             return
+
+        if lat == None or lon == None:
+            centerCoords = self.mapToScene(self.width() * 0.5,
+                    self.height() * 0.5)
+            lat = -centerCoords.y()
+            lon = centerCoords.x()
 
         s = 1.0
         if delta_zoom > 0:
@@ -94,3 +102,5 @@ class MapGraphicsView(QGraphicsView):
         self.__current_zoom = zoom
 
         self.just_zoomed.emit(self.__current_zoom)
+        #a zoom often results in a recentering of the view:
+        self.just_panned.emit(lat, lon)

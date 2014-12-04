@@ -50,8 +50,11 @@ class MapWidget(QDialog):
 
         #slots
         self.__view.just_zoomed.connect(self.onZoom)
+        self.__mapWidgetUi.zoom_sb.valueChanged.connect(self.onZoomSBValueChanged)
+        self.__view.just_panned.connect(self.onPan)
 
-        self.__view.zoomTo(35.716888, -120.7646408, 16)
+        #zoom to default location
+        self.__view.zoomTo(16, 35.716888, -120.7646408)
 
     def rectKey(self, x, y):
         '''rect_tiles key'''
@@ -187,4 +190,11 @@ class MapWidget(QDialog):
             
     def onZoom(self, zoom_level):
         self.setCurrentDetailLayer(zoom_level)
+        self.__mapWidgetUi.zoom_sb.setValue(zoom_level)
 
+    def onZoomSBValueChanged(self, new_zoom):
+        self.__view.zoomTo(new_zoom)
+
+    def onPan(self, new_lat, new_lon):
+        lat_lon_str = str(new_lat) + ", " + str(new_lon) 
+        self.__mapWidgetUi.coords_lb.setText(lat_lon_str)
