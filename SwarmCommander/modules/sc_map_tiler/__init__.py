@@ -195,7 +195,6 @@ class SC_MapTilerModule(sc_module.SCModule):
         '''return number of tiles pending download'''
         return len(self.__downloads_pending)
 
-    #TODO: may be able to get rid of this method in favor of coord_to_tile2
     def coord_to_tile(self, lat, lon, zoom):
         '''convert lat/lon/zoom to a TileInfo'''
         world_tiles = 1<<zoom
@@ -208,15 +207,6 @@ class SC_MapTilerModule(sc_module.SCModule):
         offsety = int((y - int(y)) * TILES_HEIGHT)
         return TileInfo((int(x) % world_tiles, int(y) % world_tiles), zoom, self.__service, offset=(offsetx, offsety))
 
-    def coord_to_tile2(self, lat, lon, zoom):
-        '''convert lat/lon/zoom to a tuple (x,y) cooresponding to an x,y coord of a tile'''
-        tiles_per_row = float(1<<zoom)
-
-        x = int( ((lon + 180.0) / 360.0) * tiles_per_row)
-        y = int( ((-lat + 85.0) / 170.0) * tiles_per_row)
-
-        return (x,y)
-
     def area_to_tile_list_lat_lon(self, lat_top, lat_bottom, lon_left, lon_right, zoom):
         if lat_top >= 85.0:
             lat_top = 85.0
@@ -227,14 +217,14 @@ class SC_MapTilerModule(sc_module.SCModule):
         if lon_right >= 180.0:
             lon_right = 179.99999
 
-        (tile_min_x, tile_min_y) = self.coord_to_tile2(lat_top, lon_left, zoom)
-        (tile_max_x, tile_max_y) = self.coord_to_tile2(lat_bottom, lon_right, zoom)
+        tile_min = self.coord_to_tile(lat_top, lon_left, zoom)
+        tile_max = self.coord_to_tile(lat_bottom, lon_right, zoom)
 
         ret = []
 
         #put some TileInfos in a list and return them
-        for y in range(tile_min_y, tile_max_y+1):
-            for x in range(tile_min_x, tile_max_x+1):
+        for y in range(tile_min.y, tile_max.y+1):
+            for x in range(tile_min.x, tile_max.x+1):
                 ret.append(TileInfo((x,y), zoom, self.__service))
 
         return ret
