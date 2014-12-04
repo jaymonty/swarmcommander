@@ -51,7 +51,7 @@ class MapWidget(QDialog):
         #slots
         self.__view.just_zoomed.connect(self.onZoom)
 
-        self.__view.zoomTo(35.720428, -120.769924, 16)
+        self.__view.zoomTo(35.716888, -120.7646408, 16)
 
     def rectKey(self, x, y):
         '''rect_tiles key'''
@@ -102,16 +102,27 @@ class MapWidget(QDialog):
         if key in self.__rect_tiles:
             return self.__rect_tiles[key]
 
-        factor = float(1<<self.__current_detail_layer)
+        (y, x) = tile_info.coord()
+        #TODO: do something about the hard coded 256s
+        (end_y, end_x) = tile_info.coord((256, 256))
+        
+        #y values need to reflect across the equator due to the origin in scene space
+        #being on the top right (as opposed to bottom left in tile space) 
+        y = -y
+        end_y = -end_y
 
-        width = 360. / factor 
-        height = 170. / factor
+        #keep things simple at the edges of the map:
+        if y < -85.0:
+            y = -85.0
+        if end_y > 85.0:
+            end_y = 85.0
 
-        x = -180. + width * tile_info.x
-        y = -85. + height * tile_info.y
+        width = end_x - x
+        height = end_y - y
 
-        #create rectangle for the TileInfo and put them into the scene
+        #create rectangle for the TileInfo and put it into the scene
         self.__rect_tiles[key] = QGraphicsRectItem(x, y, width, height, self.__detail_layers[self.__current_detail_layer])
+
         #add raster data to the rect tile
         self.__tiler.load_tile(tile_info)
         #no border

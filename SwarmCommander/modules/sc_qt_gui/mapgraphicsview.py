@@ -28,40 +28,11 @@ class MapGraphicsView(QGraphicsView):
 
         self.setDragMode(QGraphicsView.ScrollHandDrag)
 
-        #256 / 360 = 0.711111111
-        #256 / 180 = 1.422222222
-        #(tile size is 256 X 256)
-        self.scale(0.71111111, 1.42222222)
-
-    def mercatorYToLat(self, y):
-        m_lat = math.atan(math.sinh(y))
-        m_lat = math.degrees(m_lat)
-        return m_lat
-
-    def mercatorLatToY(self, lat):
-        return math.asinh(math.tan(math.radians(lat)))
-
-    #from my mapping into Mercator:
-    def uniformLatToMercatorLat(self, lat):
-                            #pi / 85.0 (85 degrees is top of map)
-        mercator_y = lat * 0.036959913571644624
-        m_lat = -self.mercatorYToLat(mercator_y)
-        return m_lat
-
-    #from Mercator into my mapping:
-    def mercatorLatToUniformLat(self, lat):
-        mercator_y = self.mercatorLatToY(lat)
-        u_lat = mercator_y * (1.0 / 0.036959913571644624)
-        return -u_lat
-
     def mouseReleaseEvent(self, event):
         sceneCoords = self.mapToScene(event.x(), event.y())
 
-        lat = self.uniformLatToMercatorLat(sceneCoords.y())
-
         print("Scene coords: ", sceneCoords, "\n")
         print("Screen coords: (", event.x(), event.y(), ")\n")
-        print("lat, lon: ", lat, sceneCoords.x(), "\n")
 
     def wheelEvent(self, event):
         delta = event.angleDelta().y()
@@ -118,7 +89,7 @@ class MapGraphicsView(QGraphicsView):
             self.scale(s,s)
             abs_delta_zoom = abs_delta_zoom - 1
 
-        self.centerOn(lon, self.mercatorLatToUniformLat(lat))
+        self.centerOn(lon, -lat)
 
         self.__current_zoom = zoom
 
