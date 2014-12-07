@@ -37,6 +37,9 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
         self.sc_state.update_uav_state(msg.msg_src, msg)
 
+    def process_pose(self, msg):
+        self.sc_state.update_uav_pose(msg.msg_src, msg)
+
     def read_socket(self):
         while not self.__time_to_stop:
             msg = self.__sock.recv()
@@ -46,6 +49,9 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
             if isinstance(msg, acs_messages.FlightStatus):
                 self.process_flight_status(msg)
+
+            if isinstance(msg, acs_messages.Pose):
+                self.process_pose(msg)
 
             #give up the CPU for a bit
             #(0.05 secs -> about 20 Hz read rate
