@@ -14,8 +14,11 @@ from PyQt5.QtGui import QPixmap, QBrush, QTransform, QPen
 from PyQt5.QtCore import Qt
 
 from SwarmCommander.modules.sc_qt_gui.mapWidget import Ui_MapWidget
+from SwarmCommander.modules.sc_qt_gui.mapGraphicsIcon import MapGraphicsIcon
 
 from collections import OrderedDict
+
+import pkg_resources
 
 class MapWidget(QDialog):
     def __init__(self, sc_state):
@@ -27,6 +30,7 @@ class MapWidget(QDialog):
         self.__mapWidgetUi.setupUi(self)
         
         self.__view = self.__mapWidgetUi.graphicsView
+        self.__view.setObjectName("SC_Map_View")
         self.__scene = QGraphicsScene()
                 
         self.__view.setScene(self.__scene)
@@ -48,14 +52,18 @@ class MapWidget(QDialog):
         #(higher numbered detail layers are intended for "zooming in")
         self.setupDetailLayers()
 
+        self.__plane_layer = QGraphicsItemGroup()
+        self.__scene.addItem(self.__plane_layer)
+        self.__plane_icons = {}
+        img_bytes = pkg_resources.resource_stream("SwarmCommander", "data/images/flyingWingTiny.png").read()
+        self.__plane_icon_pixmap = QPixmap()
+        self.__plane_icon_pixmap.loadFromData(img_bytes)
+
         #slots
         self.__view.just_zoomed.connect(self.onZoom)
         self.__mapWidgetUi.zoom_sb.valueChanged.connect(self.onZoomSBValueChanged)
         self.__view.just_panned.connect(self.onPan)
-
-        #zoom to default location
-        self.__view.zoomTo(16, 35.716888, -120.7646408)
-
+        
     def rectKey(self, x, y):
         '''rect_tiles key'''
         return (self.__current_detail_layer, x, y)
@@ -175,7 +183,6 @@ class MapWidget(QDialog):
         return True
 
     def checkForNewTextures(self):
-        rects_that_now_have_textures = []
         #ONLY care about rects in the current view:
         tile_info_list = self.tilesInVisibleWorld()
 
@@ -187,10 +194,40 @@ class MapWidget(QDialog):
             
             if self.__rect_tiles[key].brush().texture().width() != 256:
                 self.textureRect(self.__rect_tiles[key])
-            
+        
+    def updateIcons(self):
+        for id, uav_state in self.sc_state.uav_states.items():
+            if id not in self.__plane_icons:
+                self.__plane_icons[id] = MapGraphicsIcon(self.__plane_layer)
+                brush = QBrush(self.__plane_icon_pixmap)
+
+                if brush.texture().width() > 0 and brush.texture().height() > 0:
+                    brush_trans = QTransform()
+                    brush_trans.scale(1.0/float(brush.texture().width()),
+                            1.0/float(brush.texture().height()))
+                    brush.setTransform(brush_trans)
+    
+                self.__plane_icons[id].setBrush(brush)
+                #plane icons need to be drawn on top of map tiles:
+                self.__plane_icons[id].setZValue(1)
+                self.__plane_layer.addToGroup(self.__plane_icons[id])
+
+            if 'lon' not in uav_state.keys():
+                #haven't received a Pose message yet
+                continue
+
+            self.__plane_icons[id].setPos(uav_state['lon'], -uav_state['lat'])
+            #TODO: center icon on plane's position (only top left corner on the position desired)
+            #self.__plane_icons[id].setOffset(-0.5, -0.5)
+     
+    def zoomTo(self, zoomLevel, lat = 0, lon = 0):
+        self.__view.zoomTo(zoomLevel, lat, lon)
+
     def onZoom(self, zoom_level):
         self.setCurrentDetailLayer(zoom_level)
         self.__mapWidgetUi.zoom_sb.setValue(zoom_level)
+        for id, nextPlaneIcon in self.__plane_icons.items():
+            nextPlaneIcon.scaleByViewAndTexture(self.__view)
 
     def onZoomSBValueChanged(self, new_zoom):
         self.__view.zoomTo(new_zoom)

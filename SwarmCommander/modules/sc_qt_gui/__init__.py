@@ -32,13 +32,26 @@ class SC_QtGUIModule(sc_module.SCModule):
         self.__updater.timeout.connect(self.time_to_update)
         self.__updater.start();
 
+        #more frequent updates...
+        self.__updaterFrequent = QTimer()
+        self.__updaterFrequent.setInterval(40)
+        self.__updaterFrequent.timeout.connect(self.time_to_update_frequent)
+        self.__updaterFrequent.start();
+
+        #zoom to default location:
+        self.__mapWidget.zoomTo(16, 35.716888, -120.7646408)
+
     def start_app(self):
         sys.exit(self.__app.exec_())
 
-    def time_to_update(self):
+    def time_to_update_frequent(self):
         #update dashboard and map:
         self.__dashboardDialog.update_uav_states()
 
+        #update icons on map
+        self.__mapWidget.updateIcons()
+
+    def time_to_update(self):
         #check for new textures for the map:
         self.__mapWidget.checkForNewTextures()
 

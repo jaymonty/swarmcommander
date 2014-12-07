@@ -57,6 +57,10 @@ class DashboardDialog(QDialog):
         now = int(time.time())
 
         for id, uav_state in self.sc_state.uav_states.items():
+            if 'mode' not in uav_state.keys():
+                #haven't got a FlightStatus message yet:
+                continue
+
             if (self.__uav_update_map[id] < uav_state['last_update']):
                 self.update_uav_row(id, uav_state)
                 #link green

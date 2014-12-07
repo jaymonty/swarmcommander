@@ -29,6 +29,8 @@ class MapGraphicsView(QGraphicsView):
 
         self.setDragMode(QGraphicsView.ScrollHandDrag)
 
+        #self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
+
     def mouseReleaseEvent(self, event):
         sceneCoords = self.mapToScene(event.x(), event.y())
 
