@@ -50,9 +50,7 @@ setup(name='SwarmCommander',
       install_requires=['pyserial'],
       scripts=['swarm_commander.py',
                'multi-sitl-start.bash',
-               'multi-sitl-cleanup.bash']
-      #TODO: package_data: see MAVProxy setup.py for an example
-      #TODO: don't forget to add the commad at the end of the previous line :)
-      #package_data={'SwarmCommander':
-      #              'modules
+               'multi-sitl-cleanup.bash'],
+      package_data={'SwarmCommander':
+                    ['data/images/*.png']}
       )
