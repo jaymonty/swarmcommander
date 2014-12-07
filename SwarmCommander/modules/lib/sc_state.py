@@ -28,12 +28,17 @@ class SCState(object):
         #modules wanting UAV updates
         self.__modules_wanting_uav_updates = []
 
-    def update_uav_state(self, id, msg):
+    def update_uav_preprocess_msg(self, id, msg):
         if id not in self.uav_states:
             self.uav_states[id] = {}
 
+        #TODO: process header
+
+    def update_uav_state(self, id, msg):
+        self.update_uav_preprocess_msg(id, msg)
+
         #TODO: verify this is a FlightStatus message
-        #TODO: support other message types
+
         name = msg.name
 
         #TODO: remove this workaround when we switch everthing to Python3:
@@ -45,6 +50,12 @@ class SCState(object):
         self.uav_states[id]['gps_sats'] = msg.gps_sats
 
         self.uav_states[id]['last_update'] = int(time.time())
+
+    def update_uav_pose(self, id, msg):
+        self.update_uav_preprocess_msg(id, msg)
+        
+        self.uav_states[id]['lat'] = msg.lat
+        self.uav_states[id]['lon'] = msg.lon
 
     def module(self, name):
         ''' Find a loaded module. Return none if no loaded module of that name, or if module is private. '''
