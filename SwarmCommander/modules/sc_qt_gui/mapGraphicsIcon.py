@@ -8,8 +8,10 @@
 """
 
 from PyQt5.QtWidgets import QGraphicsRectItem
-from PyQt5.QtGui import QPen, QTransform
+from PyQt5.QtGui import QBrush, QPen, QTransform
 from PyQt5.QtCore import Qt
+
+import math
 
 class MapGraphicsIcon(QGraphicsRectItem):
     def __init__(self, parent = 0):
@@ -18,6 +20,20 @@ class MapGraphicsIcon(QGraphicsRectItem):
         self.setRect(0.0, 0.0, 1.0, 1.0)
         #shut off the outline:
         self.setPen(QPen(Qt.NoPen))
+
+        self.__width = 1.0
+        self.__height = 1.0
+
+    def textureIcon(self, file_pixmap):
+        brush = QBrush(file_pixmap)
+
+        if brush.texture().width() > 0 and brush.texture().height() > 0:
+            brush_trans = QTransform()
+            brush_trans.scale(1.0/float(brush.texture().width()),
+                    1.0/float(brush.texture().height()))
+            brush.setTransform(brush_trans)
+    
+        self.setBrush(brush)
     
     #Scales icon to the size indicated by the texture loaded onto it.
     #Therefore, if the texture set as the Brush for this MapGraphicsIcon is
@@ -30,11 +46,20 @@ class MapGraphicsIcon(QGraphicsRectItem):
         sceneW = sceneCoordsBottomRight.x() - sceneCoordsTopLeft.x()
         sceneH = sceneCoordsBottomRight.y() - sceneCoordsTopLeft.y() 
 
-        desiredW = sceneW / float(view.width()) * float(self.brush().texture().width())
-        desiredH = sceneH / float(view.height()) * float(self.brush().texture().height())
+        self.__width = sceneW / float(view.width()) * float(self.brush().texture().width())
+        self.__height = sceneH / float(view.height()) * float(self.brush().texture().height())
 
         xForm = QTransform()
-        xForm.scale(desiredW, desiredH)
+        xForm.scale(self.__width, self.__height)
         self.setTransform(xForm)
         
+    #note: not quite the same as the Qt-provided setPos method. This method sets
+    #the icon's center at the given x, y.  Qt's setPos sets the upper left hand
+    #corner
+    def centerIconAt(self, x, y):
+        self.setPos(x - self.__width * 0.5, y - self.__height * 0.5)
 
+    #heading is in radians
+    def setHeading(self, heading):
+        #xForm = QTransform(self.getTransform()
+        self.setRotation(math.degrees(heading))

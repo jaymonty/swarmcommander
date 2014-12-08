@@ -8,8 +8,9 @@
     Dec 2014
 """
 
-from PyQt5.QtWidgets import QGraphicsView
+from PyQt5.QtWidgets import QApplication, QGraphicsView
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QCursor
 
 import math
 
@@ -28,6 +29,10 @@ class MapGraphicsView(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.setDragMode(QGraphicsView.ScrollHandDrag)
+        #Hacking Qt: get rid of the stupid hand cursor
+        #self.unsetCursor()
+        #self.viewport().unsetCursor()
+        QApplication.setOverrideCursor(Qt.ArrowCursor)
 
         #self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
 
@@ -37,6 +42,9 @@ class MapGraphicsView(QGraphicsView):
         #print("Scene coords: ", sceneCoords, "\n")
         #print("Screen coords: (", event.x(), event.y(), ")\n")
 
+        print(len(self.items(event.pos())), "items at that pos.\n")
+
+        #could have just been a drag:
         self.just_panned.emit(-sceneCoords.y(), sceneCoords.x())
 
     def wheelEvent(self, event):

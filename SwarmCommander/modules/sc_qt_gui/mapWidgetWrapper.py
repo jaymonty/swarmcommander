@@ -15,10 +15,11 @@ from PyQt5.QtCore import Qt
 
 from SwarmCommander.modules.sc_qt_gui.mapWidget import Ui_MapWidget
 from SwarmCommander.modules.sc_qt_gui.mapGraphicsIcon import MapGraphicsIcon
+from SwarmCommander.modules.lib import sc_math
 
 from collections import OrderedDict
 
-import pkg_resources
+import pkg_resources, time, math
 
 class MapWidget(QDialog):
     def __init__(self, sc_state):
@@ -199,26 +200,41 @@ class MapWidget(QDialog):
         for id, uav_state in self.sc_state.uav_states.items():
             if id not in self.__plane_icons:
                 self.__plane_icons[id] = MapGraphicsIcon(self.__plane_layer)
-                brush = QBrush(self.__plane_icon_pixmap)
+                self.__plane_icons[id].textureIcon(self.__plane_icon_pixmap)
 
-                if brush.texture().width() > 0 and brush.texture().height() > 0:
-                    brush_trans = QTransform()
-                    brush_trans.scale(1.0/float(brush.texture().width()),
-                            1.0/float(brush.texture().height()))
-                    brush.setTransform(brush_trans)
-    
-                self.__plane_icons[id].setBrush(brush)
                 #plane icons need to be drawn on top of map tiles:
                 self.__plane_icons[id].setZValue(1)
                 self.__plane_layer.addToGroup(self.__plane_icons[id])
+
+                #key 0 = last update time
+                self.__plane_icons[id].setData(0, 0)
+
+                #refresh:
+                #HACK: don't know why zooming works to refresh. Couldn't
+                #get scene.invalidate() nor scene.update() to work
+                self.onZoom(self.__current_detail_layer)
 
             if 'lon' not in uav_state.keys():
                 #haven't received a Pose message yet
                 continue
 
-            self.__plane_icons[id].setPos(uav_state['lon'], -uav_state['lat'])
-            #TODO: center icon on plane's position (only top left corner on the position desired)
-            #self.__plane_icons[id].setOffset(-0.5, -0.5)
+            now = time.clock()
+
+            #if we don't have new pose data, then we don't update the plane icon
+            if self.__plane_icons[id].data(0) >= uav_state['last_pose_update']:
+                continue
+
+            #give correct heading:
+            quat = uav_state['quat']
+            heading = sc_math.yaw_from_quat(quat[0], quat[1], quat[2], quat[3])
+            #TODO: Need to finish this.. working right here
+            #self.__plane_icons[id].setHeading(heading)
+           
+            #place icon
+            self.__plane_icons[id].centerIconAt(uav_state['lon'], -uav_state['lat'])
+
+            #set last update time
+            self.__plane_icons[id].setData(0, now)
      
     def zoomTo(self, zoomLevel, lat = 0, lon = 0):
         self.__view.zoomTo(zoomLevel, lat, lon)

@@ -54,23 +54,23 @@ class DashboardDialog(QDialog):
             if id not in self.__uav_row_map.keys():
                 self.add_uav_to_dashboard(id)
 
-        now = int(time.time())
+        now = time.clock()
 
         for id, uav_state in self.sc_state.uav_states.items():
             if 'mode' not in uav_state.keys():
                 #haven't got a FlightStatus message yet:
                 continue
 
-            if (self.__uav_update_map[id] < uav_state['last_update']):
+            if (self.__uav_update_map[id] < uav_state['last_status_update']):
                 self.update_uav_row(id, uav_state)
                 #link green
                 self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
                     self.__LINK_COL).setBackground(QBrush(QColor(0,255,0)))
-            elif now - uav_state['last_update'] > 10:
+            elif now - uav_state['last_status_update'] > 10.0:
                 #link red
                 self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
                     self.__LINK_COL).setBackground(QBrush(QColor(255,0,0)))
-            elif now - uav_state['last_update'] > 5:
+            elif now - uav_state['last_status_update'] > 5.0:
                 #link yellow
                 self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
                     self.__LINK_COL).setBackground(QBrush(QColor(255,255,0)))
@@ -88,7 +88,7 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.sortItems(self.__ID_COL);
 
         #this row has never been updated
-        self.__uav_update_map[uav_id] = 0
+        self.__uav_update_map[uav_id] = 0.0
 
         #__row_uav_map now needs a makeover
         self.__uav_row_map = {}
@@ -121,7 +121,7 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.item(row, self.__GPS_SATS_COL).setText(str(uav_state['gps_sats']))
         self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(str(uav_state['mode']))
 
-        self.__uav_update_map[id] = int(time.time())
+        self.__uav_update_map[id] = time.clock()
 
     def rtl_button_pushed(self):
         net_mod = self.sc_state.module('acs_network')
