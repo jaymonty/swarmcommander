@@ -45,4 +45,5 @@ def gps_newpos(lat, lon, bearing, distance):
                              math.cos(dr)-math.sin(lat1)*math.sin(lat2))
     return (math.degrees(lat2), wrap_valid_longitude(math.degrees(lon2)))
 
-
+def yaw_from_quat(x, y, z, w):
+    return math.atan2(2.0*(w*z + x*y), 1.0 - 2.0*(y*y + z*z))
