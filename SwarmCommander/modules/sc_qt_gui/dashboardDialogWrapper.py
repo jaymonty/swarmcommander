@@ -8,6 +8,7 @@
     Oct 2014
 """
 
+from PyQt5.QtCore import QItemSelectionModel
 from PyQt5.QtWidgets import QDialog, QTableWidgetItem
 from PyQt5.QtGui import QBrush, QColor
 
@@ -133,3 +134,12 @@ class DashboardDialog(QDialog):
         if net_mod is not None:
             net_mod.change_mode_all_aircraft(4)
 
+    def selectUAV(self, id):
+        if id not in self.__uav_row_map:
+            return
+
+        rowNum = self.__uav_row_map[id]
+
+        self.__dashboardUi.tableWidget.clearSelection()
+        self.__dashboardUi.tableWidget.setCurrentCell(rowNum, self.__ID_COL,
+                QItemSelectionModel.Select)

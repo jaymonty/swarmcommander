@@ -18,6 +18,7 @@ class MapGraphicsView(QGraphicsView):
     #signals
     just_zoomed = pyqtSignal(int)
     just_panned = pyqtSignal(float, float)
+    just_selected_uav = pyqtSignal(int)   
 
     def __init__(self, parent = 0):
         QGraphicsView.__init__(self, parent)
@@ -28,21 +29,37 @@ class MapGraphicsView(QGraphicsView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.setDragMode(QGraphicsView.ScrollHandDrag)
-        #Hacking Qt: get rid of the stupid hand cursor
-        #self.unsetCursor()
-        #self.viewport().unsetCursor()
-        QApplication.setOverrideCursor(Qt.ArrowCursor)
-
         #self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
 
     def mouseReleaseEvent(self, event):
+        #there must be a better way to pan, but this is quick:
+        if event.button() == Qt.MidButton:
+            if self.dragMode() == QGraphicsView.ScrollHandDrag:
+                self.setDragMode(QGraphicsView.NoDrag)
+            else:
+                self.setDragMode(QGraphicsView.ScrollHandDrag)
+            return #end of middle button stuff
+
+        if event.button() == Qt.RightButton:
+            return #right button done
+
+        #assume left button if we got here
+
         sceneCoords = self.mapToScene(event.x(), event.y())
 
         #print("Scene coords: ", sceneCoords, "\n")
         #print("Screen coords: (", event.x(), event.y(), ")\n")
 
-        print(len(self.items(event.pos())), "items at that pos.\n")
+        #print(len(self.scene().items(sceneCoords)), "items at that pos:", sceneCoords, "\n")
+        for nextItem in self.scene().items(sceneCoords, Qt.IntersectsItemShape):
+            if "getID" in dir(nextItem):
+                #print(nextItem, "ID: ", nextItem.getID(), "\n")
+                #print(nextItem.boundingRect(), "\n")
+                self.just_selected_uav.emit(nextItem.getID())
+
+                #only do the first one under the mouse 
+                #TODO: allow selecting more a different one
+                break;
 
         #could have just been a drag:
         self.just_panned.emit(-sceneCoords.y(), sceneCoords.x())

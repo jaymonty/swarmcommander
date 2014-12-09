@@ -41,6 +41,9 @@ class SC_QtGUIModule(sc_module.SCModule):
         #zoom to default location:
         self.__mapWidget.zoomTo(16, 35.716888, -120.7646408)
 
+        #slots
+        self.__mapWidget.getView().just_selected_uav.connect(self.on_uav_select)
+
     def start_app(self):
         sys.exit(self.__app.exec_())
 
@@ -61,6 +64,9 @@ class SC_QtGUIModule(sc_module.SCModule):
         self.__dashboardDialog.done(0)
         
         QApplication.quit()
+
+    def on_uav_select(self, id):
+        self.__dashboardDialog.selectUAV(id)
 
 def init(sc_state):
     '''facilitates dynamic initialization of the module'''

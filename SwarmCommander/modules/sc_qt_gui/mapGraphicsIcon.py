@@ -8,13 +8,13 @@
 """
 
 from PyQt5.QtWidgets import QGraphicsRectItem
-from PyQt5.QtGui import QBrush, QPen, QTransform
+from PyQt5.QtGui import QBrush, QPainterPath, QPen, QTransform
 from PyQt5.QtCore import Qt
 
 import math
 
 class MapGraphicsIcon(QGraphicsRectItem):
-    def __init__(self, parent = 0):
+    def __init__(self, id, parent = 0):
         QGraphicsRectItem.__init__(self, parent)
         #1x1 rectangle with top left at origin:
         self.setRect(0.0, 0.0, 1.0, 1.0)
@@ -25,6 +25,12 @@ class MapGraphicsIcon(QGraphicsRectItem):
         self.__center_y = 0.0
         self.__width = 1.0
         self.__height = 1.0
+
+        self.__id = id
+
+        #tooltips
+        self.setAcceptHoverEvents(True)
+        self.setToolTip(str(id))
 
     def textureIcon(self, file_pixmap):
         brush = QBrush(file_pixmap)
@@ -55,6 +61,8 @@ class MapGraphicsIcon(QGraphicsRectItem):
 
         self.__width = sceneW / float(view.width()) * float(self.brush().texture().width())
         self.__height = sceneH / float(view.height()) * float(self.brush().texture().height())
+        
+        self.centerIconAt(self.__center_x, self.__center_y)
 
         self.mapTextureBasedOnZoom(self.brush())
 
@@ -82,3 +90,11 @@ class MapGraphicsIcon(QGraphicsRectItem):
         
         self.mapTextureBasedOnZoom(self.brush())
 
+    def getID(self):
+        return self.__id
+
+    #used for collision detection and mouse picking
+    def shape(self):
+        path = QPainterPath()
+        path.addRect(self.boundingRect())
+        return path

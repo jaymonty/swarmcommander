@@ -65,6 +65,9 @@ class MapWidget(QDialog):
         self.__mapWidgetUi.zoom_sb.valueChanged.connect(self.onZoomSBValueChanged)
         self.__view.just_panned.connect(self.onPan)
         
+    def getView(self):
+        return self.__view
+    
     def rectKey(self, x, y):
         '''rect_tiles key'''
         return (self.__current_detail_layer, x, y)
@@ -203,7 +206,7 @@ class MapWidget(QDialog):
                 continue
 
             if id not in self.__plane_icons:
-                self.__plane_icons[id] = MapGraphicsIcon(self.__plane_layer)
+                self.__plane_icons[id] = MapGraphicsIcon(id, self.__plane_layer)
                 self.__plane_icons[id].centerIconAt(uav_state['lon'], -uav_state['lat'])
                 self.__plane_icons[id].textureIcon(self.__plane_icon_pixmap)
 
