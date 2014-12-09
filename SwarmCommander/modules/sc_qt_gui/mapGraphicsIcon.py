@@ -21,20 +21,27 @@ class MapGraphicsIcon(QGraphicsRectItem):
         #shut off the outline:
         self.setPen(QPen(Qt.NoPen))
 
+        self.__center_x = 0.0
+        self.__center_y = 0.0
         self.__width = 1.0
         self.__height = 1.0
 
     def textureIcon(self, file_pixmap):
         brush = QBrush(file_pixmap)
 
+        self.mapTextureBasedOnZoom(brush)
+
+    def mapTextureBasedOnZoom(self, brush):
         if brush.texture().width() > 0 and brush.texture().height() > 0:
             brush_trans = QTransform()
-            brush_trans.scale(1.0/float(brush.texture().width()),
-                    1.0/float(brush.texture().height()))
+            brush_trans.translate(self.__center_x - self.__width * 0.5,
+                    self.__center_y - self.__height * 0.5)
+            brush_trans.scale(self.__width/float(brush.texture().width()),
+                    self.__height/float(brush.texture().height()))
             brush.setTransform(brush_trans)
     
         self.setBrush(brush)
-    
+
     #Scales icon to the size indicated by the texture loaded onto it.
     #Therefore, if the texture set as the Brush for this MapGraphicsIcon is
     #32x32 pixels then the icon appears on the map as 32x32 no matter what
@@ -49,17 +56,29 @@ class MapGraphicsIcon(QGraphicsRectItem):
         self.__width = sceneW / float(view.width()) * float(self.brush().texture().width())
         self.__height = sceneH / float(view.height()) * float(self.brush().texture().height())
 
-        xForm = QTransform()
-        xForm.scale(self.__width, self.__height)
-        self.setTransform(xForm)
-        
+        self.mapTextureBasedOnZoom(self.brush())
+
     #note: not quite the same as the Qt-provided setPos method. This method sets
     #the icon's center at the given x, y.  Qt's setPos sets the upper left hand
     #corner
     def centerIconAt(self, x, y):
-        self.setPos(x - self.__width * 0.5, y - self.__height * 0.5)
+        self.__center_x = float(x)
+        self.__center_y = float(y)
+        topLeft_x = x - (self.__width * 0.5)
+        topLeft_y = y - (self.__height * 0.5)
+        self.setRect(topLeft_x, topLeft_y,
+                self.__width, self.__height)
+
+    def iconCenter(self):
+        return (self.__center_x, self.__center_y)
 
     #heading is in radians
     def setHeading(self, heading):
-        #xForm = QTransform(self.getTransform()
-        self.setRotation(math.degrees(heading))
+        xForm = QTransform()
+        xForm.translate(self.__center_x, self.__center_y)
+        xForm.rotate(math.degrees(heading))
+        xForm.translate(-self.__center_x, -self.__center_y)
+        self.setTransform(xForm)
+        
+        self.mapTextureBasedOnZoom(self.brush())
+

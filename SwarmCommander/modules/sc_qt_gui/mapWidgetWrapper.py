@@ -198,8 +198,13 @@ class MapWidget(QDialog):
         
     def updateIcons(self):
         for id, uav_state in self.sc_state.uav_states.items():
+            if 'lon' not in uav_state.keys():
+                #haven't received a Pose message yet
+                continue
+
             if id not in self.__plane_icons:
                 self.__plane_icons[id] = MapGraphicsIcon(self.__plane_layer)
+                self.__plane_icons[id].centerIconAt(uav_state['lon'], -uav_state['lat'])
                 self.__plane_icons[id].textureIcon(self.__plane_icon_pixmap)
 
                 #plane icons need to be drawn on top of map tiles:
@@ -213,26 +218,20 @@ class MapWidget(QDialog):
                 #HACK: don't know why zooming works to refresh. Couldn't
                 #get scene.invalidate() nor scene.update() to work
                 self.onZoom(self.__current_detail_layer)
-
-            if 'lon' not in uav_state.keys():
-                #haven't received a Pose message yet
-                continue
-
+            
             now = time.clock()
 
             #if we don't have new pose data, then we don't update the plane icon
-            if self.__plane_icons[id].data(0) >= uav_state['last_pose_update']:
+            if self.__plane_icons[id].data(0) is None or self.__plane_icons[id].data(0) >= uav_state['last_pose_update']:
                 continue
 
+            #place icon
+            self.__plane_icons[id].centerIconAt(uav_state['lon'], -uav_state['lat'])
             #give correct heading:
             quat = uav_state['quat']
             heading = sc_math.yaw_from_quat(quat[0], quat[1], quat[2], quat[3])
-            #TODO: Need to finish this.. working right here
-            #self.__plane_icons[id].setHeading(heading)
+            self.__plane_icons[id].setHeading(heading)
            
-            #place icon
-            self.__plane_icons[id].centerIconAt(uav_state['lon'], -uav_state['lat'])
-
             #set last update time
             self.__plane_icons[id].setData(0, now)
      
