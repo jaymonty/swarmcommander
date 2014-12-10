@@ -42,12 +42,16 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
     def read_socket(self):
         while not self.__time_to_stop:
+            #give up the CPU for a bit
+            #(0.002 secs -> about 500 Hz read rate in the worst case:
+            #50 planes * 10 msgs/sec = 500 Hz
+            time.sleep(0.002)
+
             msg = self.__sock.recv()
 
             if msg is False:      # Saw a message, but not one we can use
                 continue          # Check for more messages in queue
             if msg is None:       # No messages available in queue
-                time.sleep(0.05)  # Give up the CPU for a bit
                 continue
 
             if isinstance(msg, acs_messages.FlightStatus):
@@ -55,10 +59,6 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
             if isinstance(msg, acs_messages.Pose):
                 self.process_pose(msg)
-
-            #give up the CPU for a bit
-            #(0.05 secs -> about 20 Hz read rate
-            #time.sleep(0.05)
 
     def unload(self):
         ''' Called when ACS Network modoule is unloaded'''
