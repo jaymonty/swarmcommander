@@ -9,7 +9,7 @@
 """
 
 from PyQt5.QtWidgets import QDialog, QGraphicsScene, QGraphicsItemGroup
-from PyQt5.QtWidgets import QGraphicsRectItem
+from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsTextItem
 from PyQt5.QtGui import QPixmap, QBrush, QTransform, QPen
 from PyQt5.QtCore import Qt
 
@@ -206,8 +206,17 @@ class MapWidget(QDialog):
                 continue
 
             if id not in self.__plane_icons:
-                self.__plane_icons[id] = MapGraphicsIcon(id, self.__plane_layer)
-                self.__plane_icons[id].centerIconAt(uav_state['lon'], -uav_state['lat'])
+                #make the plane's label first
+                label = QGraphicsTextItem(str(id), self.__plane_layer)
+                label.setZValue(2)
+                label.setDefaultTextColor(Qt.red)
+                self.__plane_layer.addToGroup(label) 
+                label.show()
+
+                self.__plane_icons[id] = MapGraphicsIcon(id, label,
+                        self.__plane_layer)
+                self.__plane_icons[id].centerIconAt(uav_state['lon'],
+                        -uav_state['lat'])
                 self.__plane_icons[id].textureIcon(self.__plane_icon_pixmap)
 
                 #plane icons need to be drawn on top of map tiles:

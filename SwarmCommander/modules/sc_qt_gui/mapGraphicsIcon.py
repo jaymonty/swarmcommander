@@ -14,7 +14,7 @@ from PyQt5.QtCore import Qt
 import math
 
 class MapGraphicsIcon(QGraphicsRectItem):
-    def __init__(self, id, parent = 0):
+    def __init__(self, id, label, parent = 0):
         QGraphicsRectItem.__init__(self, parent)
         #1x1 rectangle with top left at origin:
         self.setRect(0.0, 0.0, 1.0, 1.0)
@@ -28,9 +28,12 @@ class MapGraphicsIcon(QGraphicsRectItem):
 
         self.__id = id
 
+        self.__label = label
+        self.__label_scale = 1.0
+
         #tooltips
-        self.setAcceptHoverEvents(True)
-        self.setToolTip(str(id))
+        #self.setAcceptHoverEvents(True)
+        #self.setToolTip(str(id))
 
     def textureIcon(self, file_pixmap):
         brush = QBrush(file_pixmap)
@@ -66,6 +69,8 @@ class MapGraphicsIcon(QGraphicsRectItem):
 
         self.mapTextureBasedOnZoom(self.brush())
 
+        self.__label_scale = sceneW / float(view.width()) * 1.5
+
     #note: not quite the same as the Qt-provided setPos method. This method sets
     #the icon's center at the given x, y.  Qt's setPos sets the upper left hand
     #corner
@@ -76,6 +81,10 @@ class MapGraphicsIcon(QGraphicsRectItem):
         topLeft_y = y - (self.__height * 0.5)
         self.setRect(topLeft_x, topLeft_y,
                 self.__width, self.__height)
+
+        self.__label.setPos(topLeft_x, topLeft_y)
+        #self.__label.setPos(x, y)
+        self.__label.setScale(self.__label_scale)
 
     def iconCenter(self):
         return (self.__center_x, self.__center_y)
