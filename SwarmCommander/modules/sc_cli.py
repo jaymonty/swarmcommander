@@ -17,6 +17,7 @@ class SC_CLI_Module(sc_module.SCModule):
             'help'      : (self.cmd_help, 'List of Swarm Commander Commands'),
             'map'       : (self.cmd_map, 'Map commands'),
             'module'    : (self.cmd_module, 'Module commmands'),
+            'network'   : (self.cmd_network, 'Network commands'),
             'quit'      : (self.cmd_quit, 'Exit Swarm Commander')
         }
 
@@ -104,6 +105,23 @@ class SC_CLI_Module(sc_module.SCModule):
 
         else:
             self.stdscr.addstr(usage)
+
+    def cmd_network(self, args):
+        '''network command processing'''
+        usage = "usage: network <device>\n"
+
+        if self.sc_state.module('acs_network') is None:
+            self.stdscr.addstr("Must load acs_network module before using network command.\n")
+            return
+
+        elif len(args) < 1:
+            self.stdscr.addstr(usage)
+            return
+        elif args[0] == "device":
+            if len(args) < 2:
+                self.stdscr.addstr("usage: netowrk device device_name\n")
+                return
+            self.sc_state.module('acs_network').set_device(args[1])
 
     def cmd_quit(self, args):
         self.cmd_module(["unload", "qt_gui"])
