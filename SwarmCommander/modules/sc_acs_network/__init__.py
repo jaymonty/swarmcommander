@@ -17,15 +17,16 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         #TODO: these parameters need to be less hard coded and also work with
         #more than SITL
         port = 5554
-        device = 'sitl_bridge'
+        self.__device = 'eth0'
+        #device = 'sitl_bridge'
         #device = 'wlan1'
         my_ip = None
         bcast_ip = None
 
         try:
-            self.__sock = Socket(0xff, port, device, my_ip, bcast_ip)
+            self.__sock = Socket(0xff, port, self.__device, my_ip, bcast_ip)
         except Exception as e:
-            print("Couldn't start up socket on interface %s", device)
+            print("Couldn't start up socket on interface %s", self.__device)
 
         self.__time_to_stop = False
         self.__t = threading.Thread(target=self.read_socket)
@@ -85,6 +86,9 @@ class SC_ACS_Network_Module(sc_module.SCModule):
             message.mode = mode
 
             self.send_message_to(id, message)
+
+    def set_device(self, device_name):
+        print("TODO: implement set_device method after there is a close method in the acs_socket library class.\n")
 
 def init(sc_state):
     '''facilitate dynamic initialization of the module '''
