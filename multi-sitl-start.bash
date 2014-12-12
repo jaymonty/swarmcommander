@@ -91,13 +91,9 @@ do
     if [ $USE_CONTAINERS == 1 ]; then 
         sudo -E /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -C -R $USER $i" &
     else
-        /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh $i" &
+        /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -D eth0 $i" &
     fi  
 
     i=$(( $i + 1 ))
 done
-
-if [ $USE_CONTAINERS != 1 ]; then
-   /usr/bin/xterm -hold -e $ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/repeater.py -b 5555 $total_sitls & 
-fi
 

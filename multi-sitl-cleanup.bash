@@ -22,7 +22,6 @@ if [ $USE_CONTAINERS == 1 ]; then
     sudo killall roslaunch
     sudo killall launch_payload.sh
 else
-    killall repeater.py
     killall roslaunch
     killall launch_payload.sh
 fi
