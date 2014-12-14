@@ -5,7 +5,9 @@
 """
 from SwarmCommander.modules.lib import sc_module
 
-import curses, traceback
+from atcommander import ATCommandSet
+
+import curses, os, subprocess, traceback
 
 class SC_CLI_Module(sc_module.SCModule):
     def __init__(self, sc_state):
@@ -14,11 +16,12 @@ class SC_CLI_Module(sc_module.SCModule):
         self.stdscr = None
 
         self.__command_map = {
-            'help'      : (self.cmd_help, 'List of Swarm Commander Commands'),
-            'map'       : (self.cmd_map, 'Map commands'),
-            'module'    : (self.cmd_module, 'Module commmands'),
-            'network'   : (self.cmd_network, 'Network commands'),
-            'quit'      : (self.cmd_quit, 'Exit Swarm Commander')
+            'help'        : (self.cmd_help,    'List of Swarm Commander Commands'),
+            'map'         : (self.cmd_map,     'Map commands'),
+            'mavproxy'    : (self.cmd_mavproxy,'Start a MAVProxy instance'),
+            'module'      : (self.cmd_module,  'Module commmands'),
+            'network'     : (self.cmd_network, 'Network commands'),
+            'quit'        : (self.cmd_quit,    'Exit Swarm Commander')
         }
 
     def unload(self):
@@ -32,7 +35,12 @@ class SC_CLI_Module(sc_module.SCModule):
         for cmd in k:
             (fn, help) = self.__command_map[cmd]
             self.stdscr.addstr(cmd)
-            self.stdscr.addstr(":\t\t")
+            self.stdscr.addstr(":")
+            num_spaces = 16 - len(cmd)
+            while num_spaces > 0:
+                self.stdscr.addstr(" ")
+                num_spaces = num_spaces - 1
+
             self.stdscr.addstr(help)
             self.stdscr.addstr("\n")
 
@@ -69,6 +77,53 @@ class SC_CLI_Module(sc_module.SCModule):
             self.sc_state.module('map_tiler').prefetch() 
         else:
             self.stdscr.addstr(usage)
+
+    def cmd_mavproxy(self, args):
+        '''mavproxy startup command'''
+        usage = "usage: mavproxy id <dev_path>\n"
+
+        if len(args) < 1:
+            self.stdscr.addstr(usage)
+            return
+        else:
+            if len(args) < 2:
+                files = os.listdir('/dev/serial/by-id')
+                if len(files) < 1:
+                    self.stdscr.addstr("No radio detected connected via USB.\n")
+                    return
+                device = '/dev/serial/by-id/' + files[0]
+            else:
+                device = args[1]
+
+            #setup SiK radio on proper channel
+            atCmdr = ATCommandSet(device)
+            self.stdscr.addstr("Radio: leaving command mode and unsticking...\n")
+            atCmdr.leave_command_mode_force()
+            atCmdr.unstick()
+
+            if not atCmdr.enter_command_mode():
+                self.stdscr.addstr("Unable to enter command mode, can't set radio ID\n")
+                return
+
+            self.stdscr.addstr("Trying to set radio to netid" + args[0] + "\n")
+            if not atCmdr.set_param(ATCommandSet.PARAM_NETID, args[0]):
+                self.stdscr.addstr("Failed to set netid to " + args[0] + "\n")
+                return
+
+            self.stdscr.addstr("Writing params to radio EEPROM...\n")
+            if not atCmdr.write_params():
+                print("Failed to write params to telem radio EEPROM\n")
+                return
+
+            if not atCmdr.reboot():
+                print("Failed to reboot telem radio.\n")
+
+            atCmdr.leave_command_mode()
+
+            #fire up mavproxy with the appropriate device and args
+            subprocess.Popen( ["/usr/bin/xterm", "-e", "mavproxy.py --baudrate 57600 --master " + device ] )
+            #TODO: include proper mission # and sortie #
+
 
     def cmd_module(self, args):
         '''"module" command processing'''
@@ -108,7 +163,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
     def cmd_network(self, args):
         '''network command processing'''
-        usage = "usage: network <device>\n"
+        usage = "usage: network <device|slave>\n"
 
         if self.sc_state.module('acs_network') is None:
             self.stdscr.addstr("Must load acs_network module before using network command.\n")
@@ -119,9 +174,18 @@ class SC_CLI_Module(sc_module.SCModule):
             return
         elif args[0] == "device":
             if len(args) < 2:
-                self.stdscr.addstr("usage: netowrk device device_name\n")
+                self.stdscr.addstr("usage: network device device_name\n")
                 return
             self.sc_state.module('acs_network').set_device(args[1])
+        elif args[0] == "slave":
+            if len(args) < 4:
+                self.stdscr.addstr("usage: network slave <enable|disable> target_id port\n")
+                return
+
+            if args[1].lower() == "enable":
+                self.sc_state.module('acs_network').enable_slave(args[2], args[3])
+            else:
+                self.sc_state.module('acs_network').disable_slave(args[2], args[3])
 
     def cmd_quit(self, args):
         self.cmd_module(["unload", "qt_gui"])
