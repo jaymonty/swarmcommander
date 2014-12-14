@@ -4,7 +4,7 @@ from setuptools import setup
 
 import sys, os
 
-version = "0.0.5"
+version = "0.0.7"
 
 #require python3
 #exit with message if we're not using Python 3:
@@ -50,7 +50,8 @@ setup(name='SwarmCommander',
       install_requires=['pyserial'],
       scripts=['swarm_commander.py',
                'multi-sitl-start.bash',
-               'multi-sitl-cleanup.bash'],
+               'multi-sitl-cleanup.bash',
+               '../SiK/Firmware/tools/atcommander.py'],
       package_data={'SwarmCommander':
                     ['data/images/*.png']}
       )
