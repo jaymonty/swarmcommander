@@ -138,7 +138,7 @@ class SCState(object):
     def load_module(self, module_name):
         ''' Attempt to load a module.  Throws an exception if unable to load module '''
         if self.module(module_name) != None:
-            raise Exception('Module already loaded')
+            raise Exception(module_name + ' -- Module already loaded')
             return
         try:
             m = self.import_package(self.get_module_full_path(module_name))
@@ -153,7 +153,7 @@ class SCState(object):
 
             traceback.print_exception(exc_type, exc_value, exc_traceback)
 
-            raise Exception('Module not loadable')
+            raise Exception(module_name + ' -- Module not loadable')
             return
         
         module = m.init(self)
