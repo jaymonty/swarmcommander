@@ -87,7 +87,11 @@ class SC_CLI_Module(sc_module.SCModule):
             return
         else:
             if len(args) < 2:
-                files = os.listdir('/dev/serial/by-id')
+                try:
+                    files = os.listdir('/dev/serial/by-id')
+                except:
+                    files = []
+
                 if len(files) < 1:
                     self.stdscr.addstr("No radio detected connected via USB.\n")
                     return
