@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Fri Nov 28 17:33:27 2014
+# Created: Mon Dec 15 08:12:09 2014
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,8 +34,11 @@ class Ui_dashboardDialog(object):
         self.btn_RTL.setGeometry(QtCore.QRect(50, 580, 85, 27))
         self.btn_RTL.setObjectName("btn_RTL")
         self.btn_AUTO = QtWidgets.QPushButton(dashboardDialog)
-        self.btn_AUTO.setGeometry(QtCore.QRect(220, 580, 85, 27))
+        self.btn_AUTO.setGeometry(QtCore.QRect(150, 580, 85, 27))
         self.btn_AUTO.setObjectName("btn_AUTO")
+        self.btn_beginFollow = QtWidgets.QPushButton(dashboardDialog)
+        self.btn_beginFollow.setGeometry(QtCore.QRect(250, 610, 111, 27))
+        self.btn_beginFollow.setObjectName("btn_beginFollow")
 
         self.retranslateUi(dashboardDialog)
         QtCore.QMetaObject.connectSlotsByName(dashboardDialog)
@@ -57,4 +60,5 @@ class Ui_dashboardDialog(object):
         item.setText(_translate("dashboardDialog", "Mode"))
         self.btn_RTL.setText(_translate("dashboardDialog", "RTL"))
         self.btn_AUTO.setText(_translate("dashboardDialog", "AUTO"))
+        self.btn_beginFollow.setText(_translate("dashboardDialog", "Begin Following"))
 
