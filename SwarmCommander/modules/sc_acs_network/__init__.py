@@ -18,8 +18,8 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         #more than SITL
         port = 5554
         self.__device = 'eth0'
-        #device = 'sitl_bridge'
-        #device = 'wlan1'
+        #self.__device = 'sitl_bridge'
+        #self.__device = 'wlan1'
         my_ip = None
         bcast_ip = None
 
@@ -69,7 +69,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
     def send_message_to(self, id, message):
         message.msg_dst = id
-        cur_time = time.time()
+        cur_time = time.clock()
         message.msg_secs = int(cur_time)
         message.msg_nsecs = int(1e9 * (cur_time - int(cur_time)))
         
@@ -86,6 +86,35 @@ class SC_ACS_Network_Module(sc_module.SCModule):
             message.mode = mode
 
             self.send_message_to(id, message)
+
+    def set_controller_for(self, id, controller):
+        message = acs_messages.SetController()
+        message.controller = controller
+
+        self.send_message_to(id, message)
+
+    #TODO: finish this method -- not working yet
+    def send_slave_msg(self, target_id, port, enable=True):
+        ss = acs_messages.SlaveSetup()
+        ss.msg_dst = int(target_id)
+        ss.msg_secs = 0
+        ss.msg_nsecs = 0
+        ss.channel = 'udp:' + self.__sock.getIP() + ':' + str(port)
+        #ss.channel = 'udp:127.0.0.1:' + str(port)
+        ss.enable = enable
+
+        print(ss.channel, "\n")
+
+        #This message needs to make it through (set reliable flag)
+        ss.msg_fl_rel = True
+    
+        self.__sock.send(ss)
+
+    def enable_slave(self, target_id, port):
+        self.send_slave_msg(target_id, port, True)
+
+    def disable_slave(self, target_id, port):
+        self.send_slave_msg(target_id, port, False)
 
     def set_device(self, device_name):
         print("TODO: implement set_device method after there is a close method in the acs_socket library class.\n")
