@@ -51,6 +51,7 @@ setup(name='SwarmCommander',
       scripts=['swarm_commander.py',
                'multi-sitl-start.bash',
                'multi-sitl-cleanup.bash',
+               'SwarmCommander/tools/sc_map_prefetch.py',
                '../SiK/Firmware/tools/atcommander.py'],
       package_data={'SwarmCommander':
                     ['data/images/*.png']}

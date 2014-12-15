@@ -147,7 +147,10 @@ class TileInfoScaled(TileInfo):
 
 class SC_MapTilerModule(sc_module.SCModule):
     def __init__(self, sc_state, lat, lon, min_zoom=0, max_zoom=20, cache_path=None, cache_size=500, service='OviHybrid', refresh_age=30*24*60*60):
-        super(SC_MapTilerModule, self).__init__(sc_state, "map_tiler", "map module")
+        #This is a special module; in order to allow prefetching tiles without
+        #loading Swarm Commander app, don't require the sc_state.
+        if sc_state is not None:
+            super(SC_MapTilerModule, self).__init__(sc_state, "map_tiler", "map module")
         self.__debug = False
 
         self.__current_tile_service = service
@@ -180,6 +183,10 @@ class SC_MapTilerModule(sc_module.SCModule):
             raise Exception('Unknown tile service %s' % service)
 
         self.__tile_cache = OrderedDict()
+
+    #d is a boolean
+    def set_debug(self, d):
+        self.__debug = d
 
     def tile_img_from_file(file_path):
         #img = Image.open(file_path)
@@ -442,6 +449,7 @@ class SC_MapTilerModule(sc_module.SCModule):
         self.__tile_fetching_thread.start()
 
     #TODO: add lat, lon, width, height, ground_size args for arbitrary location
+    #TODO: may be able to get rid of this method in favor of prefetch_lat_lon
     def prefetch(self, width=1024, height=1024, ground_width=5000):
         for next_zoom in range(self.__min_zoom, self.__max_zoom+1):
             tile_info_list = self.area_to_tile_list(self.__lat, self.__lon, width, height, ground_width, next_zoom)
@@ -449,6 +457,17 @@ class SC_MapTilerModule(sc_module.SCModule):
 
         for next_tile_info in tile_info_list:
             self.load_tile(next_tile_info)
+
+    def prefetch_lat_lon(self, lat_top, lat_bottom, lon_left, lon_right, min_zoom, max_zoom):
+        #TODO: deal with the case where "left" to "right" cros the 
+        #international date line
+
+        for next_zoom in range(min_zoom, max_zoom+1):
+            tile_info_list = self.area_to_tile_list_lat_lon(lat_top, lat_bottom,
+                    lon_left, lon_right, next_zoom)
+
+            for next_tile_info in tile_info_list:
+                self.load_tile(next_tile_info)
 
     def set_max_zoom(self, zoom_level):
         self.__max_zoom = zoom_level
