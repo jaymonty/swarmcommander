@@ -17,9 +17,9 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         #TODO: these parameters need to be less hard coded and also work with
         #more than SITL
         port = 5554
-        self.__device = 'eth0'
+        #self.__device = 'eth0'
         #self.__device = 'sitl_bridge'
-        #self.__device = 'wlan1'
+        self.__device = 'wlan1'
         my_ip = None
         bcast_ip = None
 
@@ -84,12 +84,14 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         for id,name in self.sc_state.uav_states.items():
             message = acs_messages.Mode()
             message.mode = mode
+            message.msg_fl_rel = True 
 
             self.send_message_to(id, message)
 
     def set_controller_for(self, id, controller):
         message = acs_messages.SetController()
         message.controller = controller
+        message.msg_fl_rel = True
 
         self.send_message_to(id, message)
 
