@@ -1,25 +1,37 @@
 #!/bin/bash
 
+USE_CONTAINERS=0
+START_INDEX=1
+NEED_ROOT=0
+
+NET_DEVICE="eth0"
+
 usage()
 {
 cat <<EOF
 Usage: $0 [options] num_SITLS [sitl_root_dir] [template_eeprom.bin]
 Options:
-    -C                      Start a linux container for each payload SITL
-    -I			    Starting index for the group of SITLs
+    -B         Set up and use SITL bridge (implies -D sitl_bridge)
+    -C         Start a linux container for each payload SITL (implies -B)
+    -D         Override default net device (default is eth0 -- don't use w/ -C)
+    -I         Starting index for the group of SITLs
 EOF
 }
 
-USE_CONTAINERS=0
-START_INDEX=1
-
 #parse options
-while getopts ":I:Ch" opt; do
-    case $opt in    
+while getopts ":I:BCD:h" opt; do
+    case $opt in
+        B)
+            NET_DEVICE="sitl_bridge"
+            NEED_ROOT=1         
+            ;;
         C)
             USE_CONTAINERS=1
             ;;
-	I)
+        D)
+            NET_DEVICE=$OPTARG
+            ;;
+	    I)
             START_INDEX=$OPTARG
             ;;
         h)
@@ -45,10 +57,14 @@ if [ $# -ge 3 ]; then
     template_eeprom_path=$3
 fi
 
+if [ $NET_DEVICE == "sitl_bridge" ]; then
+    NEED_ROOT=1
+fi
+
 #need the sudo passwd if using -C argument
-if [ $USE_CONTAINERS == 1 ]; then 
-    echo "Making Containers. "
-    sudo echo "Ensuring we have sudo credentials available."
+if [ $USE_CONTAINERS == 1 -o $NEED_ROOT == 1 ]; then 
+    echo "Need sudo password."
+    sudo echo "Ensuring we have sudo credentials available for cleanup and also later on in the script."
     multi-sitl-cleanup.bash -C
 else
     multi-sitl-cleanup.bash
@@ -91,7 +107,12 @@ do
     if [ $USE_CONTAINERS == 1 ]; then 
         sudo -E /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -C -R $USER $i" &
     else
-        /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -D eth0 $i" &
+        prefix=""
+        if [ $NEED_ROOT == 1 ]; then
+            prefix="sudo -E "
+        fi
+
+        $prefix/usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -D $NET_DEVICE $i" &
     fi  
 
     i=$(( $i + 1 ))
