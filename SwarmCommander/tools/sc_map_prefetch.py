@@ -2,7 +2,7 @@
 
 from SwarmCommander.modules import sc_map_tiler
 
-import sys
+import sys, time
 
 if len(sys.argv) < 7:
     print("Usage: map_prefetch.py lat_top lat_bottom lon_left lon_right min_zoom max_zoom\n")
@@ -21,3 +21,5 @@ tiler = sc_map_tiler.SC_MapTilerModule(None, 0.0, 0.0)
 tiler.set_debug(True)
 tiler.prefetch_lat_lon(lat_top, lat_bottom, lon_left, lon_right, min_zoom, max_zoom)
 
+while (tiler.tiles_pending() > 0):
+    time.sleep(1)
