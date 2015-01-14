@@ -169,7 +169,7 @@ class SC_MapTilerModule(sc_module.SCModule):
         self.__min_zoom = min_zoom
 
         if cache_path is None:
-            cache_path = os.path.join(os.environ['HOME'], '.sc_tilecache')
+            cache_path = os.path.join(os.environ['HOME'], '.tilecache')
         
         self.__cache_path = cache_path
 
