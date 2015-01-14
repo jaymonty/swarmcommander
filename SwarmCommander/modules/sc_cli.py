@@ -220,6 +220,7 @@ class SC_CLI_Module(sc_module.SCModule):
     def main_loop(self, stdscr):
         ''' called by external python program to start the main CLI loop '''
         self.stdscr = stdscr
+        self.stdscr.scrollok(True)
 
         #I need to be able to see keyboard input
         curses.echo()
