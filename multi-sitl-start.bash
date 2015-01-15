@@ -2,7 +2,7 @@
 
 USE_CONTAINERS=0
 START_INDEX=1
-NEED_ROOT=0
+NEED_BRIDGE=0
 
 NET_DEVICE="eth0"
 
@@ -23,7 +23,6 @@ while getopts ":I:BCD:h" opt; do
     case $opt in
         B)
             NET_DEVICE="sitl_bridge"
-            NEED_ROOT=1         
             ;;
         C)
             USE_CONTAINERS=1
@@ -58,11 +57,11 @@ if [ $# -ge 3 ]; then
 fi
 
 if [ $NET_DEVICE == "sitl_bridge" ]; then
-    NEED_ROOT=1
+    NEED_BRIDGE=1
 fi
 
 #need the sudo passwd if using -C argument
-if [ $USE_CONTAINERS == 1 -o $NEED_ROOT == 1 ]; then 
+if [ $USE_CONTAINERS == 1 -o $NEED_BRIDGE == 1 ]; then 
     echo "Need sudo password."
     sudo echo "Ensuring we have sudo credentials available for cleanup and also later on in the script."
     multi-sitl-cleanup.bash -C
@@ -107,12 +106,11 @@ do
     if [ $USE_CONTAINERS == 1 ]; then 
         sudo -E /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -C -R $USER $i" &
     else
-        prefix=""
-        if [ $NEED_ROOT == 1 ]; then
-            prefix="sudo -E "
+        if [ $NEED_BRIDGE == 1 ]; then
+            $ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/bridge_config.sh
         fi
 
-        $prefix/usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -D $NET_DEVICE $i" &
+        /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -D $NET_DEVICE $i" &
     fi  
 
     i=$(( $i + 1 ))
