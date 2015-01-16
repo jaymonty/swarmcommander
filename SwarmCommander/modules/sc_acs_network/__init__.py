@@ -14,25 +14,25 @@ class SC_ACS_Network_Module(sc_module.SCModule):
     def __init__(self, sc_state):
         super(SC_ACS_Network_Module, self).__init__(sc_state, "acs_network", "ACS Network")
 
-        #TODO: these parameters need to be less hard coded and also work with
-        #more than SITL
-        port = 5554
-        #self.__device = 'eth0'
-        #self.__device = 'sitl_bridge'
-        self.__device = 'wlan1'
-        my_ip = None
-        bcast_ip = None
+        self.__port = 5554
+        self.__device = 'eth0'
+        self.__my_ip = None
+        self.__bcast_ip = None
 
-        try:
-            self.__sock = Socket(0xff, port, self.__device, my_ip, bcast_ip)
-        except Exception as e:
-            print("Couldn't start up socket on interface %s", self.__device)
+        self.__sock = None
+        self.open_socket()
 
         self.__time_to_stop = False
         self.__t = threading.Thread(target=self.read_socket)
         self.__t.daemon = True
         self.__t.start()
    
+    def open_socket(self):
+        try:
+            self.__sock = Socket(0xff, self.__port, self.__device, self.__my_ip, self.__bcast_ip)
+        except Exception as e:
+            print("Couldn't start up socket on interface", self.__device)
+
     def process_flight_status(self, msg):
         #print("%d %s %d %d" % (msg.msg_src, name, msg.armed, msg.mode))
 
@@ -47,6 +47,11 @@ class SC_ACS_Network_Module(sc_module.SCModule):
             #(0.002 secs -> about 500 Hz read rate in the worst case:
             #50 planes * 10 msgs/sec = 500 Hz
             time.sleep(0.002)
+
+            #There is a minute chance somebody is trying to reopen the
+            #socket in a different thread:
+            if self.__sock == None:
+                continue
 
             msg = self.__sock.recv()
 
@@ -119,7 +124,16 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.send_slave_msg(target_id, port, False)
 
     def set_device(self, device_name):
-        print("TODO: implement set_device method after there is a close method in the acs_socket library class.\n")
+        #shut off socket
+        self.__sock = None
+
+        self.__device = device_name
+
+        #start socket on new device
+        self.open_socket()
+
+    def get_device(self):
+        return self.__device
 
 def init(sc_state):
     '''facilitate dynamic initialization of the module '''
