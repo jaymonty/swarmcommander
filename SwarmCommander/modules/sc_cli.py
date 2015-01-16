@@ -167,7 +167,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
     def cmd_network(self, args):
         '''network command processing'''
-        usage = "usage: network <device|slave>\n"
+        usage = "usage: network <device|slave|status>\n"
 
         if self.sc_state.module('acs_network') is None:
             self.stdscr.addstr("Must load acs_network module before using network command.\n")
@@ -179,8 +179,11 @@ class SC_CLI_Module(sc_module.SCModule):
         elif args[0] == "device":
             if len(args) < 2:
                 self.stdscr.addstr("usage: network device device_name\n")
+                self.stdscr.addstr("  e.g., eth0, wlan1, sitl_bridge\n")
                 return
             self.sc_state.module('acs_network').set_device(args[1])
+        elif args[0] == "status":
+            self.stdscr.addstr("  Device: " + self.sc_state.module('acs_network').get_device() + "\n")
         elif args[0] == "slave":
             if len(args) < 4:
                 self.stdscr.addstr("usage: network slave <enable|disable> target_id port\n")
@@ -190,6 +193,8 @@ class SC_CLI_Module(sc_module.SCModule):
                 self.sc_state.module('acs_network').enable_slave(args[2], args[3])
             else:
                 self.sc_state.module('acs_network').disable_slave(args[2], args[3])
+        else:
+            self.stdscr.addstr(usage)
 
     def cmd_quit(self, args):
         self.cmd_module(["unload", "qt_gui"])
