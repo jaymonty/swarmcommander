@@ -23,13 +23,19 @@ class MapGraphicsView(QGraphicsView):
     def __init__(self, parent = 0):
         QGraphicsView.__init__(self, parent)
 
-        self.__current_zoom = 0
+        self.__current_scale = 1.0
         self.__max_zoom = 20
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         #self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
+
+    def getCurrentZoom(self):
+        return math.log(self.__current_scale, 2)
+
+    def getScaleFromZoom(self, zoom):
+        return math.pow(2.0, zoom)
 
     def mouseReleaseEvent(self, event):
         #there must be a better way to pan, but this is quick:
@@ -68,9 +74,11 @@ class MapGraphicsView(QGraphicsView):
         delta = event.angleDelta().y()
         
         if delta > 0:
-            self.zoom(2.0, event.x(), event.y())
+            #self.zoom(2.0, event.x(), event.y())
+            self.zoom(1.1, event.x(), event.y())
         else:
-            self.zoom(0.5, event.x(), event.y()) 
+            #self.zoom(0.5, event.x(), event.y()) 
+            self.zoom(1.0/1.1, event.x(), event.y()) 
 
     #s = amount to scale.  x, y in screen space (pixels)
     def zoom(self, s, x, y):
@@ -80,31 +88,42 @@ class MapGraphicsView(QGraphicsView):
         if sceneCoords.x() <= -180.0 or sceneCoords.x() >= 180.0 or sceneCoords.y() <= -90.0 or sceneCoords.y() >= 90.0:
             return
 
-        if s > 1.0:
-            if self.__current_zoom == self.__max_zoom:
-                return #no more zooming in
-            self.__current_zoom = self.__current_zoom + 1.0
-        else:
-            if self.__current_zoom == 0:
-                return #don't zoom out any farther
-            self.__current_zoom = self.__current_zoom - 1.0
+        self.__current_scale *= s
+
+        #don't get too small
+        if (self.__current_scale < 1.0):
+            self.__current_scale /= s
+            return
+
+        #don't let tiles get too big
+        if (self.getCurrentZoom() > self.__max_zoom + 1.0):
+            self.__current_scale /= s
+            return #no more zooming in
         
         self.scale(s, s)
-        self.centerOn(sceneCoords)
+
+        current_center = self.mapToScene(self.width() / 2, self.height() / 2)
+        part_way = current_center;
+        part_way.setX(part_way.x() - ((part_way.x() - sceneCoords.x()) / 8.0))
+        part_way.setY(part_way.y() - ((part_way.y() - sceneCoords.y()) / 8.0))
+        
+        #move _slightly_ towards the point the mouse is centered on.
+        #moving all the way too it proves too jarring for the user:
+        self.centerOn(part_way)
 
         #signal anybody who wants to know about the zoom
-        self.just_zoomed.emit(self.__current_zoom)
+        self.just_zoomed.emit(self.getCurrentZoom())
+
         #a zoom often results in a recentering of the view:
         self.just_panned.emit(-sceneCoords.y(), sceneCoords.x())
 
-    def getCurrentZoom(self):
-        return self.__current_zoom
-
     def zoomTo(self, zoom, lat = None, lon = None):
-        delta_zoom = zoom - self.__current_zoom
+        delta_zoom = zoom - self.getCurrentZoom()
 
-        if self.__current_zoom + delta_zoom < 0 or self.__current_zoom + delta_zoom > self.__max_zoom or delta_zoom == 0:
+        if self.getCurrentZoom() + delta_zoom < 0 or self.getCurrentZoom() + delta_zoom > self.__max_zoom or delta_zoom == 0:
             return
+
+        delta_scale = self.getScaleFromZoom(delta_zoom)
 
         if lat == None or lon == None:
             centerCoords = self.mapToScene(self.width() * 0.5,
@@ -112,22 +131,10 @@ class MapGraphicsView(QGraphicsView):
             lat = -centerCoords.y()
             lon = centerCoords.x()
 
-        s = 1.0
-        if delta_zoom > 0:
-            s = 2.0# * delta_zoom
-        else:
-            s = 0.5# / delta_zoom
-
-        abs_delta_zoom = math.fabs(delta_zoom)
-        while abs_delta_zoom > 0:
-            #self.centerOn(lon, lat)
-            self.scale(s,s)
-            abs_delta_zoom = abs_delta_zoom - 1
+        self.zoom(delta_scale, self.width() / 2, self.height() / 2)
 
         self.centerOn(lon, -lat)
 
-        self.__current_zoom = zoom
-
-        self.just_zoomed.emit(self.__current_zoom)
+        self.just_zoomed.emit(self.getCurrentZoom())
         #a zoom often results in a recentering of the view:
         self.just_panned.emit(lat, lon)

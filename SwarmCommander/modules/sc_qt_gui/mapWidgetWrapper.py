@@ -257,7 +257,8 @@ class MapWidget(QDialog):
             nextPlaneIcon.scaleByViewAndTexture(self.__view)
 
     def onZoomSBValueChanged(self, new_zoom):
-        self.__view.zoomTo(new_zoom)
+        if (int(self.__view.getCurrentZoom()) != new_zoom):
+            self.__view.zoomTo(new_zoom)
 
     def onPan(self, new_lat, new_lon):
         lat_lon_str = str(new_lat) + ", " + str(new_lon) 
