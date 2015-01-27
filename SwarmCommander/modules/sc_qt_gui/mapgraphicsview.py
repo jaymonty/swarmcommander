@@ -31,20 +31,49 @@ class MapGraphicsView(QGraphicsView):
 
         #self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
 
+        #for panning with the left button:
+        self.__pan_start_x = -1
+        self.__pan_start_y = -1
+
     def getCurrentZoom(self):
         return math.log(self.__current_scale, 2)
 
     def getScaleFromZoom(self, zoom):
         return math.pow(2.0, zoom)
 
+    def mouseMoveEvent(self, event):
+        #buttons() works, button() doesn't.  Don't ask me why. :)
+        if event.buttons() == Qt.LeftButton:
+            #if the user is panning
+            if (self.__pan_start_x != -1):
+                startSceneCoords = self.mapToScene(self.__pan_start_x, self.__pan_start_y)
+                currentSceneCoords = self.mapToScene(event.x(), event.y())
+
+                x_diff = currentSceneCoords.x() - startSceneCoords.x()
+                y_diff = currentSceneCoords.y() - startSceneCoords.y()
+
+                previousAnchor = self.transformationAnchor()
+                #have to set this for self.translate() to work.
+                self.setTransformationAnchor(QGraphicsView.NoAnchor)
+                self.translate(x_diff,y_diff)
+                #reset the anchor otherwise scaling (zoom) stops working:
+                self.setTransformationAnchor(previousAnchor)
+
+                #let everyone know where my mouse has us dragged to:
+                self.just_panned.emit(-currentSceneCoords.y(), currentSceneCoords.x())
+                
+            #get ready for the next move if user is dragging to pan:
+            self.__pan_start_x = event.x()
+            self.__pan_start_y = event.y()                
+
     def mouseReleaseEvent(self, event):
-        #there must be a better way to pan, but this is quick:
+        if event.button() == Qt.LeftButton:
+            #clear user pan 
+            self.__pan_start_x = -1
+            self.__pan_start_y = -1
+
         if event.button() == Qt.MidButton:
-            if self.dragMode() == QGraphicsView.ScrollHandDrag:
-                self.setDragMode(QGraphicsView.NoDrag)
-            else:
-                self.setDragMode(QGraphicsView.ScrollHandDrag)
-            return #end of middle button stuff
+            return
 
         if event.button() == Qt.RightButton:
             return #right button done
@@ -67,7 +96,7 @@ class MapGraphicsView(QGraphicsView):
                 #TODO: allow selecting more a different one
                 break;
 
-        #could have just been a drag:
+        #even if we didn't drag, let everybody know where I just clicked:
         self.just_panned.emit(-sceneCoords.y(), sceneCoords.x())
 
     def wheelEvent(self, event):
