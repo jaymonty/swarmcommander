@@ -34,6 +34,8 @@ class MapGraphicsView(QGraphicsView):
         #for panning with the left button:
         self.__pan_start_x = -1
         self.__pan_start_y = -1
+                
+        self.setTransformationAnchor(QGraphicsView.AnchorViewCenter)
 
     def getCurrentZoom(self):
         return math.log(self.__current_scale, 2)
@@ -111,6 +113,10 @@ class MapGraphicsView(QGraphicsView):
 
     #s = amount to scale.  x, y in screen space (pixels)
     def zoom(self, s, x, y):
+        #re-center anchor in case we've panned.
+        current_center = self.mapToScene(self.width() / 2, self.height() / 2)
+        self.centerOn(current_center)
+        
         sceneCoords = self.mapToScene(x,y)
 
         #make sure we're actually on the map before zooming:
@@ -130,7 +136,7 @@ class MapGraphicsView(QGraphicsView):
             return #no more zooming in
         
         self.scale(s, s)
-
+        
         current_center = self.mapToScene(self.width() / 2, self.height() / 2)
         part_way = current_center;
         part_way.setX(part_way.x() - ((part_way.x() - sceneCoords.x()) / 8.0))

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mapWidget.ui'
 #
-# Created: Thu Dec  4 13:27:14 2014
+# Created: Tue Jan 27 16:44:25 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,20 +12,22 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MapWidget(object):
     def setupUi(self, MapWidget):
         MapWidget.setObjectName("MapWidget")
-        MapWidget.resize(802, 703)
-        self.graphicsView = MapGraphicsView(MapWidget)
-        self.graphicsView.setGeometry(QtCore.QRect(0, 70, 800, 600))
-        self.graphicsView.setObjectName("graphicsView")
+        MapWidget.resize(792, 698)
+        self.verticalLayout = QtWidgets.QVBoxLayout(MapWidget)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.zoom_lb = QtWidgets.QLabel(MapWidget)
+        self.zoom_lb.setObjectName("zoom_lb")
+        self.verticalLayout.addWidget(self.zoom_lb)
         self.zoom_sb = QtWidgets.QSpinBox(MapWidget)
-        self.zoom_sb.setGeometry(QtCore.QRect(70, 40, 46, 20))
         self.zoom_sb.setMaximum(20)
         self.zoom_sb.setObjectName("zoom_sb")
-        self.zoom_lb = QtWidgets.QLabel(MapWidget)
-        self.zoom_lb.setGeometry(QtCore.QRect(20, 40, 40, 20))
-        self.zoom_lb.setObjectName("zoom_lb")
+        self.verticalLayout.addWidget(self.zoom_sb)
+        self.graphicsView = MapGraphicsView(MapWidget)
+        self.graphicsView.setObjectName("graphicsView")
+        self.verticalLayout.addWidget(self.graphicsView)
         self.coords_lb = QtWidgets.QLabel(MapWidget)
-        self.coords_lb.setGeometry(QtCore.QRect(10, 680, 281, 17))
         self.coords_lb.setObjectName("coords_lb")
+        self.verticalLayout.addWidget(self.coords_lb)
 
         self.retranslateUi(MapWidget)
         QtCore.QMetaObject.connectSlotsByName(MapWidget)

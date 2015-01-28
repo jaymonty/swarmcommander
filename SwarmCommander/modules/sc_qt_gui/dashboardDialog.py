@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Mon Dec 15 08:12:09 2014
+# Created: Tue Jan 27 16:37:57 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,9 +12,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_dashboardDialog(object):
     def setupUi(self, dashboardDialog):
         dashboardDialog.setObjectName("dashboardDialog")
-        dashboardDialog.resize(487, 653)
+        dashboardDialog.resize(543, 661)
+        self.verticalLayout = QtWidgets.QVBoxLayout(dashboardDialog)
+        self.verticalLayout.setObjectName("verticalLayout")
         self.tableWidget = QtWidgets.QTableWidget(dashboardDialog)
-        self.tableWidget.setGeometry(QtCore.QRect(40, 30, 411, 521))
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(6)
         self.tableWidget.setRowCount(0)
@@ -30,15 +31,16 @@ class Ui_dashboardDialog(object):
         self.tableWidget.setHorizontalHeaderItem(4, item)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(5, item)
-        self.btn_RTL = QtWidgets.QPushButton(dashboardDialog)
-        self.btn_RTL.setGeometry(QtCore.QRect(50, 580, 85, 27))
-        self.btn_RTL.setObjectName("btn_RTL")
+        self.verticalLayout.addWidget(self.tableWidget)
         self.btn_AUTO = QtWidgets.QPushButton(dashboardDialog)
-        self.btn_AUTO.setGeometry(QtCore.QRect(150, 580, 85, 27))
         self.btn_AUTO.setObjectName("btn_AUTO")
+        self.verticalLayout.addWidget(self.btn_AUTO)
+        self.btn_RTL = QtWidgets.QPushButton(dashboardDialog)
+        self.btn_RTL.setObjectName("btn_RTL")
+        self.verticalLayout.addWidget(self.btn_RTL)
         self.btn_beginFollow = QtWidgets.QPushButton(dashboardDialog)
-        self.btn_beginFollow.setGeometry(QtCore.QRect(250, 610, 111, 27))
         self.btn_beginFollow.setObjectName("btn_beginFollow")
+        self.verticalLayout.addWidget(self.btn_beginFollow)
 
         self.retranslateUi(dashboardDialog)
         QtCore.QMetaObject.connectSlotsByName(dashboardDialog)
@@ -58,7 +60,7 @@ class Ui_dashboardDialog(object):
         item.setText(_translate("dashboardDialog", "GPS"))
         item = self.tableWidget.horizontalHeaderItem(5)
         item.setText(_translate("dashboardDialog", "Mode"))
-        self.btn_RTL.setText(_translate("dashboardDialog", "RTL"))
         self.btn_AUTO.setText(_translate("dashboardDialog", "AUTO"))
+        self.btn_RTL.setText(_translate("dashboardDialog", "RTL"))
         self.btn_beginFollow.setText(_translate("dashboardDialog", "Begin Following"))
 
