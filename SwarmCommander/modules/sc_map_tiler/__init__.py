@@ -182,8 +182,6 @@ class SC_MapTilerModule(sc_module.SCModule):
         if service not in TILE_SERVICES:
             raise Exception('Unknown tile service %s' % service)
 
-        self.__tile_cache = OrderedDict()
-
     #d is a boolean
     def set_debug(self, d):
         self.__debug = d
@@ -293,31 +291,9 @@ class SC_MapTilerModule(sc_module.SCModule):
         return os.path.join(self.__cache_path, self.__service, tile.path())
 
     def load_tile(self, tile):
-        '''load a tile from cache for a tile server'''
+        '''ask the tile to start downloading if not already downloading it'''
 
-        #see if its in the tile cache
         key = tile.key()
-        if key in self.__tile_cache:
-            img = self.__tile_cache[key]
-            if img is None or img == self.__unavailable:
-                #TODO
-                #img = self.load_tile_lowres(tile)
-                pass
-                if img is None:
-                    img = self.__unavailable
-
-                #TODO: this thing is not actually in the cache,
-                #maybe clean it out?  How to handle the case where
-                #the server is completely unavailable? -- I don't 
-                #want to try to fetch forever, nor do I want to give
-                #up too soon.
-
-                #TODO NOTE: No longer using the cache -- the GUI is responsible
-                #for caching.  Need to delete this caching section and then
-                #refactor this class as neccessary.
-                return img
-
-        #not in cache if we made it here
         path = self.tile_to_path(tile)
 
         # if it is an old tile, then try to refresh
@@ -335,21 +311,6 @@ class SC_MapTilerModule(sc_module.SCModule):
         
         #make sure we're trying to get tiles
         self.start_fetching_tiles()
-
-        image = None
-        try:
-            image = self.tile_img_from_file(path)
-        except:
-            #unalbe to load the image
-            image = None
-
-        # add it to the tile cache
-        self.__tile_cache[key] = image
-
-        #clean old items out of cache
-        while len(self.__tile_cache) > self.__cache_size:
-            self.__tile_cache.popitem(0)
-        return image
 
     def fetch_tile_thread(self):
         '''thread that downloads tiles from the current source'''
@@ -387,9 +348,6 @@ class SC_MapTilerModule(sc_module.SCModule):
 
             except Exception as e:
                 print('Error loading %s' % url)
-                if not key in self.__tile_cache:
-                    self.__tile_cache[key] = self.__unavailable
-
                 self.__downloads_pending.pop(key)
                 if self.__debug:
                     print("Failed %s: %s" % (url, str(e)))
@@ -397,9 +355,6 @@ class SC_MapTilerModule(sc_module.SCModule):
                 continue
 
             if 'content-type' not in headers or headers['content-type'].find('image') == -1:
-                if not key in self.__tile_cache:
-                    self.__tile_cache[key] = self.__unavailable
-
                 self.__downloads_pending.pop(key)
 
                 if self.__debug:
@@ -415,9 +370,7 @@ class SC_MapTilerModule(sc_module.SCModule):
             if md5 in BLANK_TILES:
                 if self.__debug:
                     print("blank tile %s" % url)
-                if not key in self.__tile_cache:
-                    self.__tile_cache[key] = self.__unavailable
-
+                
                 self.__downloads_pending.pop(key)
                 continue
 
@@ -471,6 +424,9 @@ class SC_MapTilerModule(sc_module.SCModule):
 
     def set_max_zoom(self, zoom_level):
         self.__max_zoom = zoom_level
+
+    def get_min_zoom(self):
+        return self.__min_zoom
 
     def unload(self):
         pass

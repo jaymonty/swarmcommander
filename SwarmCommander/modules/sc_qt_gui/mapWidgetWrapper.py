@@ -161,23 +161,44 @@ class MapWidget(QDialog):
             self.__detail_layers[self.__current_detail_layer].addToGroup(next_rect)
 
     #returns True if texture successfully applied, False otherwise
+    #depth applies to how many zoom levels (or detail layers) we have traveled
+    #while attempting to get a lower resolution texture
     def textureRect(self, rect_tile):
         tile_info = rect_tile.data(0)
+
+        if tile_info is None:
+            return False
 
         pm = QPixmap(self.__tiler.tile_to_path(tile_info))  
         if pm.width() != 256:
             #print("Probably didn't get tile:", next_tile_info.x, next_tile_info.y, "\n")
+            #TODO: Attempt to texture with a lower res tile
+            #Bear in mind that you will have to take Mercator projection into
+            #account on the lower res tile.
+            
+            #First Attempt: didn't work
+            #if tile_info.zoom <= self.__tiler.get_min_zoom():
+            #    return False
+            #
+            #find colocated lower res tile
+            #(lat,lon) = tile_info.coord()
+            #tile_info2 = self.__tiler.coord_to_tile(lat,lon, tile_info.zoom-1)
+            #rect_tile.setData(0, tile_info2)
+            #print("prev tile: ", tile_info.tile, tile_info.coord())
+            #return self.textureRect(rect_tile, depth + 1)
+
+            #until such time as we can pull lower res tiles and figure out
+            #which area to render on a rectangle, skip:
             return False
 
         topLeft = rect_tile.boundingRect().topLeft()
         bottomRight = rect_tile.boundingRect().bottomRight()   
-
-        brush_trans = QTransform()
-        brush_trans.translate(topLeft.x(), topLeft.y())
-
+       
         width = bottomRight.x() - topLeft.x()
         height = bottomRight.y() - topLeft.y()
-        #TODO: deal with the hard coded 256s (width and height of tiles)
+
+        brush_trans = QTransform()        
+        brush_trans.translate(topLeft.x(), topLeft.y())
         brush_trans.scale(width/256.0, height/256.0)
 
         qb = QBrush(pm)
@@ -198,7 +219,14 @@ class MapWidget(QDialog):
             
             if self.__rect_tiles[key].brush().texture().width() != 256:
                 self.textureRect(self.__rect_tiles[key])
-        
+             
+            #TODO: this code becomes applicable when lower res tiles become
+            #available to higher zoom levels.
+            #if self.__rect_tiles[key].data(0).zoom < self.__current_detail_layer:
+                #lower res in there, try to get higher res 
+                #(remove tile info of the lower res tile):
+            #    del self.__rect_tiles[key]
+
     def updateIcons(self):
         for id, uav_state in self.sc_state.uav_states.items():
             if 'lon' not in uav_state.keys():
@@ -263,3 +291,5 @@ class MapWidget(QDialog):
     def onPan(self, new_lat, new_lon):
         lat_lon_str = str(new_lat) + ", " + str(new_lon) 
         self.__mapWidgetUi.coords_lb.setText(lat_lon_str)
+
+
