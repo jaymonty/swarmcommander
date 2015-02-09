@@ -82,51 +82,68 @@ class SC_CLI_Module(sc_module.SCModule):
         '''mavproxy startup command'''
         usage = "usage: mavproxy id <dev_path>\n"
 
+        radio_files = []
+        plane_id = -1
+        device = ""
+       
+        #get us some default radio device files
+        try:
+            radio_files = os.listdir('/dev/serial/by-id')
+        except:
+            radio_files = []
+
         if len(args) < 1:
             self.stdscr.addstr(usage)
+            self.stdscr.addstr("Curently connected radios:\n")
+            if len(radio_files) < 1:
+                self.stdscr.addstr("   NONE\n")
+
+            for next_radio in radio_files:
+                self.stdscr.addstr("   " + next_radio + "\n")
             return
-        else:
-            if len(args) < 2:
-                try:
-                    files = os.listdir('/dev/serial/by-id')
-                except:
-                    files = []
+            
+        plane_id = args[0]
 
-                if len(files) < 1:
-                    self.stdscr.addstr("No radio detected connected via USB.\n")
-                    return
-                device = '/dev/serial/by-id/' + files[0]
-            else:
-                device = args[1]
-
-            #setup SiK radio on proper channel
-            atCmdr = ATCommandSet(device)
-            self.stdscr.addstr("Radio: leaving command mode and unsticking...\n")
-            atCmdr.leave_command_mode_force()
-            atCmdr.unstick()
-
-            if not atCmdr.enter_command_mode():
-                self.stdscr.addstr("Unable to enter command mode, can't set radio ID\n")
+        if len(args) > 0:
+            if len(radio_files) < 1:
+                self.stdscr.addstr("No radio detected connected via USB.\n")
                 return
+            else:    
+                device = '/dev/serial/by-id/' + radio_files[0]
 
-            self.stdscr.addstr("Trying to set radio to netid" + args[0] + "\n")
-            if not atCmdr.set_param(ATCommandSet.PARAM_NETID, args[0]):
-                self.stdscr.addstr("Failed to set netid to " + args[0] + "\n")
-                return
+        if len(args) > 1:
+            device = args[1]
 
-            self.stdscr.addstr("Writing params to radio EEPROM...\n")
-            if not atCmdr.write_params():
-                print("Failed to write params to telem radio EEPROM\n")
-                return
+        #if we made it here, all args have checked out
 
-            if not atCmdr.reboot():
-                print("Failed to reboot telem radio.\n")
+        #setup SiK radio on proper channel
+        atCmdr = ATCommandSet(device)
+        self.stdscr.addstr("Radio: leaving command mode and unsticking...\n")
+        atCmdr.leave_command_mode_force()
+        atCmdr.unstick()
 
-            atCmdr.leave_command_mode()
+        if not atCmdr.enter_command_mode():
+           self.stdscr.addstr("Unable to enter command mode, can't set radio ID\n")
+           return
 
-            #fire up mavproxy with the appropriate device and args
-            subprocess.Popen( ["/usr/bin/xterm", "-e", "mavproxy.py --baudrate 57600 --master " + device ] )
-            #TODO: include proper mission # and sortie #
+        self.stdscr.addstr("Trying to set radio to netid " + plane_id + "\n")
+        if not atCmdr.set_param(ATCommandSet.PARAM_NETID, plane_id):
+            self.stdscr.addstr("Failed to set netid to " + plane_id + "\n")
+            return
+
+        self.stdscr.addstr("Writing params to radio EEPROM...\n")
+        if not atCmdr.write_params():
+            self.stdscr.addstr("Failed to write params to telem radio EEPROM\n")
+            return
+
+        if not atCmdr.reboot():
+            self.stdscr.addstr("Failed to reboot telem radio.\n")
+
+        atCmdr.leave_command_mode()
+
+        #fire up mavproxy with the appropriate device and args
+        subprocess.Popen( ["/usr/bin/xterm", "-e", "mavproxy.py --baudrate 57600 --master " + device + " --speech --aircraft sc_" +  plane_id] )
+        #TODO: include proper mission # and sortie #
 
 
     def cmd_module(self, args):
