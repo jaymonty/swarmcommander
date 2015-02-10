@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Tue Jan 27 16:37:57 2015
+# Created: Tue Feb 10 12:41:14 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,10 +12,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_dashboardDialog(object):
     def setupUi(self, dashboardDialog):
         dashboardDialog.setObjectName("dashboardDialog")
-        dashboardDialog.resize(543, 661)
-        self.verticalLayout = QtWidgets.QVBoxLayout(dashboardDialog)
+        dashboardDialog.resize(629, 675)
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(dashboardDialog)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.tableWidget = QtWidgets.QTableWidget(dashboardDialog)
+        self.tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(6)
         self.tableWidget.setRowCount(0)
@@ -41,6 +44,17 @@ class Ui_dashboardDialog(object):
         self.btn_beginFollow = QtWidgets.QPushButton(dashboardDialog)
         self.btn_beginFollow.setObjectName("btn_beginFollow")
         self.verticalLayout.addWidget(self.btn_beginFollow)
+        self.verticalLayout_2.addLayout(self.verticalLayout)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.btn_setSubswarm = QtWidgets.QPushButton(dashboardDialog)
+        self.btn_setSubswarm.setObjectName("btn_setSubswarm")
+        self.horizontalLayout.addWidget(self.btn_setSubswarm)
+        self.spin_setSubswarm = QtWidgets.QSpinBox(dashboardDialog)
+        self.spin_setSubswarm.setMaximum(50)
+        self.spin_setSubswarm.setObjectName("spin_setSubswarm")
+        self.horizontalLayout.addWidget(self.spin_setSubswarm)
+        self.verticalLayout_2.addLayout(self.horizontalLayout)
 
         self.retranslateUi(dashboardDialog)
         QtCore.QMetaObject.connectSlotsByName(dashboardDialog)
@@ -63,4 +77,5 @@ class Ui_dashboardDialog(object):
         self.btn_AUTO.setText(_translate("dashboardDialog", "AUTO"))
         self.btn_RTL.setText(_translate("dashboardDialog", "RTL"))
         self.btn_beginFollow.setText(_translate("dashboardDialog", "Begin Following"))
+        self.btn_setSubswarm.setText(_translate("dashboardDialog", "Assign to Subswarm"))
 

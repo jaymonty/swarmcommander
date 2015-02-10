@@ -50,6 +50,7 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.btn_RTL.clicked.connect(self.rtl_button_pushed)
         self.__dashboardUi.btn_AUTO.clicked.connect(self.auto_button_pushed)
         self.__dashboardUi.btn_beginFollow.clicked.connect(self.begin_follow_pushed)
+        self.__dashboardUi.btn_setSubswarm.clicked.connect(self.set_subswarm_pushed)
 
     def update_uav_states(self):
         for id in self.sc_state.uav_states.keys():
@@ -138,14 +139,20 @@ class DashboardDialog(QDialog):
     def begin_follow_pushed(self):
         net_mod = self.sc_state.module('acs_network')
         if net_mod is not None:
-            #TODO: selected row is 0 if nothing is selected (less than ideaL0
-            #To fix this problem, we shouldn't use a button at the bottom of 
-            #the dashboard, but a button in the table (or a right click menu
-            #in the table)
-            selected_row = self.__dashboardUi.tableWidget.currentRow()
-            selected_uav_id = int(self.__dashboardUi.tableWidget.item(selected_row, self.__ID_COL).text())
+            selected_items = self.__dashboardUi.tableWidget.selectedItems()
+            selected_uav_ids = [ int(item.text()) for item in selected_items if (item.column() == self.__ID_COL) ]
+            for selected_uav_id in selected_uav_ids:
             #TODO: "2" hard coded for "follow controller" needs to improve
-            net_mod.set_controller_for(selected_uav_id, 2)
+                net_mod.set_controller_for(selected_uav_id, 2)
+
+    def set_subswarm_pushed(self):
+        net_mod = self.sc_state.module('acs_network')
+        if net_mod is not None:
+            selected_items = self.__dashboardUi.tableWidget.selectedItems()
+            selected_uav_ids = [ int(item.text()) for item in selected_items if (item.column() == self.__ID_COL) ]
+            selected_subswarm_id = int(self.__dashboardUi.spin_setSubswarm.value())
+            for selected_uav_id in selected_uav_ids:
+                net_mod.set_subswarm_for(selected_uav_id, selected_subswarm_id)
 
     def selectUAV(self, id):
         if id not in self.__uav_row_map:

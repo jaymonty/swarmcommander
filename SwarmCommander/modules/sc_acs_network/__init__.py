@@ -100,6 +100,12 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
         self.send_message_to(id, message)
 
+    def set_subswarm_for(self, id, subswarm):
+        message = acs_messages.SetSubswarm()
+        message.subswarm = subswarm
+        message.msg_fl_rel = True
+        self.send_message_to(id, message)
+
     #TODO: finish this method -- not working yet
     def send_slave_msg(self, target_id, port, enable=True):
         ss = acs_messages.SlaveSetup()

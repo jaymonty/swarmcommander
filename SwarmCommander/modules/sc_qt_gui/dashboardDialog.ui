@@ -6,68 +6,93 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>543</width>
-    <height>661</height>
+    <width>629</width>
+    <height>675</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dashboard</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QTableWidget" name="tableWidget">
-     <column>
-      <property name="text">
-       <string>ID</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Link</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Batt</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>GPS</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Mode</string>
-      </property>
-     </column>
-    </widget>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTableWidget" name="tableWidget">
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+       <column>
+        <property name="text">
+         <string>ID</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Link</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Batt</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>GPS</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Mode</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_AUTO">
+       <property name="text">
+        <string>AUTO</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_RTL">
+       <property name="text">
+        <string>RTL</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_beginFollow">
+       <property name="text">
+        <string>Begin Following</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
-    <widget class="QPushButton" name="btn_AUTO">
-     <property name="text">
-      <string>AUTO</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="btn_RTL">
-     <property name="text">
-      <string>RTL</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="btn_beginFollow">
-     <property name="text">
-      <string>Begin Following</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="btn_setSubswarm">
+       <property name="text">
+        <string>Assign to Subswarm</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spin_setSubswarm">
+       <property name="maximum">
+        <number>50</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
