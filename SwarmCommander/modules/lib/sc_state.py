@@ -55,6 +55,7 @@ class SCState(object):
         self.uav_states[id]['mode'] = msg.mode
         self.uav_states[id]['batt_rem'] = msg.batt_rem 
         self.uav_states[id]['gps_sats'] = msg.gps_sats
+        self.uav_states[id]['subswarm'] = msg.msg_sub
 
         self.uav_states[id]['last_status_update'] = now
 
@@ -66,6 +67,7 @@ class SCState(object):
         if (now < self.uav_states[id]['last_pose_update']):
             return
 
+        self.uav_states[id]['subswarm'] = msg.msg_sub
         self.uav_states[id]['lat'] = msg.lat
         self.uav_states[id]['lon'] = msg.lon
         self.uav_states[id]['quat'] = (msg.q_x, msg.q_y, msg.q_z, msg.q_w)
