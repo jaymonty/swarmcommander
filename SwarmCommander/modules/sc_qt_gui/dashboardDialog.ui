@@ -18,6 +18,12 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QTableWidget" name="tableWidget">
+       <property name="minimumSize">
+        <size>
+         <width>609</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectRows</enum>
        </property>
@@ -29,6 +35,17 @@
        <column>
         <property name="text">
          <string>Name</string>
+        </property>
+        <property name="font">
+         <font>
+          <strikeout>false</strikeout>
+          <kerning>true</kerning>
+         </font>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>SS_ID</string>
         </property>
        </column>
        <column>

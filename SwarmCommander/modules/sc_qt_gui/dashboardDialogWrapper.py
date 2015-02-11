@@ -35,15 +35,17 @@ class DashboardDialog(QDialog):
 
         self.__ID_COL = 0
         self.__NAME_COL = 1
-        self.__LINK_COL = 2
-        self.__BATT_REM_COL = 3
-        self.__GPS_SATS_COL = 4
-        self.__MODE_COL = 5
+        self.__SUBSWARM_COL = 2
+        self.__LINK_COL = 3
+        self.__BATT_REM_COL = 4
+        self.__GPS_SATS_COL = 5
+        self.__MODE_COL = 6
 
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 30)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 30)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 30)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_SATS_COL, 30)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 50)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__SUBSWARM_COL, 50)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 50)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 50)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_SATS_COL, 50)
         #end table stuff ------------------
 
         #slots
@@ -107,6 +109,8 @@ class DashboardDialog(QDialog):
         
         self.__dashboardUi.tableWidget.setItem(row, self.__NAME_COL, 
                 QTableWidgetItem())
+        self.__dashboardUi.tableWidget.setItem(row, self.__SUBSWARM_COL, 
+                QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__LINK_COL,
                 QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__BATT_REM_COL,
@@ -116,13 +120,14 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.setItem(row, self.__MODE_COL,
                 QTableWidgetItem())
 
-    def update_uav_row(self, id, uav_state):        
+    def update_uav_row(self, id, uav_state):
         row = self.__uav_row_map[id]        
-        
+
         self.__dashboardUi.tableWidget.item(row, self.__NAME_COL).setText(uav_state['name'])
         self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(str(uav_state['batt_rem']))
         self.__dashboardUi.tableWidget.item(row, self.__GPS_SATS_COL).setText(str(uav_state['gps_sats']))
         self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(str(uav_state['mode']))
+        self.__dashboardUi.tableWidget.item(row, self.__SUBSWARM_COL).setText(str(uav_state['subswarm']))
 
         self.__uav_update_map[id] = time.clock()
 
