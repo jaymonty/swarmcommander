@@ -17,6 +17,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
         self.__command_map = {
             'help'        : (self.cmd_help,    'List of Swarm Commander Commands'),
+            'aircraft'    : (self.cmd_aircraft,'Aircraft commands'),
             'map'         : (self.cmd_map,     'Map commands'),
             'mavproxy'    : (self.cmd_mavproxy,'Start a MAVProxy instance'),
             'module'      : (self.cmd_module,  'Module commmands'),
@@ -43,6 +44,64 @@ class SC_CLI_Module(sc_module.SCModule):
 
             self.stdscr.addstr(help)
             self.stdscr.addstr("\n")
+
+    def cmd_aircraft(self, args):
+        '''"aircraft" command processing'''
+        usage = "usage: aircraft <id|all> <arm|disarm|status>\n"
+
+        if self.sc_state.module('acs_network') is None:
+            self.stdscr.addstr("Must load acs_network module before using network command.\n")
+            return
+
+        if len(args) < 2:
+            self.stdscr.addstr(usage)
+            return
+        
+        net_mod = self.sc_state.module('acs_network')
+        plane_id = args[0]
+
+        #list of aircraft ids to which this command applies
+        aircraft = []
+        if plane_id == "all":
+            aircraft = self.sc_state.get_uav_ids()
+        else:
+            try:
+                int_id = int(plane_id)
+            except:
+                self.stdscr.addstr("\tid arg must be an int or 'all'\n")
+                return
+
+            if int_id not in self.sc_state.uav_states.keys():
+                self.stdscr.addstr("\tNo aircraft with id: " +str(id)+ "\n")
+                return
+
+            aircraft.append(int_id)
+
+        if args[1] == "status":
+            for id in aircraft:
+                self.stdscr.addstr("UAV num " + str(id) + ":\n")
+                for key, value in self.sc_state.uav_states[id].items():
+                    self.stdscr.addstr("\t" +str(key)+ " = " +str(value)+ "\n")
+        elif args[1] == "arm":
+            for id in aircraft:
+                net_mod.arm_throttle_for(id)
+        elif args[1] == "disarm":
+            if len(aircraft) > 1:
+                self.stdscr.addstr("About to disarm multiple planes! SURE? (yes/N)\n")
+                res = self.stdscr.getstr()
+                decoded = res.decode("utf-8")
+                if decoded.lower() != "yes":
+                    self.stdscr.addstr("Aborted disarm.\n")
+                    return
+                else:
+                    self.stdscr.addstr("Disarming multiple planes!!!\n")
+
+            for id in aircraft:
+                net_mod.arm_throttle_for(id, False)
+
+        else:
+            self.stdscr.addstr(usage)
+
 
     def cmd_map(self, args):
         '''"map" command processing'''
