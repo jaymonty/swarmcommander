@@ -85,6 +85,14 @@ class SC_ACS_Network_Module(sc_module.SCModule):
             print (ex.args)
         return res
 
+    #this method with arm or disarm (set arm_state to False to disarm)
+    def arm_throttle_for(self, plane_id, arm_state=True):
+        msg = acs_messages.Arm()
+        msg.enable = arm_state
+        msg.msg_fl_rel = True
+
+        self.send_message_to(plane_id, msg)
+
     def change_mode_all_aircraft(self, mode):
         for id,name in self.sc_state.uav_states.items():
             message = acs_messages.Mode()
