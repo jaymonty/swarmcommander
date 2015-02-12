@@ -16,6 +16,16 @@ from SwarmCommander.modules.sc_qt_gui.dashboardDialog import Ui_dashboardDialog
 
 import time
 
+# Mapping of swarm state numbers to readable names
+# This is a hack until I can get the import from SwarmManager to work right
+STATE_STRINGS = { 0: 'Preflight', \
+                  1: 'Flight Ready', \
+                  2: 'Launched', \
+                  3: 'Swarming', \
+                  4: 'Egressing', \
+                  5: 'Landing', \
+                  6: 'On Deck' }
+
 class DashboardDialog(QDialog):
     def __init__(self, sc_state):
         QDialog.__init__(self)
@@ -36,16 +46,18 @@ class DashboardDialog(QDialog):
         self.__ID_COL = 0
         self.__NAME_COL = 1
         self.__SUBSWARM_COL = 2
-        self.__LINK_COL = 3
-        self.__BATT_REM_COL = 4
-        self.__GPS_SATS_COL = 5
-        self.__MODE_COL = 6
+        self.__SWARM_STATE_COL = 3
+        self.__LINK_COL = 4
+        self.__BATT_REM_COL = 5
+        self.__GPS_OK_COL = 6
+        self.__MODE_COL = 7
 
         self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 50)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__SUBSWARM_COL, 50)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 50)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 50)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_SATS_COL, 50)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_OK_COL, 50)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__MODE_COL, 50)
         #end table stuff ------------------
 
         #slots
@@ -111,11 +123,13 @@ class DashboardDialog(QDialog):
                 QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__SUBSWARM_COL, 
                 QTableWidgetItem())
+        self.__dashboardUi.tableWidget.setItem(row, self.__SWARM_STATE_COL, 
+                QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__LINK_COL,
                 QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__BATT_REM_COL,
                 QTableWidgetItem())
-        self.__dashboardUi.tableWidget.setItem(row, self.__GPS_SATS_COL,
+        self.__dashboardUi.tableWidget.setItem(row, self.__GPS_OK_COL,
                 QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__MODE_COL,
                 QTableWidgetItem())
@@ -125,9 +139,16 @@ class DashboardDialog(QDialog):
 
         self.__dashboardUi.tableWidget.item(row, self.__NAME_COL).setText(uav_state['name'])
         self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(str(uav_state['batt_rem']))
-        self.__dashboardUi.tableWidget.item(row, self.__GPS_SATS_COL).setText(str(uav_state['gps_sats']))
         self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(str(uav_state['mode']))
         self.__dashboardUi.tableWidget.item(row, self.__SUBSWARM_COL).setText(str(uav_state['subswarm']))
+        swarm_state = STATE_STRINGS[uav_state['swarm_state']]
+        self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).setText(swarm_state)
+        if (uav_state['gps_ok']):
+            self.__dashboardUi.tableWidget.item(row, self.__GPS_OK_COL).\
+                 setBackground(QBrush(QColor(0,255,0)))
+        else:
+            self.__dashboardUi.tableWidget.item(row, self.__GPS_OK_COL).\
+                 setBackground(QBrush(QColor(255,0,0)))
 
         self.__uav_update_map[id] = time.clock()
 

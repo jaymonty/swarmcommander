@@ -50,6 +50,11 @@
        </column>
        <column>
         <property name="text">
+         <string>Swarm State</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
          <string>Link</string>
         </property>
        </column>

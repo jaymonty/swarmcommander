@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Wed Feb 11 09:25:47 2015
+# Created: Thu Feb 12 22:03:21 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,7 +21,7 @@ class Ui_dashboardDialog(object):
         self.tableWidget.setMinimumSize(QtCore.QSize(609, 0))
         self.tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(7)
+        self.tableWidget.setColumnCount(8)
         self.tableWidget.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, item)
@@ -41,6 +41,8 @@ class Ui_dashboardDialog(object):
         self.tableWidget.setHorizontalHeaderItem(5, item)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(6, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(7, item)
         self.verticalLayout.addWidget(self.tableWidget)
         self.btn_AUTO = QtWidgets.QPushButton(dashboardDialog)
         self.btn_AUTO.setObjectName("btn_AUTO")
@@ -76,12 +78,14 @@ class Ui_dashboardDialog(object):
         item = self.tableWidget.horizontalHeaderItem(2)
         item.setText(_translate("dashboardDialog", "SS_ID"))
         item = self.tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("dashboardDialog", "Link"))
+        item.setText(_translate("dashboardDialog", "Swarm State"))
         item = self.tableWidget.horizontalHeaderItem(4)
-        item.setText(_translate("dashboardDialog", "Batt"))
+        item.setText(_translate("dashboardDialog", "Link"))
         item = self.tableWidget.horizontalHeaderItem(5)
-        item.setText(_translate("dashboardDialog", "GPS"))
+        item.setText(_translate("dashboardDialog", "Batt"))
         item = self.tableWidget.horizontalHeaderItem(6)
+        item.setText(_translate("dashboardDialog", "GPS"))
+        item = self.tableWidget.horizontalHeaderItem(7)
         item.setText(_translate("dashboardDialog", "Mode"))
         self.btn_AUTO.setText(_translate("dashboardDialog", "AUTO"))
         self.btn_RTL.setText(_translate("dashboardDialog", "RTL"))
