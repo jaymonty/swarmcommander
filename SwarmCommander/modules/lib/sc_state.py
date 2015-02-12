@@ -74,6 +74,13 @@ class SCState(object):
 
         self.uav_states[id]['last_pose_update'] = now
 
+    def get_uav_ids(self):
+        ids = []
+        for id in self.uav_states.keys():
+            ids.append(id)
+
+        return ids
+
     def module(self, name):
         ''' Find a loaded module. Return none if no loaded module of that name, or if module is private. '''
         if name in self.__loaded_modules:
