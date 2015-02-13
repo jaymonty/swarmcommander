@@ -72,7 +72,7 @@ class SC_CLI_Module(sc_module.SCModule):
                 return
 
             if int_id not in self.sc_state.uav_states.keys():
-                self.stdscr.addstr("\tNo aircraft with id: " +str(id)+ "\n")
+                self.stdscr.addstr("\tNo UAV with id: " +str(plane_id)+ "\n")
                 return
 
             aircraft.append(int_id)
@@ -139,12 +139,15 @@ class SC_CLI_Module(sc_module.SCModule):
 
     def cmd_mavproxy(self, args):
         '''mavproxy startup command'''
-        usage = "usage: mavproxy id <dev_path>\n"
+        usage = "usage: mavproxy id <telem=False> <dev_path (only for telem)>\n"
+        usage += "\tIf telem is False (default) use Wi-Fi link, otherwise use telem radio.\n"
+        usage += "\tIf having trouble with Wi-Fi links, see network command.\n"
 
         radio_files = []
         plane_id = -1
         device = ""
-       
+        use_telem = False
+
         #get us some default radio device files
         try:
             radio_files = os.listdir('/dev/serial/by-id')
@@ -163,46 +166,61 @@ class SC_CLI_Module(sc_module.SCModule):
             
         plane_id = args[0]
 
+        if len(args) > 1:
+            if (args[1].lower() == "true" or args[1].lower() == "t"
+                    or args[1].lower() == "1"):
+                use_telem = True
+
         if len(args) > 0:
             if len(radio_files) < 1:
-                self.stdscr.addstr("No radio detected connected via USB.\n")
-                return
+                if use_telem == True:
+                    self.stdscr.addstr("No telem radio detected via USB.\n")
+                    return
             else:    
                 device = '/dev/serial/by-id/' + radio_files[0]
-
-        if len(args) > 1:
-            device = args[1]
+        
+        if len(args) > 2:
+            device = args[2]
 
         #if we made it here, all args have checked out
 
-        #setup SiK radio on proper channel
-        atCmdr = ATCommandSet(device)
-        self.stdscr.addstr("Radio: leaving command mode and unsticking...\n")
-        atCmdr.leave_command_mode_force()
-        atCmdr.unstick()
+        if use_telem == False:
+            self.sc_state.module('acs_network').open_mavproxy_wifi(plane_id)
 
-        if not atCmdr.enter_command_mode():
-           self.stdscr.addstr("Unable to enter command mode, can't set radio ID\n")
-           return
+        else: #use_telem == True
+            #setup SiK radio on proper channel
+            try:
+                atCmdr = ATCommandSet(device)
+            except:
+                self.stdscr.addstr("Cannot connect to: " + device + "\n")
+                return
+            self.stdscr.addstr("Radio: leaving cmd mode and unsticking...\n")
+            atCmdr.leave_command_mode_force()
+            atCmdr.unstick()
 
-        self.stdscr.addstr("Trying to set radio to netid " + plane_id + "\n")
-        if not atCmdr.set_param(ATCommandSet.PARAM_NETID, plane_id):
-            self.stdscr.addstr("Failed to set netid to " + plane_id + "\n")
-            return
+            if not atCmdr.enter_command_mode():
+                self.stdscr.addstr("Can't enter cmd mode, can't set radio ID\n")
+                return
 
-        self.stdscr.addstr("Writing params to radio EEPROM...\n")
-        if not atCmdr.write_params():
-            self.stdscr.addstr("Failed to write params to telem radio EEPROM\n")
-            return
+            self.stdscr.addstr("Trying to set radio netid=" + plane_id + "\n")
+        
+            if not atCmdr.set_param(ATCommandSet.PARAM_NETID, plane_id):
+                self.stdscr.addstr("Failed to set netid to " + plane_id + "\n")
+                return
 
-        if not atCmdr.reboot():
-            self.stdscr.addstr("Failed to reboot telem radio.\n")
+            self.stdscr.addstr("Writing params to radio EEPROM...\n")
+            if not atCmdr.write_params():
+                self.stdscr.addstr("Can't write params to telem radio EEPROM\n")
+                return
 
-        atCmdr.leave_command_mode()
+            if not atCmdr.reboot():
+                self.stdscr.addstr("Failed to reboot telem radio.\n")
 
-        #fire up mavproxy with the appropriate device and args
-        subprocess.Popen( ["/usr/bin/xterm", "-e", "mavproxy.py --baudrate 57600 --master " + device + " --speech --aircraft sc_" +  plane_id] )
-        #TODO: include proper mission # and sortie #
+            atCmdr.leave_command_mode()
+
+            #fire up mavproxy with the appropriate device and args
+            subprocess.Popen( ["/usr/bin/xterm", "-e", "mavproxy.py --baudrate 57600 --master " + device + " --speech --aircraft sc_" +  plane_id] )
+            #TODO: include proper mission # and sortie #
 
 
     def cmd_module(self, args):
