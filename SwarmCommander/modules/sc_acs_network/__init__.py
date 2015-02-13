@@ -8,7 +8,7 @@ from SwarmCommander.modules.lib import sc_module
 from ap_lib.acs_socket import Socket
 from ap_lib import acs_messages
 
-import threading, time
+import subprocess, threading, time
 
 class SC_ACS_Network_Module(sc_module.SCModule):
     def __init__(self, sc_state):
@@ -32,6 +32,12 @@ class SC_ACS_Network_Module(sc_module.SCModule):
             self.__sock = Socket(0xff, self.__port, self.__device, self.__my_ip, self.__bcast_ip)
         except Exception as e:
             print("Couldn't start up socket on interface", self.__device)
+            return
+
+        # NOTE: The next two lines are *definitely* not the most pythonic
+        #  (shouldn't just grab class data members)
+        self.__my_ip = self.__sock._ip
+        self.__bcast_ip = self.__sock._bcast
 
     def process_flight_status(self, msg):
         #print("%d %s %d %d" % (msg.msg_src, name, msg.armed, msg.mode))
@@ -114,28 +120,25 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         message.msg_fl_rel = True
         self.send_message_to(id, message)
 
-    #TODO: finish this method -- not working yet
-    def send_slave_msg(self, target_id, port, enable=True):
+    def setup_mavlink_slave_ch(self, target_id, port, chan, enable=True):
+        ''' Open/close a slave mavlink channel to the aircraft '''
         ss = acs_messages.SlaveSetup()
         ss.msg_dst = int(target_id)
         ss.msg_secs = 0
         ss.msg_nsecs = 0
-        ss.channel = 'udp:' + self.__sock.getIP() + ':' + str(port)
-        #ss.channel = 'udp:127.0.0.1:' + str(port)
+        ss.channel = chan
         ss.enable = enable
-
-        print(ss.channel, "\n")
 
         #This message needs to make it through (set reliable flag)
         ss.msg_fl_rel = True
     
         self.__sock.send(ss)
 
-    def enable_slave(self, target_id, port):
-        self.send_slave_msg(target_id, port, True)
+    def enable_slave(self, target_id, port, chan):
+        self.setup_mavlink_slave_ch(target_id, port, True)
 
-    def disable_slave(self, target_id, port):
-        self.send_slave_msg(target_id, port, False)
+    def disable_slave(self, target_id, port, chan):
+        self.setup_mavlink_slave_ch(target_id, port, False)
 
     def set_device(self, device_name):
         #shut off socket
@@ -148,6 +151,22 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
     def get_device(self):
         return self.__device
+
+    def open_mavproxy_wifi(self, plane_id):
+        #pick an aircraft-unique port
+        slave_port = 15554 + int(plane_id)
+
+        mavproxy_master = "udp:%s:%u" % (self.__my_ip, slave_port)
+        self.enable_slave(plane_id, slave_port, mavproxy_master) 
+
+        # Start up a MAVProxy instance and connect to slave channel
+        subprocess.Popen( ["/usr/bin/xterm", "-e", "mavproxy.py --baudrate 57600 --master " + mavproxy_master + " --speech --aircraft sc_" +  plane_id] )
+
+        #TODO: make it so I can shut off the slave channel when MAVProxy is
+        #shut down (can't do it immediately or I lose MAVProxy prematurely)
+        # Shut down slave channel
+        #self.disable_slave(plane_id, slave_port, mavproxy_master)
+
 
 def init(sc_state):
     '''facilitate dynamic initialization of the module '''
