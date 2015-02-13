@@ -135,10 +135,10 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.__sock.send(ss)
 
     def enable_slave(self, target_id, port, chan):
-        self.setup_mavlink_slave_ch(target_id, port, True)
+        self.setup_mavlink_slave_ch(target_id, port, chan, True)
 
     def disable_slave(self, target_id, port, chan):
-        self.setup_mavlink_slave_ch(target_id, port, False)
+        self.setup_mavlink_slave_ch(target_id, port, chan, False)
 
     def set_device(self, device_name):
         #shut off socket
