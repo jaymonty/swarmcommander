@@ -95,8 +95,11 @@ do
         cp -f $template_eeprom_path .
     fi
     
+    #prevent collision with physical plane IDs:
+    ros_id=$(( $i + 100 ))
+
     #run_in_terminal_window.sh "sim_vehicle.sh -I $i -v ArduPlane -L McMillan --aircraft testingDashboard --mission 0 --map --console"
-    /usr/bin/xterm -hold -e "sim_vehicle.sh -N -I $i -v ArduPlane -L McMillan --aircraft testing --mission 0" &
+    /usr/bin/xterm -hold -e "sim_vehicle.sh -N -I$ros_id -vArduPlane -LMcMillan --aircraft testing --mission 0" &
 
     #Give each autopilot portion of SITL a chance to get started
     sleep 5
@@ -104,13 +107,13 @@ do
     cd $ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils
 
     if [ $USE_CONTAINERS == 1 ]; then 
-        sudo -E /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -C -R $USER $i" &
+        sudo -E /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -C -R $USER $ros_id" &
     else
         if [ $NEED_BRIDGE == 1 ]; then
             $ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/bridge_config.sh
         fi
 
-        /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -D $NET_DEVICE $i" &
+        /usr/bin/xterm -hold -e "$ACS_ROOT/acs_ros_ws/src/autonomy-payload/utils/launch_payload.sh -D $NET_DEVICE $ros_id" &
     fi  
 
     i=$(( $i + 1 ))
