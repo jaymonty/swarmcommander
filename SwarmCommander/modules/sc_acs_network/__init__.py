@@ -19,15 +19,56 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.__my_ip = None
         self.__bcast_ip = None
 
+        self.__heartbeat_count = 0
+        self.__heartbeat_rate = 2.0 #Hz
+                
+        self.init_threads()
+
+    def init_threads(self):
+        self.__hb_t = None
+        self.__t = None
+
+        self.__stop_heartbeat = False
+        self.__hb_t = threading.Thread(target=self.heartbeat_thread)
+        self.__hb_t.daemon = True
+        self.__hb_t.start()
+
+        #read socket
         self.__sock = None
         self.open_socket()
-
         self.__time_to_stop = False
         self.__t = threading.Thread(target=self.read_socket)
         self.__t.daemon = True
         self.__t.start()
-   
+
+    def get_heartbeat_count(self):
+        return self.__heartbeat_count
+
+    def heartbeat_thread(self):
+        try:
+            sock = Socket(0xff, self.__port, self.__device, None, None, send_only=True)
+        except Exception:
+            print("Couldn't start up the Swarm Commander ACS heartbeat.")
+            return
+    
+        message = acs_messages.Heartbeat()
+        message.msg_dst = Socket.ID_BCAST_ALL
+        message.msg_secs = 0
+        message.msg_nsecs = 0
+        message.counter = self.__heartbeat_count
+
+        while not self.__stop_heartbeat:
+            sock.send(message)
+
+            self.__heartbeat_count += 1
+            message.counter += self.__heartbeat_count
+
+            time.sleep(1.0 / self.__heartbeat_rate)
+
     def open_socket(self):
+        self.__my_ip = None
+        self.__bcast_ip = None
+
         try:
             self.__sock = Socket(0xff, self.__port, self.__device, self.__my_ip, self.__bcast_ip)
         except Exception as e:
@@ -54,7 +95,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
             #50 planes * 10 msgs/sec = 500 Hz
             time.sleep(0.002)
 
-            #There is a minute chance somebody is trying to reopen the
+            #There is a chance somebody is trying to reopen the
             #socket in a different thread:
             if self.__sock == None:
                 continue
@@ -71,6 +112,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
             if isinstance(msg, acs_messages.Pose):
                 self.process_pose(msg)
+
 
     def unload(self):
         ''' Called when ACS Network modoule is unloaded'''
@@ -141,13 +183,23 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.setup_mavlink_slave_ch(target_id, port, chan, False)
 
     def set_device(self, device_name):
-        #shut off socket
+        #shut off heartbeat thread
+        self.__stop_heartbeat = True
+
+        #shut off read thread and socket
+        self.__time_to_stop = True
         self.__sock = None
 
+        #pause a sec for thread(s) to cleanup
+        time.sleep(1)
+        
         self.__device = device_name
 
         #start socket on new device
-        self.open_socket()
+        #self.open_socket()
+
+        #restart heartbeat thread
+        self.init_threads()
 
     def get_device(self):
         return self.__device
