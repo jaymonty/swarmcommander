@@ -47,7 +47,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
     def cmd_aircraft(self, args):
         '''"aircraft" command processing'''
-        usage = "usage: aircraft <id|all> <arm|disarm|status>\n"
+        usage = "usage: aircraft <id|all> <arm|disarm|red_alert|status>\n"
 
         if self.sc_state.module('acs_network') is None:
             self.stdscr.addstr("Must load acs_network module before using network command.\n")
@@ -77,12 +77,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
             aircraft.append(int_id)
 
-        if args[1] == "status":
-            for id in aircraft:
-                self.stdscr.addstr("UAV num " + str(id) + ":\n")
-                for key, value in self.sc_state.uav_states[id].items():
-                    self.stdscr.addstr("\t" +str(key)+ " = " +str(value)+ "\n")
-        elif args[1] == "arm":
+        if args[1] == "arm":
             for id in aircraft:
                 net_mod.arm_throttle_for(id)
         elif args[1] == "disarm":
@@ -98,6 +93,24 @@ class SC_CLI_Module(sc_module.SCModule):
 
             for id in aircraft:
                 net_mod.arm_throttle_for(id, False)
+
+        elif args[1] == "red_alert":
+            self.stdscr.addstr("About to kill throttle on those planes! SURE? (yes/N)\n")
+            res = self.stdscr.getstr()
+            decoded = res.decode("utf-8")
+            if decoded.lower() != "yes":
+                self.stdscr.addstr("Aborted red alert.\n")
+                return
+            else:
+                self.stdscr.addstr("Killing throttle on those planes!!!\n")
+                #working right here: need a message from SC to ROS
+                #self.sc_state.module('acs_network').gah!!
+
+        elif args[1] == "status":
+            for id in aircraft:
+                self.stdscr.addstr("UAV num " + str(id) + ":\n")
+                for key, value in self.sc_state.uav_states[id].items():
+                    self.stdscr.addstr("\t" +str(key)+ " = " +str(value)+ "\n")
 
         else:
             self.stdscr.addstr(usage)
@@ -278,6 +291,8 @@ class SC_CLI_Module(sc_module.SCModule):
             self.sc_state.module('acs_network').set_device(args[1])
         elif args[0] == "status":
             self.stdscr.addstr("  Device: " + self.sc_state.module('acs_network').get_device() + "\n")
+            self.stdscr.addstr("    Heartbeats sent: " + str(self.sc_state.module('acs_network').get_heartbeat_count()) + "\n")
+
         elif args[0] == "slave":
             if len(args) < 4:
                 self.stdscr.addstr("usage: network slave <enable|disable> target_id port\n")
