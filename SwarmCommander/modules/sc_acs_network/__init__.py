@@ -150,11 +150,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
     def change_mode_all_aircraft(self, mode):
         for id,name in self.sc_state.uav_states.items():
-            message = acs_messages.Mode()
-            message.mode = mode
-            message.msg_fl_rel = True 
-
-            self.send_message_to(id, message)
+            self.change_mode_for(id, mode)
 
     def change_mode_for(self, id, mode):
         message = acs_messages.Mode()
