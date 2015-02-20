@@ -85,14 +85,7 @@
      <item>
       <widget class="QPushButton" name="btn_RTL">
        <property name="text">
-        <string>RTL</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btn_beginFollow">
-       <property name="text">
-        <string>Begin Following</string>
+        <string>RTL Selected UAVs</string>
        </property>
       </widget>
      </item>
@@ -103,7 +96,7 @@
      <item>
       <widget class="QPushButton" name="btn_setSubswarm">
        <property name="text">
-        <string>Assign to Subswarm</string>
+        <string>Assign Select UAVs to Subswarm</string>
        </property>
       </widget>
      </item>
@@ -111,6 +104,62 @@
       <widget class="QSpinBox" name="spin_setSubswarm">
        <property name="maximum">
         <number>50</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="spin_selectSubswarm">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>50</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="lbl_selectSubswarm">
+       <property name="text">
+        <string>Select Subswarm for Behavior Command:  </string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QPushButton" name="btn_suspendSwarmBehavior">
+       <property name="text">
+        <string>Suspend Swarm Behavior</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QPushButton" name="btn_beginSwarmBehavior">
+       <property name="text">
+        <string>Begin Swarm Behavior</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="btn_egressSubswarm">
+       <property name="text">
+        <string>Subswarm Egress</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spin_egressSubswarm">
+       <property name="maximum">
+        <number>52</number>
        </property>
       </widget>
      </item>

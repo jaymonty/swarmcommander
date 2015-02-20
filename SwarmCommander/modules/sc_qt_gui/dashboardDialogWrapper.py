@@ -15,6 +15,7 @@ from PyQt5.QtGui import QBrush, QColor
 from SwarmCommander.modules.sc_qt_gui.dashboardDialog import Ui_dashboardDialog
 
 import time
+import math
 
 # Mapping of swarm state numbers to readable names
 # This is a hack until I can get the import from SwarmManager to work right
@@ -40,6 +41,24 @@ MODE_STRINGS = { 0:  'RTL', \
 #UNMAPPED = ACRO, LOITER, INITIALIZING, TRAINING, STABILIZE, CRUISE
 
 class DashboardDialog(QDialog):
+
+    STAGING_WP_INDEX = 4
+    EGRESS_WP_INDEX = 5
+    RACETRACK_WP_INDEX = 7  # For now--this is just a racetrack waypoint
+
+    # Temporary hard-code hack to maintain altitude separation
+    uav_altitudes = { 101:385,
+                      102:410,
+                      103:435,
+                      104:460,
+                      105:485,
+                      105:510,
+                      106:535,
+                      107:560,
+                      108:585,
+                      109:610,
+                      110:635 }
+
     def __init__(self, sc_state):
         QDialog.__init__(self)
 
@@ -76,8 +95,10 @@ class DashboardDialog(QDialog):
         #slots
         self.__dashboardUi.btn_RTL.clicked.connect(self.rtl_button_pushed)
         self.__dashboardUi.btn_AUTO.clicked.connect(self.auto_button_pushed)
-        self.__dashboardUi.btn_beginFollow.clicked.connect(self.begin_follow_pushed)
+        self.__dashboardUi.btn_beginSwarmBehavior.clicked.connect(self.begin_swarm_behavior_pushed)
+        self.__dashboardUi.btn_suspendSwarmBehavior.clicked.connect(self.suspend_swarm_behavior_pushed)
         self.__dashboardUi.btn_setSubswarm.clicked.connect(self.set_subswarm_pushed)
+        self.__dashboardUi.btn_egressSubswarm.clicked.connect(self.egress_subswarm_pushed)
 
     def update_uav_states(self):
         for id in self.sc_state.uav_states.keys():
@@ -172,30 +193,83 @@ class DashboardDialog(QDialog):
     def rtl_button_pushed(self):
         net_mod = self.sc_state.module('acs_network')
         if net_mod is not None:
-            net_mod.change_mode_all_aircraft(0)
+#            net_mod.change_mode_all_aircraft(0)   # Original "all" behavior
+            selected_uav_ids = self.selectTableUAVs()
+            for selected_uav_id in selected_uav_ids:
+                net_mod.change_mode_for(selected_uav_id, 0)
+
 
     def auto_button_pushed(self):
         net_mod = self.sc_state.module('acs_network')
         if net_mod is not None:
             net_mod.change_mode_all_aircraft(4)
 
-    def begin_follow_pushed(self):
-        net_mod = self.sc_state.module('acs_network')
-        if net_mod is not None:
-            selected_items = self.__dashboardUi.tableWidget.selectedItems()
-            selected_uav_ids = [ int(item.text()) for item in selected_items if (item.column() == self.__ID_COL) ]
-            for selected_uav_id in selected_uav_ids:
-            #TODO: "2" hard coded for "follow controller" needs to improve
-                net_mod.set_controller_for(selected_uav_id, 2)
+#    def begin_swarm_behavior_pushed(self):
+#        net_mod = self.sc_state.module('acs_network')
+#        if net_mod is not None:
+#            selected_items = self.__dashboardUi.tableWidget.selectedItems()
+#            selected_uav_ids = [ int(item.text()) for item in selected_items if (item.column() == self.__ID_COL) ]
+#            for selected_uav_id in selected_uav_ids:
+#            #TODO: "2" hard coded for "follow controller" needs to improve
+#                net_mod.set_controller_for(selected_uav_id, 2)
 
     def set_subswarm_pushed(self):
         net_mod = self.sc_state.module('acs_network')
         if net_mod is not None:
             selected_items = self.__dashboardUi.tableWidget.selectedItems()
-            selected_uav_ids = [ int(item.text()) for item in selected_items if (item.column() == self.__ID_COL) ]
+            selected_uav_ids = self.selectTableUAVs()
             selected_subswarm_id = int(self.__dashboardUi.spin_setSubswarm.value())
             for selected_uav_id in selected_uav_ids:
                 net_mod.set_subswarm_for(selected_uav_id, selected_subswarm_id)
+
+    def begin_swarm_behavior_pushed(self):
+        net_mod = self.sc_state.module('acs_network')
+        if net_mod is not None:
+            subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
+            if subswarm_uavs == []: return  # Empty subswarm--nothing to do
+
+            # Figure out who's in front
+            lead_uav, lead_alt = 0, 0
+            for uav in subswarm_uavs:
+                if (DashboardDialog.uav_altitudes[uav] > lead_alt):
+                    lead_uav, lead_alt = uav, DashboardDialog.uav_altitudes[uav]
+
+            # Send initialization (follower setup) commands
+            for uav in subswarm_uavs:
+                if uav == lead_uav:  # Send the lead UAV into the racetrack
+                    net_mod.set_controller_for(uav, 0)
+                    net_mod.set_waypoint_goto_for(uav, DashboardDialog.RACETRACK_WP_INDEX)
+
+                if uav != lead_uav:
+                    net_mod.set_follower_params_for(uav, lead_uav, 25.0, math.pi, 0, \
+                                                    DashboardDialog.uav_altitudes[uav], 0)
+
+            # Send activate commands
+            for uav in subswarm_uavs:
+                if uav == lead_uav:  # Send the lead UAV into the racetrack
+                    net_mod.set_controller_for(uav, 0)
+                    net_mod.set_waypoint_goto_for(uav, DashboardDialog.RACETRACK_WP_INDEX)
+
+                else:  # Activate the follow controller for the rest
+                    net_mod.set_controller_for(uav, 2)
+
+    def suspend_swarm_behavior_pushed(self):
+        net_mod = self.sc_state.module('acs_network')
+        if net_mod is not None:
+            subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
+            # Set the controller to 0 (autopilot only) and send UAV to the racetrack
+            for uav_id in subswarm_uavs:
+                net_mod.set_controller_for(uav_id, 0)
+                net_mod.set_waypoint_goto_for(uav_id, DashboardDialog.STAGING_WP_INDEX)
+
+    def egress_subswarm_pushed(self):
+        net_mod = self.sc_state.module('acs_network')
+        if net_mod is not None:
+            subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_egressSubswarm.value()))
+            # Set the controller to 0 (autopilot only) and send UAV to the racetrack
+            for uav_id in subswarm_uavs:
+                net_mod.set_controller_for(uav_id, 0)
+                net_mod.set_waypoint_goto_for(uav_id, DashboardDialog.EGRESS_WP_INDEX)
 
     def selectUAV(self, id):
         if id not in self.__uav_row_map:
@@ -206,3 +280,17 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.clearSelection()
         self.__dashboardUi.tableWidget.setCurrentCell(rowNum, self.__ID_COL,
                 QItemSelectionModel.Select)
+
+    def selectSubswarmUAVs(self, subswarm_id):
+        result = []
+        for vid in self.__uav_row_map:
+            rowNum = self.__uav_row_map[vid]
+            if (int(self.__dashboardUi.tableWidget.item(rowNum, self.__SUBSWARM_COL).text()) == subswarm_id):
+                result.append(vid)
+        return result
+
+    def selectTableUAVs(self):
+        selected_items = self.__dashboardUi.tableWidget.selectedItems()
+        return [ int(item.text()) for item in selected_items if (item.column() == self.__ID_COL) ]
+
+

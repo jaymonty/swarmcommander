@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Thu Feb 12 22:03:21 2015
+# Created: Thu Feb 19 20:51:35 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -50,9 +50,6 @@ class Ui_dashboardDialog(object):
         self.btn_RTL = QtWidgets.QPushButton(dashboardDialog)
         self.btn_RTL.setObjectName("btn_RTL")
         self.verticalLayout.addWidget(self.btn_RTL)
-        self.btn_beginFollow = QtWidgets.QPushButton(dashboardDialog)
-        self.btn_beginFollow.setObjectName("btn_beginFollow")
-        self.verticalLayout.addWidget(self.btn_beginFollow)
         self.verticalLayout_2.addLayout(self.verticalLayout)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -64,6 +61,34 @@ class Ui_dashboardDialog(object):
         self.spin_setSubswarm.setObjectName("spin_setSubswarm")
         self.horizontalLayout.addWidget(self.spin_setSubswarm)
         self.verticalLayout_2.addLayout(self.horizontalLayout)
+        self.gridLayout = QtWidgets.QGridLayout()
+        self.gridLayout.setObjectName("gridLayout")
+        self.spin_selectSubswarm = QtWidgets.QSpinBox(dashboardDialog)
+        self.spin_selectSubswarm.setMinimum(1)
+        self.spin_selectSubswarm.setMaximum(50)
+        self.spin_selectSubswarm.setObjectName("spin_selectSubswarm")
+        self.gridLayout.addWidget(self.spin_selectSubswarm, 0, 1, 1, 1)
+        self.lbl_selectSubswarm = QtWidgets.QLabel(dashboardDialog)
+        self.lbl_selectSubswarm.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lbl_selectSubswarm.setObjectName("lbl_selectSubswarm")
+        self.gridLayout.addWidget(self.lbl_selectSubswarm, 0, 0, 1, 1)
+        self.btn_suspendSwarmBehavior = QtWidgets.QPushButton(dashboardDialog)
+        self.btn_suspendSwarmBehavior.setObjectName("btn_suspendSwarmBehavior")
+        self.gridLayout.addWidget(self.btn_suspendSwarmBehavior, 4, 1, 1, 1)
+        self.btn_beginSwarmBehavior = QtWidgets.QPushButton(dashboardDialog)
+        self.btn_beginSwarmBehavior.setObjectName("btn_beginSwarmBehavior")
+        self.gridLayout.addWidget(self.btn_beginSwarmBehavior, 4, 0, 1, 1)
+        self.verticalLayout_2.addLayout(self.gridLayout)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.btn_egressSubswarm = QtWidgets.QPushButton(dashboardDialog)
+        self.btn_egressSubswarm.setObjectName("btn_egressSubswarm")
+        self.horizontalLayout_2.addWidget(self.btn_egressSubswarm)
+        self.spin_egressSubswarm = QtWidgets.QSpinBox(dashboardDialog)
+        self.spin_egressSubswarm.setMaximum(52)
+        self.spin_egressSubswarm.setObjectName("spin_egressSubswarm")
+        self.horizontalLayout_2.addWidget(self.spin_egressSubswarm)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
 
         self.retranslateUi(dashboardDialog)
         QtCore.QMetaObject.connectSlotsByName(dashboardDialog)
@@ -88,7 +113,10 @@ class Ui_dashboardDialog(object):
         item = self.tableWidget.horizontalHeaderItem(7)
         item.setText(_translate("dashboardDialog", "Mode"))
         self.btn_AUTO.setText(_translate("dashboardDialog", "AUTO"))
-        self.btn_RTL.setText(_translate("dashboardDialog", "RTL"))
-        self.btn_beginFollow.setText(_translate("dashboardDialog", "Begin Following"))
-        self.btn_setSubswarm.setText(_translate("dashboardDialog", "Assign to Subswarm"))
+        self.btn_RTL.setText(_translate("dashboardDialog", "RTL Selected UAVs"))
+        self.btn_setSubswarm.setText(_translate("dashboardDialog", "Assign Select UAVs to Subswarm"))
+        self.lbl_selectSubswarm.setText(_translate("dashboardDialog", "Select Subswarm for Behavior Command:  "))
+        self.btn_suspendSwarmBehavior.setText(_translate("dashboardDialog", "Suspend Swarm Behavior"))
+        self.btn_beginSwarmBehavior.setText(_translate("dashboardDialog", "Begin Swarm Behavior"))
+        self.btn_egressSubswarm.setText(_translate("dashboardDialog", "Subswarm Egress"))
 
