@@ -192,84 +192,107 @@ class DashboardDialog(QDialog):
 
     def rtl_button_pushed(self):
         net_mod = self.sc_state.module('acs_network')
-        if net_mod is not None:
-#            net_mod.change_mode_all_aircraft(0)   # Original "all" behavior
-            selected_uav_ids = self.selectTableUAVs()
-            for selected_uav_id in selected_uav_ids:
-                net_mod.change_mode_for(selected_uav_id, 0)
+        if net_mod is None:
+            print("No network module! (rtl_button_pushed)\n")
+            return
+
+        selected_uav_ids = self.selectTableUAVs()
+        for selected_uav_id in selected_uav_ids:
+            net_mod.change_mode_for(selected_uav_id, 0)
 
 
     def auto_button_pushed(self):
         net_mod = self.sc_state.module('acs_network')
-        if net_mod is not None:
-            net_mod.change_mode_all_aircraft(4)
+        if net_mod is None:
+            print("No network module! (auto_button_pushed)\n")
+            return
+            
+        selected_uav_ids = self.selectTableUAVs()
+        for selected_uav_id in selected_uav_ids:
+            net_mod.change_mode_for(selected_uav_id, 4)
 
 #    def begin_swarm_behavior_pushed(self):
 #        net_mod = self.sc_state.module('acs_network')
-#        if net_mod is not None:
-#            selected_items = self.__dashboardUi.tableWidget.selectedItems()
-#            selected_uav_ids = [ int(item.text()) for item in selected_items if (item.column() == self.__ID_COL) ]
-#            for selected_uav_id in selected_uav_ids:
+#        if net_mod is None:
+#           print("No network module! (begin_swarm_behavior_pushed)\n")
+#           return
+#
+#        selected_items = self.__dashboardUi.tableWidget.selectedItems()
+#        selected_uav_ids = [ int(item.text()) for item in selected_items if (item.column() == self.__ID_COL) ]
+#        for selected_uav_id in selected_uav_ids:
 #            #TODO: "2" hard coded for "follow controller" needs to improve
-#                net_mod.set_controller_for(selected_uav_id, 2)
+#            net_mod.set_controller_for(selected_uav_id, 2)
 
     def set_subswarm_pushed(self):
         net_mod = self.sc_state.module('acs_network')
-        if net_mod is not None:
-            selected_items = self.__dashboardUi.tableWidget.selectedItems()
-            selected_uav_ids = self.selectTableUAVs()
-            selected_subswarm_id = int(self.__dashboardUi.spin_setSubswarm.value())
-            for selected_uav_id in selected_uav_ids:
-                net_mod.set_subswarm_for(selected_uav_id, selected_subswarm_id)
+        if net_mod is None:
+            print("No network module! (set_subswarm_pushed)\n")
+            return
+
+        selected_items = self.__dashboardUi.tableWidget.selectedItems()
+        selected_uav_ids = self.selectTableUAVs()
+        selected_subswarm_id = int(self.__dashboardUi.spin_setSubswarm.value())
+        for selected_uav_id in selected_uav_ids:
+            net_mod.set_subswarm_for(selected_uav_id, selected_subswarm_id)
 
     def begin_swarm_behavior_pushed(self):
         net_mod = self.sc_state.module('acs_network')
-        if net_mod is not None:
-            subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
-            if subswarm_uavs == []: return  # Empty subswarm--nothing to do
+        if net_mod is None:
+            print("No network module! (begin_swarm_behavior_pushed)\n")
+            return
 
-            # Figure out who's in front
-            lead_uav, lead_alt = 0, 0
-            for uav in subswarm_uavs:
-                if (DashboardDialog.uav_altitudes[uav] > lead_alt):
-                    lead_uav, lead_alt = uav, DashboardDialog.uav_altitudes[uav]
 
-            # Send initialization (follower setup) commands
-            for uav in subswarm_uavs:
-                if uav == lead_uav:  # Send the lead UAV into the racetrack
-                    net_mod.set_controller_for(uav, 0)
-                    net_mod.set_waypoint_goto_for(uav, DashboardDialog.RACETRACK_WP_INDEX)
+        subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
+        if subswarm_uavs == []: return  # Empty subswarm--nothing to do
 
-                if uav != lead_uav:
-                    net_mod.set_follower_params_for(uav, lead_uav, 25.0, math.pi, 0, \
-                                                    DashboardDialog.uav_altitudes[uav], 0)
+        # Figure out who's in front
+        lead_uav, lead_alt = 0, 0
+        for uav in subswarm_uavs:
+            if (DashboardDialog.uav_altitudes[uav] > lead_alt):
+                lead_uav, lead_alt = uav, DashboardDialog.uav_altitudes[uav]
 
-            # Send activate commands
-            for uav in subswarm_uavs:
-                if uav == lead_uav:  # Send the lead UAV into the racetrack
-                    net_mod.set_controller_for(uav, 0)
-                    net_mod.set_waypoint_goto_for(uav, DashboardDialog.RACETRACK_WP_INDEX)
+        # Send initialization (follower setup) commands
+        for uav in subswarm_uavs:
+            if uav == lead_uav:  # Send the lead UAV into the racetrack
+                net_mod.set_controller_for(uav, 0)
+                net_mod.set_waypoint_goto_for(uav, DashboardDialog.RACETRACK_WP_INDEX)
 
-                else:  # Activate the follow controller for the rest
-                    net_mod.set_controller_for(uav, 2)
+            if uav != lead_uav:
+                net_mod.set_follower_params_for(uav, lead_uav, 25.0, math.pi, 0, \
+                DashboardDialog.uav_altitudes[uav], 0)
+
+        # Send activate commands
+        for uav in subswarm_uavs:
+            if uav == lead_uav:  # Send the lead UAV into the racetrack
+                net_mod.set_controller_for(uav, 0)
+                net_mod.set_waypoint_goto_for(uav, DashboardDialog.RACETRACK_WP_INDEX)
+
+            else:  # Activate the follow controller for the rest
+                net_mod.set_controller_for(uav, 2)
 
     def suspend_swarm_behavior_pushed(self):
         net_mod = self.sc_state.module('acs_network')
-        if net_mod is not None:
-            subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
-            # Set the controller to 0 (autopilot only) and send UAV to the racetrack
-            for uav_id in subswarm_uavs:
-                net_mod.set_controller_for(uav_id, 0)
-                net_mod.set_waypoint_goto_for(uav_id, DashboardDialog.STAGING_WP_INDEX)
+        if net_mod is None:
+            print("No network module! (suspend_swarm_behavior_pushed)\n")
+            return
+
+        subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
+        # Set the controller to 0 (autopilot only) and send UAV to the racetrack
+        for uav_id in subswarm_uavs:
+            net_mod.set_controller_for(uav_id, 0)
+            net_mod.set_waypoint_goto_for(uav_id, DashboardDialog.STAGING_WP_INDEX)
 
     def egress_subswarm_pushed(self):
         net_mod = self.sc_state.module('acs_network')
-        if net_mod is not None:
-            subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_egressSubswarm.value()))
-            # Set the controller to 0 (autopilot only) and send UAV to the racetrack
-            for uav_id in subswarm_uavs:
-                net_mod.set_controller_for(uav_id, 0)
-                net_mod.set_waypoint_goto_for(uav_id, DashboardDialog.EGRESS_WP_INDEX)
+        if net_mod is None:
+            print("No network module! (egress_subswarm_pushed)\n")
+            return
+
+        subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_egressSubswarm.value()))
+        # Set the controller to 0 (autopilot only) and send UAV to the racetrack
+        for uav_id in subswarm_uavs:
+            net_mod.set_controller_for(uav_id, 0)
+            net_mod.set_waypoint_goto_for(uav_id, DashboardDialog.EGRESS_WP_INDEX)
 
     def selectUAV(self, id):
         if id not in self.__uav_row_map:
