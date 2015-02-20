@@ -274,7 +274,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
     def cmd_network(self, args):
         '''network command processing'''
-        usage = "usage: network <device|slave|status>\n"
+        usage = "usage: network <device|heartbeat|slave|status>\n"
 
         if self.sc_state.module('acs_network') is None:
             self.stdscr.addstr("Must load acs_network module before using network command.\n")
@@ -289,6 +289,16 @@ class SC_CLI_Module(sc_module.SCModule):
                 self.stdscr.addstr("  e.g., eth0, wlan1, sitl_bridge\n")
                 return
             self.sc_state.module('acs_network').set_device(args[1])
+        elif args[0] == "heartbeat":
+            if len(args) < 2:
+                self.stdscr.addstr("\tHeartbeat Enabled? " + str(self.sc_state.module('acs_network').get_heartbeat_enabled()) + "\n")
+                self.stdscr.addstr("\tTo enable/disable: network heartbeat <disable|enable>\n")
+            elif args[1].lower() == "enable":
+                self.sc_state.module('acs_network').set_heartbeat_enabled(True)
+
+            elif args[1].lower() == "disable":
+                self.sc_state.module('acs_network').set_heartbeat_enabled(False)
+
         elif args[0] == "status":
             self.stdscr.addstr("  Device: " + self.sc_state.module('acs_network').get_device() + "\n")
             self.stdscr.addstr("    Heartbeats sent: " + str(self.sc_state.module('acs_network').get_heartbeat_count()) + "\n")
