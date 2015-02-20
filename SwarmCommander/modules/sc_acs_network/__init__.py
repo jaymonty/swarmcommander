@@ -169,6 +169,13 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         message.msg_fl_rel = True
         self.send_message_to(id, message)
 
+    def set_autopilot_heartbeat_for(self, id, enable=True):
+        message = acs_messages.PayloadHeartbeat()
+        message.enable = enable
+        #only set the "fl_rel" flag for messages that _must_ be reliable:
+        message.msg_fl_rel = True
+        self.send_message_to(id, message)
+
     def setup_mavlink_slave_ch(self, target_id, port, chan, enable=True):
         ''' Open/close a slave mavlink channel to the aircraft '''
         ss = acs_messages.SlaveSetup()
