@@ -156,9 +156,23 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
             self.send_message_to(id, message)
 
+    def change_mode_for(self, id, mode):
+        message = acs_messages.Mode()
+        message.mode = mode
+        message.msg_fl_rel = True
+
+        self.send_message_to(id, message)
+
     def set_controller_for(self, id, controller):
         message = acs_messages.SetController()
         message.controller = controller
+        message.msg_fl_rel = True
+
+        self.send_message_to(id, message)
+
+    def set_waypoint_goto_for(self, id, wp_id):
+        message = acs_messages.WaypointGoto()
+        message.index = wp_id
         message.msg_fl_rel = True
 
         self.send_message_to(id, message)
@@ -174,6 +188,20 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         message.enable = enable
         #only set the "fl_rel" flag for messages that _must_ be reliable:
         message.msg_fl_rel = True
+        
+        self.send_message_to(id, message)
+
+    def set_follower_params_for(self, id, leader_id, follow_range, \
+                                offset_angle, alt_mode, ctrl_alt, seq_num):
+        message = acs_messages.FollowerSetup()
+        message.leader_id = leader_id
+        message.follow_range = follow_range
+        message.offset_angle = offset_angle
+        message.alt_mode = alt_mode
+        message.control_alt = ctrl_alt
+        message.seq = seq_num
+        message.msg_fl_rel = True
+
         self.send_message_to(id, message)
 
     def setup_mavlink_slave_ch(self, target_id, port, chan, enable=True):
