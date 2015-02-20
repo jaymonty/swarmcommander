@@ -47,7 +47,7 @@ class SC_CLI_Module(sc_module.SCModule):
 
     def cmd_aircraft(self, args):
         '''"aircraft" command processing'''
-        usage = "usage: aircraft <id|all> <arm|disarm|red_alert|status>\n"
+        usage = "usage: aircraft <id|all> <arm|disarm|heartbeat|red_alert|status>\n"
 
         if self.sc_state.module('acs_network') is None:
             self.stdscr.addstr("Must load acs_network module before using network command.\n")
@@ -93,6 +93,17 @@ class SC_CLI_Module(sc_module.SCModule):
 
             for id in aircraft:
                 net_mod.arm_throttle_for(id, False)
+
+        elif args[1] == "heartbeat":
+            if len(args) < 3:
+                self.stdscr.addstr("\tusage: aircraft <id|all> heartbeat <enable|disable>\n")
+            elif args[2].lower() == "enable":
+                for id in aircraft:
+                    self.sc_state.module('acs_network').set_autopilot_heartbeat_for(id, True)
+
+            elif args[2].lower() == "disable":
+                for id in aircraft:
+                    self.sc_state.module('acs_network').set_autopilot_heartbeat_for(id, False)
 
         elif args[1] == "red_alert":
             self.stdscr.addstr("About to kill throttle on those planes! SURE? (yes/N)\n")
