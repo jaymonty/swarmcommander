@@ -26,6 +26,19 @@ STATE_STRINGS = { 0: 'Preflight', \
                   5: 'Landing', \
                   6: 'On Deck' }
 
+#HACK (copying Duane's good idea above).  Mapping of mode IDs to names.
+#TODO: this is probably a bad way to do this.  It's only a stopgap.
+#Find a better way!
+MODE_STRINGS = { 0:  'RTL', \
+                 1:  'MANUAL', \
+                 2:  'FBWA', \
+                 3:  'GUIDED', \
+                 4:  'AUTO', \
+                 5:  'FBWB', \
+                 6:  'CIRCLE', \
+                 15: 'UNMAPPED' }
+#UNMAPPED = ACRO, LOITER, INITIALIZING, TRAINING, STABILIZE, CRUISE
+
 class DashboardDialog(QDialog):
     def __init__(self, sc_state):
         QDialog.__init__(self)
@@ -57,7 +70,7 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 50)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 50)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_OK_COL, 50)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__MODE_COL, 50)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__MODE_COL, 80)
         #end table stuff ------------------
 
         #slots
@@ -135,11 +148,15 @@ class DashboardDialog(QDialog):
                 QTableWidgetItem())
 
     def update_uav_row(self, id, uav_state):
-        row = self.__uav_row_map[id]        
+        row = self.__uav_row_map[id]
+
+        current_mode = 'ERROR'
+        if uav_state['mode'] in MODE_STRINGS:
+            current_mode = MODE_STRINGS[uav_state['mode']]
 
         self.__dashboardUi.tableWidget.item(row, self.__NAME_COL).setText(uav_state['name'])
         self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(str(uav_state['batt_rem']))
-        self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(str(uav_state['mode']))
+        self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(current_mode)
         self.__dashboardUi.tableWidget.item(row, self.__SUBSWARM_COL).setText(str(uav_state['subswarm']))
         swarm_state = STATE_STRINGS[uav_state['swarm_state']]
         self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).setText(swarm_state)
