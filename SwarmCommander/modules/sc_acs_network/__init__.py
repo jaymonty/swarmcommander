@@ -19,6 +19,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.__my_ip = None
         self.__bcast_ip = None
 
+        self.__heartbeat_enabled = True
         self.__heartbeat_count = 0
         self.__heartbeat_rate = 2.0 #Hz
                 
@@ -28,7 +29,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.__hb_t = None
         self.__t = None
 
-        self.__stop_heartbeat = False
+        self.__stop_heartbeat_thread = False
         self.__hb_t = threading.Thread(target=self.heartbeat_thread)
         self.__hb_t.daemon = True
         self.__hb_t.start()
@@ -44,6 +45,12 @@ class SC_ACS_Network_Module(sc_module.SCModule):
     def get_heartbeat_count(self):
         return self.__heartbeat_count
 
+    def set_heartbeat_enabled(self, do_enable = True):
+        self.__heartbeat_enabled = do_enable
+
+    def get_heartbeat_enabled(self):
+        return self.__heartbeat_enabled
+
     def heartbeat_thread(self):
         try:
             sock = Socket(0xff, self.__port, self.__device, None, None, send_only=True)
@@ -57,11 +64,11 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         message.msg_nsecs = 0
         message.counter = self.__heartbeat_count
 
-        while not self.__stop_heartbeat:
-            sock.send(message)
-
-            self.__heartbeat_count += 1
-            message.counter += self.__heartbeat_count
+        while not self.__stop_heartbeat_thread:
+            if self.__heartbeat_enabled:
+                sock.send(message)
+                self.__heartbeat_count += 1
+                message.counter += self.__heartbeat_count
 
             time.sleep(1.0 / self.__heartbeat_rate)
 
@@ -184,7 +191,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
     def set_device(self, device_name):
         #shut off heartbeat thread
-        self.__stop_heartbeat = True
+        self.__stop_heartbeat_thread = True
 
         #shut off read thread and socket
         self.__time_to_stop = True
