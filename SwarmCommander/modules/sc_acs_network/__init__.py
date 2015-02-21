@@ -23,9 +23,33 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.__heartbeat_count = 0
         self.__heartbeat_rate = 2.0 #Hz
                 
-        self.init_threads()
+        self.init_comm_threads()
 
-    def init_threads(self):
+        self.__mavproxy_watchers = {}
+        self.__watch_mavproxy = True
+        self.__mp_watcher_t = threading.Thread(target=self.mavproxy_watcher_thread)
+        self.__mp_watcher_t.daemon = True
+        self.__mp_watcher_t.start()
+
+    def mavproxy_watcher_thread(self):
+        while self.__watch_mavproxy:
+            entries_to_remove = []
+            for id, proc in self.__mavproxy_watchers.items():
+                if proc.poll() is not None: #has the process closed?
+                    #shut down slave
+                    self.close_mavproxy_slave(id) 
+
+                    #mark entry for removal from dictionary
+                    entries_to_remove.append(id)
+
+            #remove any marked dictionary entries
+            for id in entries_to_remove:
+                del self.__mavproxy_watchers[id]
+
+            #don't need to poll very often for local closed MAVProxies
+            time.sleep(3)
+
+    def init_comm_threads(self):
         self.__hb_t = None
         self.__t = None
 
@@ -237,26 +261,37 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         #self.open_socket()
 
         #restart heartbeat thread
-        self.init_threads()
+        self.init_com_threads()
 
     def get_device(self):
         return self.__device
 
-    def open_mavproxy_wifi(self, plane_id):
-        #pick an aircraft-unique port
+    def slave_port_and_master_str(self, plane_id):
+         #pick an aircraft-unique port
         slave_port = 15554 + int(plane_id)
+        master_str = "udp:%s:%u" % (self.__my_ip, slave_port)
 
-        mavproxy_master = "udp:%s:%u" % (self.__my_ip, slave_port)
+        return (slave_port, master_str)
+    
+    def close_mavproxy_slave(self, plane_id):
+        (slave_port, master_str) = self.slave_port_and_master_str(plane_id)
+        self.disable_slave(plane_id, slave_port, master_str)
+
+    def open_mavproxy_wifi(self, plane_id):
+        if plane_id in self.__mavproxy_watchers:
+            print("Mavproxy appears to already be open for", str(plane_id))
+            return
+
+        (slave_port, mavproxy_master) = self.slave_port_and_master_str(plane_id)
+
         self.enable_slave(plane_id, slave_port, mavproxy_master) 
 
         # Start up a MAVProxy instance and connect to slave channel
-        subprocess.Popen( ["/usr/bin/xterm", "-e", "mavproxy.py --baudrate 57600 --master " + mavproxy_master + " --speech --aircraft sc_" +  plane_id] )
+        proc = subprocess.Popen( ["/usr/bin/xterm", "-e", "mavproxy.py --baudrate 57600 --master " + mavproxy_master + " --speech --aircraft sc_" +  plane_id] )
 
-        #TODO: make it so I can shut off the slave channel when MAVProxy is
-        #shut down (can't do it immediately or I lose MAVProxy prematurely)
-        # Shut down slave channel
-        #self.disable_slave(plane_id, slave_port, mavproxy_master)
-
+        #the mavproxy watcher thread needs to be aware of this new process,
+        #so the slave channel can be closed when MAVProxy closes:
+        self.__mavproxy_watchers[plane_id] = proc
 
 def init(sc_state):
     '''facilitate dynamic initialization of the module '''
