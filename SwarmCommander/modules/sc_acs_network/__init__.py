@@ -261,7 +261,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         #self.open_socket()
 
         #restart heartbeat thread
-        self.init_com_threads()
+        self.init_comm_threads()
 
     def get_device(self):
         return self.__device
