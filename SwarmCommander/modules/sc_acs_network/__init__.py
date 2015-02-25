@@ -168,7 +168,8 @@ class SC_ACS_Network_Module(sc_module.SCModule):
     def arm_throttle_for(self, plane_id, arm_state=True):
         msg = acs_messages.Arm()
         msg.enable = arm_state
-        msg.msg_fl_rel = True
+	#TODO: set back to reliable after that's fixed
+        msg.msg_fl_rel = False
 
         self.send_message_to(plane_id, msg)
 
@@ -179,35 +180,46 @@ class SC_ACS_Network_Module(sc_module.SCModule):
     def change_mode_for(self, id, mode):
         message = acs_messages.Mode()
         message.mode = mode
-        message.msg_fl_rel = True
+
+	#TODO: set back to reliable after that's fixed
+        message.msg_fl_rel = False
 
         self.send_message_to(id, message)
 
     def set_controller_for(self, id, controller):
         message = acs_messages.SetController()
         message.controller = controller
-        message.msg_fl_rel = True
+
+	#TODO: set back to reliable after that's fixed
+        message.msg_fl_rel = False
 
         self.send_message_to(id, message)
 
     def set_waypoint_goto_for(self, id, wp_id):
         message = acs_messages.WaypointGoto()
         message.index = wp_id
-        message.msg_fl_rel = True
+
+	#TODO: set back to reliable after that's fixed
+        message.msg_fl_rel = False
 
         self.send_message_to(id, message)
 
     def set_subswarm_for(self, id, subswarm):
         message = acs_messages.SetSubswarm()
         message.subswarm = subswarm
-        message.msg_fl_rel = True
+
+	#TODO: set back to reliable after that's fixed
+        message.msg_fl_rel = False
+
         self.send_message_to(id, message)
 
     def set_autopilot_heartbeat_for(self, id, enable=True):
         message = acs_messages.PayloadHeartbeat()
         message.enable = enable
-        #only set the "fl_rel" flag for messages that _must_ be reliable:
-        message.msg_fl_rel = True
+        
+	#only set the "fl_rel" flag for messages that _must_ be reliable:
+        #TODO: set back to reliable after that's fixed
+        message.msg_fl_rel = False
         
         self.send_message_to(id, message)
 
@@ -220,7 +232,9 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         message.alt_mode = alt_mode
         message.control_alt = ctrl_alt
         message.seq = seq_num
-        message.msg_fl_rel = True
+	
+	#TODO: set back to reliable after that's fixed
+        message.msg_fl_rel = False
 
         self.send_message_to(id, message)
 
@@ -234,7 +248,8 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         ss.enable = enable
 
         #This message needs to make it through (set reliable flag)
-        ss.msg_fl_rel = True
+	#TODO: set back to reliable after that's fixed
+        ss.msg_fl_rel = False
     
         self.__sock.send(ss)
 
