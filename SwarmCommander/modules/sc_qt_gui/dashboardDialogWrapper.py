@@ -45,9 +45,20 @@ class DashboardDialog(QDialog):
     STAGING_WP_INDEX = 4
     EGRESS_WP_INDEX = 5
     RACETRACK_WP_INDEX = 7  # For now--this is just a racetrack waypoint
+    SWARM_BEH_WP_INDEX = 12 # infinite loiter to allow for swarming behavior
 
     # Temporary hard-code hack to maintain altitude separation
-    uav_altitudes = {  15:375,
+    uav_altitudes = {   4:375,
+                        6:400,
+                       11:425,
+                        9:450,
+                       12:475,
+                        7:500,
+                       10:525,
+                       13:550,
+                       14:575,
+                       15:600,
+                        5:625,
                       101:385,
                       102:410,
                       103:435,
