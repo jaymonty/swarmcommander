@@ -47,7 +47,8 @@ class DashboardDialog(QDialog):
     RACETRACK_WP_INDEX = 7  # For now--this is just a racetrack waypoint
 
     # Temporary hard-code hack to maintain altitude separation
-    uav_altitudes = { 101:385,
+    uav_altitudes = {  15:375,
+                      101:385,
                       102:410,
                       103:435,
                       104:460,
