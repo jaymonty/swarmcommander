@@ -168,8 +168,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
     def arm_throttle_for(self, plane_id, arm_state=True):
         msg = acs_messages.Arm()
         msg.enable = arm_state
-	#TODO: set back to reliable after that's fixed
-        msg.msg_fl_rel = False
+        msg.msg_fl_rel = True
 
         self.send_message_to(plane_id, msg)
 
@@ -180,36 +179,35 @@ class SC_ACS_Network_Module(sc_module.SCModule):
     def change_mode_for(self, id, mode):
         message = acs_messages.Mode()
         message.mode = mode
-
-	#TODO: set back to reliable after that's fixed
-        message.msg_fl_rel = False
+        message.msg_fl_rel = True
 
         self.send_message_to(id, message)
 
     def set_controller_for(self, id, controller):
         message = acs_messages.SetController()
         message.controller = controller
-
-	#TODO: set back to reliable after that's fixed
-        message.msg_fl_rel = False
+        message.msg_fl_rel = True
 
         self.send_message_to(id, message)
 
     def set_waypoint_goto_for(self, id, wp_id):
         message = acs_messages.WaypointGoto()
         message.index = wp_id
-
-	#TODO: set back to reliable after that's fixed
-        message.msg_fl_rel = False
+        message.msg_fl_rel = True
 
         self.send_message_to(id, message)
 
     def set_subswarm_for(self, id, subswarm):
         message = acs_messages.SetSubswarm()
         message.subswarm = subswarm
+        message.msg_fl_rel = True
 
-	#TODO: set back to reliable after that's fixed
-        message.msg_fl_rel = False
+        self.send_message_to(id, message)
+
+    def swarm_behavior_for(self, id, behavior):
+        message = acs_messages.SwarmBehavior()
+        message.swarm_behavior = behavior
+        message.msg_fl_rel = True
 
         self.send_message_to(id, message)
 
@@ -218,11 +216,14 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         message.enable = enable
         
 	#only set the "fl_rel" flag for messages that _must_ be reliable:
-        #TODO: set back to reliable after that's fixed
         message.msg_fl_rel = False
         
         self.send_message_to(id, message)
 
+    # Might want to depricate this eventually (direct controller setup and
+    # invocation via network message bypasses the swarm_manager node and
+    # has potential race conditions that might lead to unsafe situations.
+    # Functionality in SwarmCommander will be eliminated before April event.
     def set_follower_params_for(self, id, leader_id, follow_range, \
                                 offset_angle, alt_mode, ctrl_alt, seq_num):
         message = acs_messages.FollowerSetup()
@@ -232,9 +233,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         message.alt_mode = alt_mode
         message.control_alt = ctrl_alt
         message.seq = seq_num
-	
-	#TODO: set back to reliable after that's fixed
-        message.msg_fl_rel = False
+        message.msg_fl_rel = True
 
         self.send_message_to(id, message)
 
@@ -246,10 +245,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         ss.msg_nsecs = 0
         ss.channel = chan
         ss.enable = enable
-
-        #This message needs to make it through (set reliable flag)
-	#TODO: set back to reliable after that's fixed
-        ss.msg_fl_rel = False
+        ss.msg_fl_rel = True
     
         self.__sock.send(ss)
 
