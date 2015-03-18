@@ -211,6 +211,13 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
         self.send_message_to(id, message)
 
+    def swarm_state_for(self, id, state):
+        message = acs_messages.SwarmState()
+        message.swarm_state = state
+        message.msg_fl_rel = True
+
+        self.send_message_to(id, message)
+
     def set_autopilot_heartbeat_for(self, id, enable=True):
         message = acs_messages.PayloadHeartbeat()
         message.enable = enable
