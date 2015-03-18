@@ -57,6 +57,8 @@ class SCState(object):
         self.uav_states[id]['gps_ok'] = msg.ok_gps
         self.uav_states[id]['swarm_state'] = msg.swarm_state
         self.uav_states[id]['subswarm'] = msg.msg_sub
+        self.uav_states[id]['ctl_mode'] = msg.ctl_mode
+        self.uav_states[id]['swarm_behavior'] = msg.swarm_behavior
 
         self.uav_states[id]['last_status_update'] = now
 
