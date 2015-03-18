@@ -6,6 +6,7 @@
 """
 
 from SwarmCommander.modules.lib import sc_module
+from SwarmCommander.modules.lib import sc_uav_state
 
 import sys, pip, traceback, zipfile, zipimport, time
 
@@ -20,9 +21,7 @@ class SCState(object):
         self.__loaded_modules = {}
         self.__module_path = 'SwarmCommander.modules.sc_'
 
-        #UAV state table
-        #TODO: this needs to be a better data stuct than a dictionary...
-        #probably a class instead (avoids string lookups)
+        #Dictionary of UAVState classes that hold each UAV's state
         self.uav_states = {}
 
         #modules wanting UAV updates
@@ -30,52 +29,27 @@ class SCState(object):
 
     def update_uav_preprocess_msg(self, id, msg):
         if id not in self.uav_states:
-            self.uav_states[id] = {}
-            self.uav_states[id]['last_status_update'] = 0.0
-            self.uav_states[id]['last_pose_update'] = 0.0
+            self.uav_states[id] = sc_uav_state.UAVState(id)
 
         #TODO: process header
 
     def update_uav_state(self, id, msg):
         self.update_uav_preprocess_msg(id, msg)
     
-        #only want this message if it is newer than the previous one
-        now = time.clock()
-        if now < self.uav_states[id]['last_status_update']:
-            return
-
         #TODO: verify this is a FlightStatus message
-
+        
         name = msg.name
 
         #TODO: remove this workaround when we switch everthing to Python3:
         name = name[2:name.find("\\x00")]
 
-        self.uav_states[id]['name'] = name
-        self.uav_states[id]['mode'] = msg.mode
-        self.uav_states[id]['batt_rem'] = msg.batt_rem 
-        self.uav_states[id]['gps_ok'] = msg.ok_gps
-        self.uav_states[id]['swarm_state'] = msg.swarm_state
-        self.uav_states[id]['subswarm'] = msg.msg_sub
-        self.uav_states[id]['ctl_mode'] = msg.ctl_mode
-        self.uav_states[id]['swarm_behavior'] = msg.swarm_behavior
-
-        self.uav_states[id]['last_status_update'] = now
+        self.uav_states[id].update_status(msg.msg_secs, name, msg.mode, msg.batt_rem, msg.ok_gps, msg.swarm_state, msg.msg_sub, msg.ctl_mode, msg.swarm_behavior)
 
     def update_uav_pose(self, id, msg):
         self.update_uav_preprocess_msg(id, msg)
-        
-        #only want this message if it is newer than the previous one
-        now = time.clock()
-        if (now < self.uav_states[id]['last_pose_update']):
-            return
 
-        self.uav_states[id]['subswarm'] = msg.msg_sub
-        self.uav_states[id]['lat'] = msg.lat
-        self.uav_states[id]['lon'] = msg.lon
-        self.uav_states[id]['quat'] = (msg.q_x, msg.q_y, msg.q_z, msg.q_w)
-
-        self.uav_states[id]['last_pose_update'] = now
+        quat = (msg.q_x, msg.q_y, msg.q_z, msg.q_w)
+        self.uav_states[id].update_pose(msg.msg_secs, msg.lat, msg.lon, msg.alt, quat)
 
     def get_uav_ids(self):
         ids = []
