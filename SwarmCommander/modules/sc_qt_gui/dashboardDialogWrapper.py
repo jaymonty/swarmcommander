@@ -17,43 +17,6 @@ from SwarmCommander.modules.sc_qt_gui.dashboardDialog import Ui_dashboardDialog
 import time
 import math
 
-# Mapping of swarm state numbers to readable names
-# This is a hack until I can get the import from SwarmManager to work right
-STATE_STRINGS = { 0: 'Preflight', \
-                  1: 'Flight Ready', \
-                  2: 'Ingress', \
-                  3: 'Swarm Ready', \
-                  4: 'Swarm Active', \
-                  5: 'Egress', \
-                  6: 'Landing', \
-                  7: 'On Deck' }
-
-STATE_VALUES = { 'Ingress': 2, \
-                 'Swarm Ready': 3, \
-                 'Egress': 5, \
-                 'Landing': 6 }
-
-CTL_MODES = { 0: 'Autopilot', \
-              1: 'Wpt Sequencer', \
-              2: 'Follower' }
-
-SWARM_BHVRS = {  0: 'Standby', \
-                 1: 'Fixed Follow', \
-                99: 'Egress' }
-
-#HACK (copying Duane's good idea above).  Mapping of mode IDs to names.
-#TODO: this is probably a bad way to do this.  It's only a stopgap.
-#Find a better way!
-MODE_STRINGS = { 0:  'RTL', \
-                 1:  'MANUAL', \
-                 2:  'FBWA', \
-                 3:  'GUIDED', \
-                 4:  'AUTO', \
-                 5:  'FBWB', \
-                 6:  'CIRCLE', \
-                 15: 'UNMAPPED' }
-#UNMAPPED = ACRO, LOITER, INITIALIZING, TRAINING, STABILIZE, CRUISE
-
 class DashboardDialog(QDialog):
 
     EGRESS_WP_INDEX = 5
@@ -110,20 +73,21 @@ class DashboardDialog(QDialog):
         now = time.clock()
 
         for id, uav_state in self.sc_state.uav_states.items():
-            if 'mode' not in uav_state.keys():
+            if uav_state.get_mode() == -1:
                 #haven't got a FlightStatus message yet:
                 continue
 
-            if (self.__uav_update_map[id] < uav_state['last_status_update']):
+            if (uav_state.get_last_status_update() == 0 or 
+                self.__uav_update_map[id] < uav_state.get_last_status_update()):
                 self.update_uav_row(id, uav_state)
                 #link green
                 self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
                     self.__LINK_COL).setBackground(QBrush(QColor(0,255,0)))
-            elif now - uav_state['last_status_update'] > 10.0:
+            elif now - uav_state.get_last_status_update() > 10.0:
                 #link red
                 self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
                     self.__LINK_COL).setBackground(QBrush(QColor(255,0,0)))
-            elif now - uav_state['last_status_update'] > 5.0:
+            elif now - uav_state.get_last_status_update() > 5.0:
                 #link yellow
                 self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
                     self.__LINK_COL).setBackground(QBrush(QColor(255,255,0)))
@@ -177,21 +141,14 @@ class DashboardDialog(QDialog):
     def update_uav_row(self, id, uav_state):
         row = self.__uav_row_map[id]
 
-        current_mode = 'ERROR'
-        if uav_state['mode'] in MODE_STRINGS:
-            current_mode = MODE_STRINGS[uav_state['mode']]
-
-        self.__dashboardUi.tableWidget.item(row, self.__NAME_COL).setText(uav_state['name'])
-        self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(str(uav_state['batt_rem']))
-        self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(current_mode)
-        self.__dashboardUi.tableWidget.item(row, self.__SUBSWARM_COL).setText(str(uav_state['subswarm']))
-        swarm_state = STATE_STRINGS[uav_state['swarm_state']]
-        self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).setText(swarm_state)
-        swarm_behavior = SWARM_BHVRS[uav_state['swarm_behavior']]
-        self.__dashboardUi.tableWidget.item(row, self.__SWARM_BHVR_COL).setText(swarm_behavior)
-        ctl_mode = CTL_MODES[uav_state['ctl_mode']]
-        self.__dashboardUi.tableWidget.item(row, self.__CTRL_MODE_COL).setText(ctl_mode)
-        if (uav_state['gps_ok']):
+        self.__dashboardUi.tableWidget.item(row, self.__NAME_COL).setText(uav_state.get_name())
+        self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(str(uav_state.get_batt_rem()))
+        self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(uav_state.get_mode_str())
+        self.__dashboardUi.tableWidget.item(row, self.__SUBSWARM_COL).setText(str(uav_state.get_subswarm()))
+        self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).setText(uav_state.get_swarm_state_str())
+        self.__dashboardUi.tableWidget.item(row, self.__SWARM_BHVR_COL).setText(uav_state.get_swarm_behavior_str())
+        self.__dashboardUi.tableWidget.item(row, self.__CTRL_MODE_COL).setText(uav_state.get_ctl_mode_str())
+        if (uav_state.get_gps_ok):
             self.__dashboardUi.tableWidget.item(row, self.__GPS_OK_COL).\
                  setBackground(QBrush(QColor(0,255,0)))
         else:
@@ -239,7 +196,6 @@ class DashboardDialog(QDialog):
             print("No network module! (begin_swarm_behavior_pushed)\n")
             return
 
-
         subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
         if subswarm_uavs == []: return  # Empty subswarm--nothing to do
 
@@ -280,7 +236,7 @@ class DashboardDialog(QDialog):
         newState = self.__dashboardUi.combo_swarmState.currentText()
         selected_uav_ids = self.selectTableUAVs()
         for selected_uav_id in selected_uav_ids:
-            net_mod.swarm_state_for(selected_uav_id, STATE_VALUES[newState])
+            net_mod.swarm_state_for(selected_uav_id, self.sc_state.uav_states[selected_uav_id].get_swarm_state_id_from_str(newState))
 
     def selectUAV(self, id):
         if id not in self.__uav_row_map:

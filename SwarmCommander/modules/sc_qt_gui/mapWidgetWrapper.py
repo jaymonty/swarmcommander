@@ -229,7 +229,7 @@ class MapWidget(QDialog):
 
     def updateIcons(self):
         for id, uav_state in self.sc_state.uav_states.items():
-            if 'lon' not in uav_state.keys():
+            if uav_state.get_lon() == 0.0:
                 #haven't received a Pose message yet
                 continue
 
@@ -243,8 +243,8 @@ class MapWidget(QDialog):
 
                 self.__plane_icons[id] = MapGraphicsIcon(id, label,
                         self.__plane_layer)
-                self.__plane_icons[id].centerIconAt(uav_state['lon'],
-                        -uav_state['lat'])
+                self.__plane_icons[id].centerIconAt(uav_state.get_lon(),
+                        -uav_state.get_lat())
                 self.__plane_icons[id].textureIcon(self.__plane_icon_pixmap)
 
                 #plane icons need to be drawn on top of map tiles:
@@ -262,13 +262,13 @@ class MapWidget(QDialog):
             now = time.clock()
 
             #if we don't have new pose data, then we don't update the plane icon
-            if self.__plane_icons[id].data(0) is None or self.__plane_icons[id].data(0) >= uav_state['last_pose_update']:
+            if self.__plane_icons[id].data(0) is None or self.__plane_icons[id].data(0) >= uav_state.get_last_pose_update():
                 continue
 
             #place icon
-            self.__plane_icons[id].centerIconAt(uav_state['lon'], -uav_state['lat'])
+            self.__plane_icons[id].centerIconAt(uav_state.get_lon(), -uav_state.get_lat())
             #give correct heading:
-            quat = uav_state['quat']
+            quat = uav_state.get_quat()
             heading = sc_math.yaw_from_quat(quat[0], quat[1], quat[2], quat[3])
             self.__plane_icons[id].setHeading(heading)
            
