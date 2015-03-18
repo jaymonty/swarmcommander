@@ -120,8 +120,8 @@ class SC_CLI_Module(sc_module.SCModule):
         elif args[1] == "status":
             for id in aircraft:
                 self.stdscr.addstr("UAV num " + str(id) + ":\n")
-                for key, value in self.sc_state.uav_states[id].items():
-                    self.stdscr.addstr("\t" +str(key)+ " = " +str(value)+ "\n")
+                self.stdscr.addstr(self.sc_state.uav_states[id].status_str())
+                self.stdscr.addstr("\n")
 
         else:
             self.stdscr.addstr(usage)
