@@ -28,6 +28,19 @@ STATE_STRINGS = { 0: 'Preflight', \
                   6: 'Landing', \
                   7: 'On Deck' }
 
+STATE_VALUES = { 'Ingress': 2, \
+                 'Swarm Ready': 3, \
+                 'Egress': 5, \
+                 'Landing': 6 }
+
+CTL_MODES = { 0: 'Autopilot', \
+              1: 'Wpt Sequencer', \
+              2: 'Follower' }
+
+SWARM_BHVRS = {  0: 'Standby', \
+                 1: 'Fixed Follow', \
+                99: 'Egress' }
+
 #HACK (copying Duane's good idea above).  Mapping of mode IDs to names.
 #TODO: this is probably a bad way to do this.  It's only a stopgap.
 #Find a better way!
@@ -64,11 +77,13 @@ class DashboardDialog(QDialog):
         self.__ID_COL = 0
         self.__NAME_COL = 1
         self.__SUBSWARM_COL = 2
-        self.__SWARM_STATE_COL = 3
-        self.__LINK_COL = 4
-        self.__BATT_REM_COL = 5
-        self.__GPS_OK_COL = 6
-        self.__MODE_COL = 7
+        self.__CTRL_MODE_COL = 3
+        self.__SWARM_STATE_COL = 4
+        self.__SWARM_BHVR_COL = 5
+        self.__LINK_COL = 6
+        self.__BATT_REM_COL = 7
+        self.__GPS_OK_COL = 8
+        self.__MODE_COL = 9
 
         self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 50)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__SUBSWARM_COL, 50)
@@ -85,6 +100,7 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.btn_suspendSwarmBehavior.clicked.connect(self.suspend_swarm_behavior_pushed)
         self.__dashboardUi.btn_setSubswarm.clicked.connect(self.set_subswarm_pushed)
         self.__dashboardUi.btn_egressSubswarm.clicked.connect(self.egress_subswarm_pushed)
+        self.__dashboardUi.btn_setSwarmState.clicked.connect(self.set_swarm_state_pushed)
 
     def update_uav_states(self):
         for id in self.sc_state.uav_states.keys():
@@ -143,7 +159,11 @@ class DashboardDialog(QDialog):
                 QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__SUBSWARM_COL, 
                 QTableWidgetItem())
+        self.__dashboardUi.tableWidget.setItem(row, self.__CTRL_MODE_COL, 
+                QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__SWARM_STATE_COL, 
+                QTableWidgetItem())
+        self.__dashboardUi.tableWidget.setItem(row, self.__SWARM_BHVR_COL, 
                 QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__LINK_COL,
                 QTableWidgetItem())
@@ -167,6 +187,10 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.item(row, self.__SUBSWARM_COL).setText(str(uav_state['subswarm']))
         swarm_state = STATE_STRINGS[uav_state['swarm_state']]
         self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).setText(swarm_state)
+        swarm_behavior = SWARM_BHVRS[uav_state['swarm_behavior']]
+        self.__dashboardUi.tableWidget.item(row, self.__SWARM_BHVR_COL).setText(swarm_behavior)
+        ctl_mode = CTL_MODES[uav_state['ctl_mode']]
+        self.__dashboardUi.tableWidget.item(row, self.__CTRL_MODE_COL).setText(ctl_mode)
         if (uav_state['gps_ok']):
             self.__dashboardUi.tableWidget.item(row, self.__GPS_OK_COL).\
                  setBackground(QBrush(QColor(0,255,0)))
@@ -246,6 +270,17 @@ class DashboardDialog(QDialog):
         # Set the controller to 0 (autopilot only) and send UAV to the racetrack
         for uav_id in subswarm_uavs:
             net_mod.swarm_behavior_for(uav_id, 99)
+
+    def set_swarm_state_pushed(self):
+        net_mod = self.sc_state.module('acs_network')
+        if net_mod is None:
+            print("No network module! (set_subswarm_pushed)\n")
+            return
+
+        newState = self.__dashboardUi.combo_swarmState.currentText()
+        selected_uav_ids = self.selectTableUAVs()
+        for selected_uav_id in selected_uav_ids:
+            net_mod.swarm_state_for(selected_uav_id, STATE_VALUES[newState])
 
     def selectUAV(self, id):
         if id not in self.__uav_row_map:
