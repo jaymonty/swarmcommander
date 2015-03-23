@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Tue Mar 17 14:36:47 2015
+# Created: Mon Mar 23 13:24:08 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_dashboardDialog(object):
     def setupUi(self, dashboardDialog):
         dashboardDialog.setObjectName("dashboardDialog")
-        dashboardDialog.resize(695, 675)
+        dashboardDialog.resize(755, 675)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(dashboardDialog)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.verticalLayout = QtWidgets.QVBoxLayout()
@@ -100,6 +100,8 @@ class Ui_dashboardDialog(object):
         self.combo_swarmState.addItem("")
         self.combo_swarmState.addItem("")
         self.combo_swarmState.addItem("")
+        self.combo_swarmState.addItem("")
+        self.combo_swarmState.addItem("")
         self.gridLayout_2.addWidget(self.combo_swarmState, 2, 1, 1, 1)
         self.label_overrides = QtWidgets.QLabel(dashboardDialog)
         font = QtGui.QFont()
@@ -150,10 +152,12 @@ class Ui_dashboardDialog(object):
         self.swarm_label.setText(_translate("dashboardDialog", "Swarm Commands"))
         self.btn_egressSubswarm.setText(_translate("dashboardDialog", "                                                      Subswarm Egress:  "))
         self.btn_setSwarmState.setText(_translate("dashboardDialog", "                           Swarm State for Selected UAVs:  "))
-        self.combo_swarmState.setItemText(0, _translate("dashboardDialog", "Ingress"))
-        self.combo_swarmState.setItemText(1, _translate("dashboardDialog", "Swarm Ready"))
-        self.combo_swarmState.setItemText(2, _translate("dashboardDialog", "Egress"))
-        self.combo_swarmState.setItemText(3, _translate("dashboardDialog", "Landing"))
+        self.combo_swarmState.setItemText(0, _translate("dashboardDialog", "Preflight"))
+        self.combo_swarmState.setItemText(1, _translate("dashboardDialog", "Flight Ready"))
+        self.combo_swarmState.setItemText(2, _translate("dashboardDialog", "Ingress"))
+        self.combo_swarmState.setItemText(3, _translate("dashboardDialog", "Swarm Ready"))
+        self.combo_swarmState.setItemText(4, _translate("dashboardDialog", "Egress"))
+        self.combo_swarmState.setItemText(5, _translate("dashboardDialog", "Landing"))
         self.label_overrides.setText(_translate("dashboardDialog", "Manual Overrides"))
         self.btn_AUTO.setText(_translate("dashboardDialog", "AUTO Selected UAVs"))
         self.btn_RTL.setText(_translate("dashboardDialog", "RTL Selected UAVs"))
