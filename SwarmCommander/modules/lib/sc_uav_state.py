@@ -20,7 +20,9 @@ STATE_STRINGS = { 0: 'Preflight', \
                   6: 'Landing', \
                   7: 'On Deck' }
 
-STATE_VALUES = { 'Ingress': 2, \
+STATE_VALUES = { 'Preflight': 0, \
+                 'Flight Ready': 1, \
+                 'Ingress': 2, \
                  'Swarm Ready': 3, \
                  'Egress': 5, \
                  'Landing': 6 }
