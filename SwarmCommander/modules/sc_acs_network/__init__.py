@@ -19,6 +19,8 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.__my_ip = None
         self.__bcast_ip = None
 
+        self.__acs_socket_id = 173
+
         self.__heartbeat_enabled = True
         self.__heartbeat_count = 0
         self.__heartbeat_rate = 2.0 #Hz
@@ -77,7 +79,8 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
     def heartbeat_thread(self):
         try:
-            sock = Socket(0xff, self.__port, self.__device, None, None, send_only=True)
+            sock = Socket(self.__acs_socket_id, self.__port, self.__device,
+                    None, None, send_only=True)
         except Exception:
             print("Couldn't start up the Swarm Commander ACS heartbeat.")
             return
@@ -101,7 +104,8 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.__bcast_ip = None
 
         try:
-            self.__sock = Socket(0xff, self.__port, self.__device, self.__my_ip, self.__bcast_ip)
+            self.__sock = Socket(self.__acs_socket_id, self.__port,
+                    self.__device, self.__my_ip, self.__bcast_ip)
         except Exception as e:
             print("Couldn't start up socket on interface", self.__device)
             return
