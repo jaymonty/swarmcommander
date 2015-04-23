@@ -43,7 +43,7 @@ class SCState(object):
         #TODO: remove this workaround when we switch everthing to Python3:
         name = name[2:name.find("\\x00")]
 
-        self.uav_states[id].update_status(msg.msg_secs, name, msg.mode, msg.batt_rem, msg.ok_gps, msg.swarm_state, msg.msg_sub, msg.ctl_mode, msg.swarm_behavior)
+        self.uav_states[id].update_status(msg.msg_secs, name, msg.mode, msg.batt_rem, msg.batt_vcc, msg.ok_gps, msg.swarm_state, msg.msg_sub, msg.ctl_mode, msg.swarm_behavior)
 
     def update_uav_pose(self, id, msg):
         self.update_uav_preprocess_msg(id, msg)

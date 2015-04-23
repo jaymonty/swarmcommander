@@ -58,7 +58,9 @@ class UAVState(object):
         self.__id = id
         self.__name = ""
         self.__mode = -1
+        self.__new_mode = False  # Set to True when the autopilot mode changes
         self.__batt_rem = 0
+        self.__batt_vcc = 0
         self.__gps_ok = 0
         self.__swarm_state = 0
         self.__subswarm = 0
@@ -80,6 +82,9 @@ class UAVState(object):
     def get_mode(self):
         return self.__mode
 
+    def is_new_mode(self):
+        return self.__new_mode
+
     def get_mode_str(self):
         current_mode = 'ERROR'
         try:
@@ -91,6 +96,9 @@ class UAVState(object):
 
     def get_batt_rem(self):
         return self.__batt_rem
+
+    def get_batt_vcc(self):
+        return self.__batt_vcc
 
     def get_gps_ok(self):
         return self.__gps_ok
@@ -169,6 +177,7 @@ class UAVState(object):
         stat_str += "\tName:     " + self.get_name() + "\n"
         stat_str += "\tMode:     " + self.get_mode_str() + "\n"
         stat_str += "\tBatt:     " + str(self.get_batt_rem()) + "\n"
+        stat_str += "\tBatt V:   " + str(self.get_batt_vcc()) + "\n"
         stat_str += "\tGPS OK?   " + str(self.get_gps_ok()) + "\n"
         stat_str += "\tCtl Mode: " + str(self.get_ctl_mode_str()) + "\n"
         stat_str += "\tSubswarm: " + str(self.get_subswarm())
@@ -181,15 +190,20 @@ class UAVState(object):
     #There are no single-variable setters in this class ON PURPOSE.
     #I want variables to be set by network message only and all at once.
     
-    def update_status(self, msg_timestamp, name, mode, batt_rem, gps_ok, swarm_state, subswarm, ctl_mode, swarm_behavior):
+    def update_status(self, msg_timestamp, name, mode, batt_rem, batt_vcc, gps_ok, swarm_state, subswarm, ctl_mode, swarm_behavior):
         #only want this message if it is newer than the previous one
         # -- need to look at message time stamp
         if (self.__last_status_ts > msg_timestamp):
             return
 
         self.__name = name
+        if self.__mode != mode:
+            self.__new_mode = True
+        else:
+            self.__new_mode = False
         self.__mode = mode
-        self.__bat_rem = batt_rem
+        self.__batt_rem = batt_rem
+        self.__batt_vcc = batt_vcc/1000.0 # Msg format is Volts * 1000
         self.__gps_ok = gps_ok
         self.__swarm_state = swarm_state
         self.__subswarm = subswarm
