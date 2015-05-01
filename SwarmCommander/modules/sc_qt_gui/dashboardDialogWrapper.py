@@ -16,6 +16,7 @@ from SwarmCommander.modules.sc_qt_gui.dashboardDialog import Ui_dashboardDialog
 
 import time
 import math
+import os
 
 class DashboardDialog(QDialog):
 
@@ -51,7 +52,7 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 50)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__SUBSWARM_COL, 50)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 50)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 50)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 55)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_OK_COL, 50)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__MODE_COL, 80)
         #end table stuff ------------------
@@ -141,13 +142,32 @@ class DashboardDialog(QDialog):
     def update_uav_row(self, id, uav_state):
         row = self.__uav_row_map[id]
 
+        # Color code (and possibly aural warning) for unexpected autopilot modes
+        if (uav_state.get_mode() == 4):
+            self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).\
+                 setBackground(QBrush(QColor(255,255,255)))
+        elif (uav_state.get_mode() == 1):
+            self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).\
+                 setBackground(QBrush(QColor(255,0,0)))
+#            NOTE:  Aural warning not working reliably--fix this later
+#            try:
+#                if uav_state.is_new_mode():
+#                    os.system("canberra-gtk-play --id='suspend-error' &")
+#            except:
+#                pass # Just in case the system call fails
+        else:
+            self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).\
+                 setBackground(QBrush(QColor(255,255,0)))
+
         self.__dashboardUi.tableWidget.item(row, self.__NAME_COL).setText(uav_state.get_name())
-        self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(str(uav_state.get_batt_rem()))
+        self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(str(uav_state.get_batt_vcc()))
         self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(uav_state.get_mode_str())
         self.__dashboardUi.tableWidget.item(row, self.__SUBSWARM_COL).setText(str(uav_state.get_subswarm()))
         self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).setText(uav_state.get_swarm_state_str())
         self.__dashboardUi.tableWidget.item(row, self.__SWARM_BHVR_COL).setText(uav_state.get_swarm_behavior_str())
         self.__dashboardUi.tableWidget.item(row, self.__CTRL_MODE_COL).setText(uav_state.get_ctl_mode_str())
+
+        # Color code for GPS state
         if (uav_state.get_gps_ok):
             self.__dashboardUi.tableWidget.item(row, self.__GPS_OK_COL).\
                  setBackground(QBrush(QColor(0,255,0)))
@@ -212,6 +232,7 @@ class DashboardDialog(QDialog):
             return
 
         subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
+
         # Set the controller to 0 (autopilot only) and send UAV to the racetrack
         for uav_id in subswarm_uavs:
             net_mod.swarm_behavior_for(uav_id, 0)  # Sets all aircraft to "swarm standby"
@@ -259,5 +280,4 @@ class DashboardDialog(QDialog):
     def selectTableUAVs(self):
         selected_items = self.__dashboardUi.tableWidget.selectedItems()
         return [ int(item.text()) for item in selected_items if (item.column() == self.__ID_COL) ]
-
 
