@@ -49,11 +49,14 @@ class DashboardDialog(QDialog):
         self.__GPS_OK_COL = 8
         self.__MODE_COL = 9
 
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 50)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 30)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__NAME_COL, 80)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__CTRL_MODE_COL, 80)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__SWARM_STATE_COL,80)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__SUBSWARM_COL, 50)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 50)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 55)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_OK_COL, 50)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 30)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 85)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_OK_COL, 30)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__MODE_COL, 80)
         #end table stuff ------------------
 
@@ -159,8 +162,20 @@ class DashboardDialog(QDialog):
             self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).\
                  setBackground(QBrush(QColor(255,255,0)))
 
+        #Color code for battery state
+        if (uav_state.get_batt_vcc() > 10.8 and uav_state.get_batt_rem() > 40):
+            self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).\
+                 setBackground(QBrush(QColor(255,255,255)))
+        elif (uav_state.get_batt_vcc() < 10.6 or uav_state.get_batt_rem() < 20):
+            self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).\
+                 setBackground(QBrush(QColor(255,0,0)))
+        else: #voltage within 10.8 & 10.6 AND remaining curr within 20 & 40%
+            self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).\
+                 setBackground(QBrush(QColor(255,255,0)))
+
         self.__dashboardUi.tableWidget.item(row, self.__NAME_COL).setText(uav_state.get_name())
-        self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(str(uav_state.get_batt_vcc()))
+        self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(
+            '%.1f (%u%%)' % (uav_state.get_batt_vcc(),uav_state.get_batt_rem()))
         self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(uav_state.get_mode_str())
         self.__dashboardUi.tableWidget.item(row, self.__SUBSWARM_COL).setText(str(uav_state.get_subswarm()))
         self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).setText(uav_state.get_swarm_state_str())
