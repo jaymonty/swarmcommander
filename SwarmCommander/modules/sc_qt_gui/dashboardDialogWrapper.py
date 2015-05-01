@@ -9,7 +9,7 @@
 """
 
 from PyQt5.QtCore import QItemSelectionModel
-from PyQt5.QtWidgets import QDialog, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QTableWidgetSelectionRange
 from PyQt5.QtGui import QBrush, QColor
 
 from SwarmCommander.modules.sc_qt_gui.dashboardDialog import Ui_dashboardDialog
@@ -58,6 +58,9 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 85)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_OK_COL, 30)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__MODE_COL, 80)
+
+        #mutex
+        self.__table_selection_being_updated = False
         #end table stuff ------------------
 
         #slots
@@ -68,6 +71,27 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.btn_setSubswarm.clicked.connect(self.set_subswarm_pushed)
         self.__dashboardUi.btn_egressSubswarm.clicked.connect(self.egress_subswarm_pushed)
         self.__dashboardUi.btn_setSwarmState.clicked.connect(self.set_swarm_state_pushed)
+
+        self.__dashboardUi.tableWidget.itemSelectionChanged.connect(self.table_selectionChanged)
+
+    #Ensure that the blue "selected" color doesn't cover up alert colors
+    def table_selectionChanged(self):
+        if self.__table_selection_being_updated is True:
+            return
+
+        rows_to_select = set()
+        for next_item in self.__dashboardUi.tableWidget.selectedItems():
+            rows_to_select.add(next_item.row())
+            
+        self.__table_selection_being_updated = True
+        self.__dashboardUi.tableWidget.clearSelection()
+        
+        for i in rows_to_select:
+            self.__dashboardUi.tableWidget.setRangeSelected(
+                    QTableWidgetSelectionRange(i, self.__ID_COL, 
+                        i, self.__NAME_COL), True)
+
+        self.__table_selection_being_updated = False
 
     def update_uav_states(self):
         for id in self.sc_state.uav_states.keys():

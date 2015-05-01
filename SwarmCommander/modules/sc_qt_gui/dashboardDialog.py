@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Mon Mar 23 13:24:08 2015
+# Created: Fri May  1 15:41:04 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -19,7 +19,7 @@ class Ui_dashboardDialog(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.tableWidget = QtWidgets.QTableWidget(dashboardDialog)
         self.tableWidget.setMinimumSize(QtCore.QSize(735, 0))
-        self.tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(10)
         self.tableWidget.setRowCount(0)
