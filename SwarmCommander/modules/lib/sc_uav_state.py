@@ -8,45 +8,8 @@
 """
 
 import time
+import ap_lib.ap_enumerations as enums
 
-# Mapping of swarm state numbers to readable names
-# This is a hack until I can get the import from SwarmManager to work right
-STATE_STRINGS = { 0: 'Preflight', \
-                  1: 'Flight Ready', \
-                  2: 'Ingress', \
-                  3: 'Swarm Ready', \
-                  4: 'Swarm Active', \
-                  5: 'Egress', \
-                  6: 'Landing', \
-                  7: 'On Deck' }
-
-STATE_VALUES = { 'Preflight': 0, \
-                 'Flight Ready': 1, \
-                 'Ingress': 2, \
-                 'Swarm Ready': 3, \
-                 'Egress': 5, \
-                 'Landing': 6 }
-
-CTL_MODES = { 0: 'Autopilot', \
-              1: 'Wpt Sequencer', \
-              2: 'Follower' }
-
-SWARM_BHVRS = {  0: 'Standby', \
-                 1: 'Fixed Follow', \
-                99: 'Egress' }
-
-#HACK (copying Duane's good idea above).  Mapping of mode IDs to names.
-#TODO: this is probably a bad way to do this.  It's only a stopgap.
-#Find a better way!
-MODE_STRINGS = { 0:  'RTL', \
-                 1:  'MANUAL', \
-                 2:  'FBWA', \
-                 3:  'GUIDED', \
-                 4:  'AUTO', \
-                 5:  'FBWB', \
-                 6:  'CIRCLE', \
-                 15: 'UNMAPPED' }
-#UNMAPPED = ACRO, LOITER, INITIALIZING, TRAINING, STABILIZE, CRUISE
 
 class UAVState(object):
     '''
@@ -88,7 +51,7 @@ class UAVState(object):
     def get_mode_str(self):
         current_mode = 'ERROR'
         try:
-            current_mode = MODE_STRINGS[self.__mode]
+            current_mode = enums.MODE_STRINGS[self.__mode]
         except:
             pass #failed to get mode string, assume bad index
 
@@ -109,7 +72,7 @@ class UAVState(object):
     def get_swarm_state_str(self):
         ret_val = 'ERROR'
         try:
-            ret_val = STATE_STRINGS[self.__swarm_state]
+            ret_val = enums.STATE_STRINGS[self.__swarm_state]
         except:
             pass # failed to get state string, assume bad index
 
@@ -118,7 +81,7 @@ class UAVState(object):
     def get_swarm_state_id_from_str(self, state_str):
         ret_val = -1
         try:
-            ret_val = STATE_VALUES[state_str]
+            ret_val = enums.STATE_VALUES[state_str]
         except:
             pass #failed to get state id, assume bad index
 
@@ -133,7 +96,7 @@ class UAVState(object):
     def get_ctl_mode_str(self):
         ret_val = 'ERROR'
         try:
-            ret_val = CTL_MODES[self.__ctl_mode]
+            ret_val = enums.CTL_MODES[self.__ctl_mode]
         except:
             pass # failed to get ctl mode string, assume bad index
 
@@ -145,7 +108,7 @@ class UAVState(object):
     def get_swarm_behavior_str(self):
         ret_val = 'ERROR'
         try:
-            ret_val = SWARM_BHVRS[self.__swarm_behavior]
+            ret_val = enums.SWARM_BHVRS[self.__swarm_behavior]
         except:
             pass #failed to get string, assume bad index
 
