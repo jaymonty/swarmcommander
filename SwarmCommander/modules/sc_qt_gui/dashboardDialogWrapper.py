@@ -49,14 +49,15 @@ class DashboardDialog(QDialog):
         self.__GPS_OK_COL = 8
         self.__MODE_COL = 9
 
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 30)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 40)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__NAME_COL, 80)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__CTRL_MODE_COL, 80)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__SWARM_STATE_COL,80)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__CTRL_MODE_COL, 120)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__SWARM_STATE_COL,100)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__SWARM_BHVR_COL, 110)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__SUBSWARM_COL, 50)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 30)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 85)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_OK_COL, 30)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 40)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 90)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_OK_COL, 35)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__MODE_COL, 80)
 
         #mutex

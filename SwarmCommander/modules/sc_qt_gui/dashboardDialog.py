@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Fri May  1 15:41:04 2015
+# Created: Wed Jun  3 15:37:25 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_dashboardDialog(object):
     def setupUi(self, dashboardDialog):
         dashboardDialog.setObjectName("dashboardDialog")
-        dashboardDialog.resize(755, 675)
+        dashboardDialog.resize(770, 675)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(dashboardDialog)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.verticalLayout = QtWidgets.QVBoxLayout()
