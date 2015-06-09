@@ -215,6 +215,34 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
         self.send_message_to(id, message)
 
+    def suspend_swarm_behavior_for(self, id):
+        message = acs_messages.SuspendSwarmBehavior()
+        message.msg_fl_rel = True
+
+        self.send_message_to(id, message)
+
+    def swarm_egress_for(self, id):
+        message = acs_messages.SwarmEgress()
+        message.msg_fl_rel = True
+
+        self.send_message_to(id, message)
+
+    def swarm_follow_for(self, id, distance, angle, stack_formation):
+        message = acs_messages.SwarmFollow()
+        message.distance = distance
+        message.angle = angle
+        message.stack_formation = stack_formation
+        message.msg_fl_rel = True
+
+        self.send_message_to(id, message)
+
+    def swarm_sequence_land_for(self, id, ldg_wpt):
+        message = acs_messages.SwarmSequenceLand()
+        message.ldg_wpt = ldg_wpt
+        message.msg_fl_rel = True
+
+        self.send_message_to(id, message)
+
     def swarm_state_for(self, id, state):
         message = acs_messages.SwarmState()
         message.swarm_state = state
