@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Wed Jun  3 15:37:25 2015
+# Created: Mon Jun  8 13:21:03 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -87,6 +87,16 @@ class Ui_dashboardDialog(object):
         self.spin_setSubswarm.setMaximum(50)
         self.spin_setSubswarm.setObjectName("spin_setSubswarm")
         self.gridLayout.addWidget(self.spin_setSubswarm, 2, 1, 1, 1)
+        self.lbl_selectSwarmBehavior = QtWidgets.QLabel(dashboardDialog)
+        self.lbl_selectSwarmBehavior.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lbl_selectSwarmBehavior.setObjectName("lbl_selectSwarmBehavior")
+        self.gridLayout.addWidget(self.lbl_selectSwarmBehavior, 4, 0, 1, 1)
+        self.combo_swarmBehavior = QtWidgets.QComboBox(dashboardDialog)
+        self.combo_swarmBehavior.setObjectName("combo_swarmBehavior")
+        self.combo_swarmBehavior.addItem("")
+        self.combo_swarmBehavior.addItem("")
+        self.combo_swarmBehavior.addItem("")
+        self.gridLayout.addWidget(self.combo_swarmBehavior, 4, 1, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout)
         self.verticalLayout_2.addLayout(self.verticalLayout)
         self.gridLayout_2 = QtWidgets.QGridLayout()
@@ -148,9 +158,13 @@ class Ui_dashboardDialog(object):
         self.btn_setSubswarm.setText(_translate("dashboardDialog", "                    Assign Selected UAVs to Subswarm:  "))
         self.lbl_selectSubswarm.setText(_translate("dashboardDialog", "Select Subswarm for Behavior Command:   "))
         self.btn_suspendSwarmBehavior.setText(_translate("dashboardDialog", "Suspend Swarm Behavior"))
-        self.btn_beginSwarmBehavior.setText(_translate("dashboardDialog", "Begin Swarm Behavior"))
+        self.btn_beginSwarmBehavior.setText(_translate("dashboardDialog", "Specify Selected Behavior Parameters"))
         self.swarm_label.setText(_translate("dashboardDialog", "Swarm Commands"))
         self.btn_egressSubswarm.setText(_translate("dashboardDialog", "                                                      Subswarm Egress:  "))
+        self.lbl_selectSwarmBehavior.setText(_translate("dashboardDialog", "Select Behavior to Initiate:   "))
+        self.combo_swarmBehavior.setItemText(0, _translate("dashboardDialog", "Fixed Follow"))
+        self.combo_swarmBehavior.setItemText(1, _translate("dashboardDialog", "Swarm Search"))
+        self.combo_swarmBehavior.setItemText(2, _translate("dashboardDialog", "Sequence Land"))
         self.btn_setSwarmState.setText(_translate("dashboardDialog", "                           Swarm State for Selected UAVs:  "))
         self.combo_swarmState.setItemText(0, _translate("dashboardDialog", "Preflight"))
         self.combo_swarmState.setItemText(1, _translate("dashboardDialog", "Flight Ready"))

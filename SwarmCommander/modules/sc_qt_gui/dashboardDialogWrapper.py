@@ -13,6 +13,9 @@ from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QTableWidgetSelectionRang
 from PyQt5.QtGui import QBrush, QColor
 
 from SwarmCommander.modules.sc_qt_gui.dashboardDialog import Ui_dashboardDialog
+from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SequenceLandDialog
+from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import FixedFormationDialog
+from ap_lib import ap_enumerations as enums
 
 import time
 import math
@@ -26,6 +29,8 @@ class DashboardDialog(QDialog):
         QDialog.__init__(self)
 
         self.sc_state = sc_state
+
+        self.behavior_order = None # Container for swarm behavior order info
 
         self.__dashboardUi = Ui_dashboardDialog()
         self.__dashboardUi.setupUi(self)
@@ -259,11 +264,28 @@ class DashboardDialog(QDialog):
         subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
         if subswarm_uavs == []: return  # Empty subswarm--nothing to do
 
-        # Send "initiate swarm behavior" message
-        for uav in subswarm_uavs:
-            # Initiated behavior hard coded for now (canned swarm follow)
-            # As we add new swarm behaviors, we can change this as well
-            net_mod.swarm_behavior_for(uav, 1)
+        selected_behavior = enums.SWARM_BHVR_VALUES[self.__dashboardUi.combo_swarmBehavior.currentText()]
+        self.behavior_order = None
+
+        if selected_behavior == enums.SWARM_FIXED_FORMATION:
+            dialog = FixedFormationDialog(self.sc_state, self)
+            dialog.exec()
+            if not self.behavior_order: return
+            for uav in subswarm_uavs:
+                net_mod.swarm_follow_for(uav, self.behavior_order[0], \
+                                              self.behavior_order[1], \
+                                              self.behavior_order[2])
+
+        elif selected_behavior == enums.SWARM_SEQUENCE_LAND:
+            dialog = SequenceLandDialog(self.sc_state, self)
+            dialog.exec()
+            if not self.behavior_order: return
+            for uav in subswarm_uavs:
+                net_mod.swarm_sequence_land_for(uav, self.behavior_order)
+
+        elif selected_behavior == enums.SWARM_SEARCH:
+            print("Swarm search not yet implemented")
+
 
     def suspend_swarm_behavior_pushed(self):
         net_mod = self.sc_state.module('acs_network')
@@ -275,7 +297,7 @@ class DashboardDialog(QDialog):
 
         # Set the controller to 0 (autopilot only) and send UAV to the racetrack
         for uav_id in subswarm_uavs:
-            net_mod.swarm_behavior_for(uav_id, 0)  # Sets all aircraft to "swarm standby"
+            net_mod.suspend_swarm_behavior_for(uav_id)  # Sets all aircraft to "swarm standby"
 
     def egress_subswarm_pushed(self):
         net_mod = self.sc_state.module('acs_network')
@@ -286,7 +308,7 @@ class DashboardDialog(QDialog):
         subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_egressSubswarm.value()))
         # Set the controller to 0 (autopilot only) and send UAV to the racetrack
         for uav_id in subswarm_uavs:
-            net_mod.swarm_behavior_for(uav_id, 99)
+            net_mod.swarm_egress_for(uav_id)
 
     def set_swarm_state_pushed(self):
         net_mod = self.sc_state.module('acs_network')

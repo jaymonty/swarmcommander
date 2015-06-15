@@ -124,7 +124,7 @@
        <item row="7" column="0">
         <widget class="QPushButton" name="btn_beginSwarmBehavior">
          <property name="text">
-          <string>Begin Swarm Behavior</string>
+          <string>Specify Selected Behavior Parameters</string>
          </property>
         </widget>
        </item>
@@ -163,6 +163,35 @@
          <property name="maximum">
           <number>50</number>
          </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="lbl_selectSwarmBehavior">
+         <property name="text">
+          <string>Select Behavior to Initiate:   </string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QComboBox" name="combo_swarmBehavior">
+         <item>
+          <property name="text">
+           <string>Fixed Follow</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Swarm Search</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Sequence Land</string>
+          </property>
+         </item>
         </widget>
        </item>
       </layout>
