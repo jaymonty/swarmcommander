@@ -250,6 +250,18 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
         self.send_message_to(id, message)
 
+    def swarm_search_for(self, id, searchAreaLength, searchAreaWidth, lat, lon, masterSearcherID, searchAlgoEnum):
+        message = acs_messages.SwarmSearch()
+        message.searchAreaLength = searchAreaLength
+        message.searchAreaWidth = searchAreaWidth
+        message.lat = lat
+        message.lon = lon
+        message.masterSearcherID = masterSearcherID
+        message.searchAlgoEnum = searchAlgoEnum
+        message.msg_fl_rel = True
+
+        self.send_message_to(id, message)
+
     def swarm_state_for(self, id, state):
         message = acs_messages.SwarmState()
         message.swarm_state = state
