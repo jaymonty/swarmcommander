@@ -15,6 +15,7 @@ from PyQt5.QtGui import QBrush, QColor
 from SwarmCommander.modules.sc_qt_gui.dashboardDialog import Ui_dashboardDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SequenceLandDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import FixedFormationDialog
+from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SwarmSearchDialog
 from ap_lib import ap_enumerations as enums
 
 import time
@@ -286,7 +287,16 @@ class DashboardDialog(QDialog):
                 net_mod.swarm_sequence_land_for(uav, self.behavior_order)
 
         elif selected_behavior == enums.SWARM_SEARCH:
-            print("Swarm search not yet implemented")
+            dialog = SwarmSearchDialog(self.sc_state, self)
+            dialog.exec()
+            if not self.behavior_order: return
+            for uav in subswarm_uavs:
+                net_mod.swarm_search_for(uav, self.behavior_order[0], \
+                                              self.behavior_order[1], \
+                                              self.behavior_order[2], \
+                                              self.behavior_order[3], \
+                                              self.behavior_order[4], \
+                                              self.behavior_order[5])
 
 
     def suspend_swarm_behavior_pushed(self):

@@ -15,6 +15,7 @@ from PyQt5.QtGui import QBrush, QColor
 
 from SwarmCommander.modules.sc_qt_gui.sequenceLandDialog import Ui_sequenceLandDialog
 from SwarmCommander.modules.sc_qt_gui.fixedFormationDialog import Ui_fixedFormationDialog
+from SwarmCommander.modules.sc_qt_gui.swarmSearchDialog import Ui_swarmSearchDialog
 import time
 import math
 import os
@@ -79,4 +80,27 @@ class FixedFormationDialog(BehaviorDialog):
         self.parent.behavior_order = ( distance, angle, stack )
         self.close()
 
+# Dialog box for entering user-defined parameters
+# for the Swarm Search behavior
+class SwarmSearchDialog(BehaviorDialog):
 
+    def __init__(self, sc_state, parent_dialog):
+        BehaviorDialog.__init__(self, sc_state, parent_dialog)
+
+        self.__swarmSearchUi = Ui_swarmSearchDialog()
+        self.__swarmSearchUi.setupUi(self)
+
+        #slots
+        self.__swarmSearchUi.btnbx_CancelOK.accepted.connect(self.cancelOk_btn_accept)
+        self.__swarmSearchUi.btnbx_CancelOK.rejected.connect(self.cancelOk_btn_reject)
+
+    def cancelOk_btn_accept(self):
+        searchAreaLength = self.__swarmSearchUi.doubleSpinBox_Length.value()
+        searchAreaWidth = self.__swarmSearchUi.doubleSpinBox_Width.value()
+        lat = self.__swarmSearchUi.doubleSpinBox_Lat.value()
+        lon = self.__swarmSearchUi.doubleSpinBox_Lon.value()
+        masterSearcherID = self.__swarmSearchUi.masterID_spinBox.value()
+        searchAlgoEnum = self.__swarmSearchUi.searchAlgo_spinBox.value()
+
+        self.parent.behavior_order = ( searchAreaLength, searchAreaWidth, lat, lon, masterSearcherID, searchAlgoEnum )
+        self.close()
