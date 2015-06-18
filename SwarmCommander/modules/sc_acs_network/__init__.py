@@ -221,6 +221,13 @@ class SC_ACS_Network_Module(sc_module.SCModule):
 
         self.send_message_to(id, message)
 
+    def pause_swarm_behavior_for(self, id, pause):
+        message = acs_messages.PauseSwarmBehavior()
+        message.behavior_pause = pause
+        message.msg_fl_rel = True
+
+        self.send_message_to(id, message)
+
     def swarm_egress_for(self, id):
         message = acs_messages.SwarmEgress()
         message.msg_fl_rel = True
