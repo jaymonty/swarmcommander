@@ -63,7 +63,7 @@ class SC_CLI_Module(sc_module.SCModule):
         #list of aircraft ids to which this command applies
         aircraft = []
         if plane_id == "all":
-            aircraft = self.sc_state.get_uav_ids()
+            aircraft = self.sc_state.swarm_state.get_uav_ids()
         else:
             try:
                 int_id = int(plane_id)
@@ -71,7 +71,7 @@ class SC_CLI_Module(sc_module.SCModule):
                 self.stdscr.addstr("\tid arg must be an int or 'all'\n")
                 return
 
-            if int_id not in self.sc_state.uav_states.keys():
+            if int_id not in self.sc_state.swarm_state.uav_states.keys():
                 self.stdscr.addstr("\tNo UAV with id: " +str(plane_id)+ "\n")
                 return
 
@@ -120,7 +120,7 @@ class SC_CLI_Module(sc_module.SCModule):
         elif args[1] == "status":
             for id in aircraft:
                 self.stdscr.addstr("UAV num " + str(id) + ":\n")
-                self.stdscr.addstr(self.sc_state.uav_states[id].status_str())
+                self.stdscr.addstr(self.sc_state.swarm_state.uav_states[id].status_str())
                 self.stdscr.addstr("\n")
 
         else:
