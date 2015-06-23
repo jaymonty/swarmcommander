@@ -228,7 +228,7 @@ class MapWidget(QDialog):
             #    del self.__rect_tiles[key]
 
     def updateIcons(self):
-        for id, uav_state in self.sc_state.uav_states.items():
+        for id, uav_state in self.sc_state.swarm_state.uav_states.items():
             if uav_state.get_lon() == 0.0:
                 #haven't received a Pose message yet
                 continue

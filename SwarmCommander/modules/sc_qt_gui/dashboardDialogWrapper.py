@@ -103,13 +103,13 @@ class DashboardDialog(QDialog):
         self.__table_selection_being_updated = False
 
     def update_uav_states(self):
-        for id in self.sc_state.uav_states.keys():
+        for id in self.sc_state.swarm_state.uav_states.keys():
             if id not in self.__uav_row_map.keys():
                 self.add_uav_to_dashboard(id)
 
         now = time.clock()
 
-        for id, uav_state in self.sc_state.uav_states.items():
+        for id, uav_state in self.sc_state.swarm_state.uav_states.items():
             if uav_state.get_mode() == -1:
                 #haven't got a FlightStatus message yet:
                 continue
@@ -349,7 +349,7 @@ class DashboardDialog(QDialog):
         newState = self.__dashboardUi.combo_swarmState.currentText()
         selected_uav_ids = self.selectTableUAVs()
         for selected_uav_id in selected_uav_ids:
-            net_mod.swarm_state_for(selected_uav_id, self.sc_state.uav_states[selected_uav_id].get_swarm_state_id_from_str(newState))
+            net_mod.swarm_state_for(selected_uav_id, self.sc_state.swarm_state.uav_states[selected_uav_id].get_swarm_state_id_from_str(newState))
 
     def selectUAV(self, id):
         if id not in self.__uav_row_map:
