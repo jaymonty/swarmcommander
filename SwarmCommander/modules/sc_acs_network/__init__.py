@@ -118,10 +118,10 @@ class SC_ACS_Network_Module(sc_module.SCModule):
     def process_flight_status(self, msg):
         #print("%d %s %d %d" % (msg.msg_src, name, msg.armed, msg.mode))
 
-        self.sc_state.update_uav_state(msg.msg_src, msg)
+        self.sc_state.swarm_state.update_uav_state(msg.msg_src, msg)
 
     def process_pose(self, msg):
-        self.sc_state.update_uav_pose(msg.msg_src, msg)
+        self.sc_state.swarm_state.update_uav_pose(msg.msg_src, msg)
 
     def read_socket(self):
         while not self.__time_to_stop:
@@ -177,7 +177,7 @@ class SC_ACS_Network_Module(sc_module.SCModule):
         self.send_message_to(plane_id, msg)
 
     def change_mode_all_aircraft(self, mode):
-        for id,name in self.sc_state.uav_states.items():
+        for id,name in self.sc_state.swarm_state.uav_states.items():
             self.change_mode_for(id, mode)
 
     def change_mode_for(self, id, mode):
