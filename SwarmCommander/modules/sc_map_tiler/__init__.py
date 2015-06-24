@@ -12,7 +12,7 @@ from collections import OrderedDict
 from PIL import Image
 
 from SwarmCommander.modules.lib import sc_module
-from SwarmCommander.modules.lib import sc_math
+from acs_lib import acs_math
 
 TILES_WIDTH = 256
 TILES_HEIGHT = 256
@@ -103,15 +103,15 @@ class TileInfo:
         '''return tile size as (width,height) in meters'''
         (lat1, lon1) = self.coord((0,0))
         (lat2, lon2) = self.coord((TILES_WIDTH,0))
-        width = sc_math.gps_distance(lat1, lon1, lat2, lon2)
+        width = acs_math.gps_distance(lat1, lon1, lat2, lon2)
         (lat2, lon2) = self.coord((0,TILES_HEIGHT))
-        height = sc_math.gps_distance(lat1, lon1, lat2, lon2)
+        height = acs_math.gps_distance(lat1, lon1, lat2, lon2)
         return (width,height)
 
     def distance(self, lat, lon):
         '''distance of this tile from a given lat/lon'''
         (tlat, tlon) = self.coord((TILES_WIDTH/2,TILES_HEIGHT/2))
-        return sc_math.gps_distance(lat, lon, tlat, tlon)
+        return acs_math.gps_distance(lat, lon, tlat, tlon)
 
     def path(self):
         '''return relative path of tile image'''
@@ -242,9 +242,9 @@ class SC_MapTilerModule(sc_module.SCModule):
 
         pixel_width = ground_width / float(width)
         ground_height = ground_width * (float(height) / float(width))
-        top_right = sc_math.gps_newpos(lat, lon, 90.0, ground_width)
-        bottom_left = sc_math.gps_newpos(lat, lon, 180.0, ground_height)
-        bottom_right = sc_math.gps_newpos(bottom_left[0], bottom_left[1], 90, ground_width)
+        top_right = acs_math.gps_newpos(lat, lon, 90.0, ground_width)
+        bottom_left = acs_math.gps_newpos(lat, lon, 180.0, ground_height)
+        bottom_right = acs_math.gps_newpos(bottom_left[0], bottom_left[1], 90, ground_width)
 
         # choose a zoom level if not provided
         if zoom is None:
