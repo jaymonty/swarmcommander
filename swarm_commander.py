@@ -47,6 +47,7 @@ class CLI_Thread(threading.Thread):
 
 def main(stdscr):
     state = sc_state.SCState()
+    state.initialize() #second init necessary to register callbacks
     cli_mod = sc_cli.SC_CLI_Module(state) 
     
     #First start CLI in its own thread
@@ -57,7 +58,6 @@ def main(stdscr):
     cli_thread.start()
 
     #load necessary modules---------
-    state.load_module('acs_network')
     state.load_module('map_tiler')
     #-----------------
 
