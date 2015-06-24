@@ -49,15 +49,11 @@ class SC_CLI_Module(sc_module.SCModule):
         '''"aircraft" command processing'''
         usage = "usage: aircraft <id|all> <arm|disarm|heartbeat|red_alert|status>\n"
 
-        if self.sc_state.module('acs_network') is None:
-            self.stdscr.addstr("Must load acs_network module before using network command.\n")
-            return
-
         if len(args) < 2:
             self.stdscr.addstr(usage)
             return
         
-        net_mod = self.sc_state.module('acs_network')
+        net_mod = self.sc_state.network
         plane_id = args[0]
 
         #list of aircraft ids to which this command applies
@@ -99,11 +95,11 @@ class SC_CLI_Module(sc_module.SCModule):
                 self.stdscr.addstr("\tusage: aircraft <id|all> heartbeat <enable|disable>\n")
             elif args[2].lower() == "enable":
                 for id in aircraft:
-                    self.sc_state.module('acs_network').set_autopilot_heartbeat_for(id, True)
+                    self.sc_state.network.set_autopilot_heartbeat_for(id, True)
 
             elif args[2].lower() == "disable":
                 for id in aircraft:
-                    self.sc_state.module('acs_network').set_autopilot_heartbeat_for(id, False)
+                    self.sc_state.network.set_autopilot_heartbeat_for(id, False)
 
         elif args[1] == "red_alert":
             self.stdscr.addstr("About to kill throttle on those planes! SURE? (yes/N)\n")
@@ -114,8 +110,8 @@ class SC_CLI_Module(sc_module.SCModule):
                 return
             else:
                 self.stdscr.addstr("Killing throttle on those planes!!!\n")
-                #working right here: need a message from SC to ROS
-                #self.sc_state.module('acs_network').gah!!
+                #TODO: need a message from SC to ROS
+                #self.sc_state.network.gah!!
 
         elif args[1] == "status":
             for id in aircraft:
@@ -209,7 +205,7 @@ class SC_CLI_Module(sc_module.SCModule):
         #if we made it here, all args have checked out
 
         if use_telem == False:
-            self.sc_state.module('acs_network').open_mavproxy_wifi(plane_id)
+            self.sc_state.network.open_mavproxy_wifi(plane_id)
 
         else: #use_telem == True
             #setup SiK radio on proper channel
@@ -287,11 +283,7 @@ class SC_CLI_Module(sc_module.SCModule):
         '''network command processing'''
         usage = "usage: network <device|heartbeat|slave|status>\n"
 
-        if self.sc_state.module('acs_network') is None:
-            self.stdscr.addstr("Must load acs_network module before using network command.\n")
-            return
-
-        elif len(args) < 1:
+        if len(args) < 1:
             self.stdscr.addstr(usage)
             return
         elif args[0] == "device":
@@ -299,20 +291,20 @@ class SC_CLI_Module(sc_module.SCModule):
                 self.stdscr.addstr("usage: network device device_name\n")
                 self.stdscr.addstr("  e.g., eth0, wlan1, sitl_bridge\n")
                 return
-            self.sc_state.module('acs_network').set_device(args[1])
+            self.sc_state.network.set_device(args[1])
         elif args[0] == "heartbeat":
             if len(args) < 2:
-                self.stdscr.addstr("\tHeartbeat Enabled? " + str(self.sc_state.module('acs_network').get_heartbeat_enabled()) + "\n")
+                self.stdscr.addstr("\tHeartbeat Enabled? " + str(self.sc_state.network.get_heartbeat_enabled()) + "\n")
                 self.stdscr.addstr("\tTo enable/disable: network heartbeat <disable|enable>\n")
             elif args[1].lower() == "enable":
-                self.sc_state.module('acs_network').set_heartbeat_enabled(True)
+                self.sc_state.network.set_heartbeat_enabled(True)
 
             elif args[1].lower() == "disable":
-                self.sc_state.module('acs_network').set_heartbeat_enabled(False)
+                self.sc_state.network.set_heartbeat_enabled(False)
 
         elif args[0] == "status":
-            self.stdscr.addstr("  Device: " + self.sc_state.module('acs_network').get_device() + "\n")
-            self.stdscr.addstr("    Heartbeats sent: " + str(self.sc_state.module('acs_network').get_heartbeat_count()) + "\n")
+            self.stdscr.addstr("  Device: " + self.sc_state.network.get_device() + "\n")
+            self.stdscr.addstr("    Heartbeats sent: " + str(self.sc_state.network.get_heartbeat_count()) + "\n")
 
         elif args[0] == "slave":
             if len(args) < 4:
@@ -320,9 +312,9 @@ class SC_CLI_Module(sc_module.SCModule):
                 return
 
             if args[1].lower() == "enable":
-                self.sc_state.module('acs_network').enable_slave(args[2], args[3])
+                self.sc_state.network.enable_slave(args[2], args[3])
             else:
-                self.sc_state.module('acs_network').disable_slave(args[2], args[3])
+                self.sc_state.network.disable_slave(args[2], args[3])
         else:
             self.stdscr.addstr(usage)
 
