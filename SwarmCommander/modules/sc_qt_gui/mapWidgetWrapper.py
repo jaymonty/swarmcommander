@@ -15,7 +15,7 @@ from PyQt5.QtCore import Qt
 
 from SwarmCommander.modules.sc_qt_gui.mapWidget import Ui_MapWidget
 from SwarmCommander.modules.sc_qt_gui.mapGraphicsIcon import MapGraphicsIcon
-from SwarmCommander.modules.lib import sc_math
+from acs_lib import acs_math
 
 from collections import OrderedDict
 
@@ -269,7 +269,7 @@ class MapWidget(QDialog):
             self.__plane_icons[id].centerIconAt(uav_state.get_lon(), -uav_state.get_lat())
             #give correct heading:
             quat = uav_state.get_quat()
-            heading = sc_math.yaw_from_quat(quat[0], quat[1], quat[2], quat[3])
+            heading = acs_math.yaw_from_quat(quat[0], quat[1], quat[2], quat[3])
             self.__plane_icons[id].setHeading(heading)
            
             #set last update time
