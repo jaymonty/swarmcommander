@@ -226,10 +226,7 @@ class DashboardDialog(QDialog):
         self.__uav_update_map[id] = time.clock()
 
     def rtl_button_pushed(self):
-        net_mod = self.sc_state.module('acs_network')
-        if net_mod is None:
-            print("No network module! (rtl_button_pushed)\n")
-            return
+        net_mod = self.sc_state.module.network
 
         selected_uav_ids = self.selectTableUAVs()
         for selected_uav_id in selected_uav_ids:
@@ -237,20 +234,14 @@ class DashboardDialog(QDialog):
 
 
     def auto_button_pushed(self):
-        net_mod = self.sc_state.module('acs_network')
-        if net_mod is None:
-            print("No network module! (auto_button_pushed)\n")
-            return
+        net_mod = self.sc_state.network
             
         selected_uav_ids = self.selectTableUAVs()
         for selected_uav_id in selected_uav_ids:
             net_mod.change_mode_for(selected_uav_id, 4)
 
     def set_subswarm_pushed(self):
-        net_mod = self.sc_state.module('acs_network')
-        if net_mod is None:
-            print("No network module! (set_subswarm_pushed)\n")
-            return
+        net_mod = self.sc_state.network
 
         selected_items = self.__dashboardUi.tableWidget.selectedItems()
         selected_uav_ids = self.selectTableUAVs()
@@ -259,10 +250,7 @@ class DashboardDialog(QDialog):
             net_mod.set_subswarm_for(selected_uav_id, selected_subswarm_id)
 
     def begin_swarm_behavior_pushed(self):
-        net_mod = self.sc_state.module('acs_network')
-        if net_mod is None:
-            print("No network module! (begin_swarm_behavior_pushed)\n")
-            return
+        net_mod = self.sc_state.network
 
         subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
         if subswarm_uavs == []: return  # Empty subswarm--nothing to do
@@ -300,10 +288,7 @@ class DashboardDialog(QDialog):
 
 
     def suspend_swarm_behavior_pushed(self):
-        net_mod = self.sc_state.module('acs_network')
-        if net_mod is None:
-            print("No network module! (suspend_swarm_behavior_pushed)\n")
-            return
+        net_mod = self.sc_state.network
 
         subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
 
@@ -318,10 +303,7 @@ class DashboardDialog(QDialog):
         self.set_swarm_behavior_pause(False)
 
     def set_swarm_behavior_pause(self, pause_value):
-        net_mod = self.sc_state.module('acs_network')
-        if net_mod is None:
-            print("No network module! (suspend_swarm_behavior_pushed)\n")
-            return
+        net_mod = self.sc_state.network
 
         subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
 
@@ -330,10 +312,7 @@ class DashboardDialog(QDialog):
             net_mod.pause_swarm_behavior_for(uav_id, pause_value)  # Pause or resume any active behavior
 
     def egress_subswarm_pushed(self):
-        net_mod = self.sc_state.module('acs_network')
-        if net_mod is None:
-            print("No network module! (egress_subswarm_pushed)\n")
-            return
+        net_mod = self.sc_state.network
 
         subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_egressSubswarm.value()))
         # Set the controller to 0 (autopilot only) and send UAV to the racetrack
@@ -341,10 +320,7 @@ class DashboardDialog(QDialog):
             net_mod.swarm_egress_for(uav_id)
 
     def set_swarm_state_pushed(self):
-        net_mod = self.sc_state.module('acs_network')
-        if net_mod is None:
-            print("No network module! (set_subswarm_pushed)\n")
-            return
+        net_mod = self.sc_state.module.network
 
         newState = self.__dashboardUi.combo_swarmState.currentText()
         selected_uav_ids = self.selectTableUAVs()
