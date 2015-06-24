@@ -7,6 +7,7 @@
 
 from SwarmCommander.modules.lib import sc_module
 from acs_lib import acs_swarm_state
+from acs_lib.acs_network import acs_network_ground
 
 import sys, pip, traceback, zipfile, zipimport, time
 
@@ -23,8 +24,18 @@ class SCState(object):
 
         self.swarm_state = acs_swarm_state.ACS_SwarmState()
 
+        self.network = acs_network_ground.ACS_NetworkGround('eth0',5554,173)
+
         #modules wanting UAV updates
         self.__modules_wanting_uav_updates = []
+
+    def initialize(self):
+        #register callback for "message received" events from the network:
+        self.network.set_message_received_callback(
+                            self.on_network_message_received)
+
+    def on_network_message_received(self, msg):
+        self.swarm_state.process_msg(msg)
 
     def module(self, name):
         ''' Find a loaded module. Return none if no loaded module of that name, or if module is private. '''
