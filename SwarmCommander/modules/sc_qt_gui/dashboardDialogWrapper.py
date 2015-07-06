@@ -226,7 +226,7 @@ class DashboardDialog(QDialog):
         self.__uav_update_map[id] = time.clock()
 
     def rtl_button_pushed(self):
-        net_mod = self.sc_state.module.network
+        net_mod = self.sc_state.network
 
         selected_uav_ids = self.selectTableUAVs()
         for selected_uav_id in selected_uav_ids:
@@ -320,7 +320,7 @@ class DashboardDialog(QDialog):
             net_mod.swarm_egress_for(uav_id)
 
     def set_swarm_state_pushed(self):
-        net_mod = self.sc_state.module.network
+        net_mod = self.sc_state.network
 
         newState = self.__dashboardUi.combo_swarmState.currentText()
         selected_uav_ids = self.selectTableUAVs()
