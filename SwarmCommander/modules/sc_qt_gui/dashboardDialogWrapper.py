@@ -216,7 +216,7 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.item(row, self.__CTRL_MODE_COL).setText(uav_state.get_ctl_mode_str())
 
         # Color code for GPS state
-        if (uav_state.get_gps_ok):
+        if (uav_state.get_gps_ok()):
             self.__dashboardUi.tableWidget.item(row, self.__GPS_OK_COL).\
                  setBackground(QBrush(QColor(0,255,0)))
         else:
