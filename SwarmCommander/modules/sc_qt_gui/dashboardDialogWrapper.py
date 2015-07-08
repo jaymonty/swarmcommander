@@ -8,7 +8,7 @@
     Oct 2014
 """
 
-from PyQt5.QtCore import QItemSelectionModel
+from PyQt5.QtCore import Qt, QItemSelectionModel
 from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QTableWidgetSelectionRange
 from PyQt5.QtGui import QBrush, QColor
 
@@ -133,7 +133,7 @@ class DashboardDialog(QDialog):
         #add a new table row
         self.__dashboardUi.tableWidget.insertRow(self.__dashboardUi.tableWidget.rowCount())
         next_item = QTableWidgetItem()
-        next_item.setText(str(uav_id))
+        next_item.setData(Qt.DisplayRole, uav_id)
         self.__dashboardUi.tableWidget.setItem(
                 self.__dashboardUi.tableWidget.rowCount() - 1,
                 self.__ID_COL, next_item)
