@@ -38,6 +38,7 @@ class DashboardDialog(QDialog):
 
         #table stuff ------------------------
         self.__dashboardUi.tableWidget.verticalHeader().setVisible(False)
+        self.__dashboardUi.tableWidget.setSortingEnabled(False)
 
         #maps UAV ID to a table row number
         self.__uav_row_map = {}
@@ -66,6 +67,10 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_OK_COL, 35)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__MODE_COL, 80)
 
+        #sorting
+        self.__current_sort_column = self.__ID_COL
+        self.__current_sort_order = Qt.AscendingOrder
+
         #mutex
         self.__table_selection_being_updated = False
         #end table stuff ------------------
@@ -81,8 +86,39 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.btn_egressSubswarm.clicked.connect(self.egress_subswarm_pushed)
         self.__dashboardUi.btn_setSwarmState.clicked.connect(self.set_swarm_state_pushed)
 
+        self.__dashboardUi.tableWidget.horizontalHeader().sectionDoubleClicked.connect(self.table_header_dbl_clicked)
         self.__dashboardUi.tableWidget.itemSelectionChanged.connect(self.table_selectionChanged)
 
+    def __remap_uavs_to_rows(self):
+        self.__uav_row_map = {}
+        for row_num in range(self.__dashboardUi.tableWidget.rowCount()):
+            next_item = self.__dashboardUi.tableWidget.item(row_num,
+                                                        self.__ID_COL)
+            self.__uav_row_map[next_item.data(Qt.DisplayRole)] = row_num
+
+    def __run_sort(self):
+        self.__dashboardUi.tableWidget.setSortingEnabled(True)
+        self.__dashboardUi.tableWidget.sortItems(self.__current_sort_column, 
+                self.__current_sort_order)
+        self.__dashboardUi.tableWidget.setSortingEnabled(False)
+        
+        self.__remap_uavs_to_rows()
+
+    def table_header_dbl_clicked(self, index): 
+        #Already sorting on this index? Then swap order
+        if index == self.__current_sort_column:
+            if self.__current_sort_order == Qt.AscendingOrder:
+                self.__current_sort_order = Qt.DescendingOrder
+            else:
+                self.__current_sort_order = Qt.AscendingOrder
+        else:
+            #always start with ascending
+            self.__current_sort_order = Qt.AscendingOrder
+        
+        self.__current_sort_column = index
+
+        self.__run_sort()
+    
     #Ensure that the blue "selected" color doesn't cover up alert colors
     def table_selectionChanged(self):
         if self.__table_selection_being_updated is True:
@@ -133,24 +169,18 @@ class DashboardDialog(QDialog):
         #add a new table row
         self.__dashboardUi.tableWidget.insertRow(self.__dashboardUi.tableWidget.rowCount())
         next_item = QTableWidgetItem()
+        #Sort ID column numerically, not lexicographically
         next_item.setData(Qt.DisplayRole, uav_id)
         self.__dashboardUi.tableWidget.setItem(
                 self.__dashboardUi.tableWidget.rowCount() - 1,
                 self.__ID_COL, next_item)
 
-        #sort as necessary (by ID):
-        self.__dashboardUi.tableWidget.sortItems(self.__ID_COL);
-
         #this row has never been updated
         self.__uav_update_map[uav_id] = 0.0
 
-        #__row_uav_map now needs a makeover
-        self.__uav_row_map = {}
-        for row_num in range(self.__dashboardUi.tableWidget.rowCount()):
-            next_id = self.__dashboardUi.tableWidget.item(row_num,
-                                                        self.__ID_COL)
-            self.__uav_row_map[int(next_id.text())] = row_num
-
+        #sort as necessary:
+        self.__run_sort()
+        
         self.init_row(uav_id)
 
     def init_row(self, id):
@@ -185,7 +215,7 @@ class DashboardDialog(QDialog):
         elif (uav_state.get_mode() == 1):
             self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).\
                  setBackground(QBrush(QColor(255,0,0)))
-#            NOTE:  Aural warning not working reliably--fix this later
+#            TODO: NOTE:  Aural warning not working reliably--fix this later
 #            try:
 #                if uav_state.is_new_mode():
 #                    os.system("canberra-gtk-play --id='suspend-error' &")
@@ -210,7 +240,11 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.item(row, self.__BATT_REM_COL).setText(
             '%.1f (%u%%)' % (uav_state.get_batt_vcc(),uav_state.get_batt_rem()))
         self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).setText(uav_state.get_mode_str())
-        self.__dashboardUi.tableWidget.item(row, self.__SUBSWARM_COL).setText(str(uav_state.get_subswarm()))
+
+        #Sort SS_ID column numerically, not lexicographically
+        ss_id_item = self.__dashboardUi.tableWidget.item(row, self.__SUBSWARM_COL)
+        ss_id_item.setData(Qt.DisplayRole, uav_state.get_subswarm())
+
         self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).setText(uav_state.get_swarm_state_str())
         self.__dashboardUi.tableWidget.item(row, self.__SWARM_BHVR_COL).setText(uav_state.get_swarm_behavior_str())
         self.__dashboardUi.tableWidget.item(row, self.__CTRL_MODE_COL).setText(uav_state.get_ctl_mode_str())
@@ -231,7 +265,6 @@ class DashboardDialog(QDialog):
         selected_uav_ids = self.selectTableUAVs()
         for selected_uav_id in selected_uav_ids:
             net_mod.change_mode_for(selected_uav_id, 0)
-
 
     def auto_button_pushed(self):
         net_mod = self.sc_state.network
