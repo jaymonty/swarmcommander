@@ -165,6 +165,8 @@ class DashboardDialog(QDialog):
                 self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
                     self.__LINK_COL).setBackground(QBrush(QColor(255,255,0)))
 
+        self.__run_sort()
+
     def add_uav_to_dashboard(self, uav_id):
         #add a new table row
         self.__dashboardUi.tableWidget.insertRow(self.__dashboardUi.tableWidget.rowCount())
@@ -177,9 +179,7 @@ class DashboardDialog(QDialog):
 
         #this row has never been updated
         self.__uav_update_map[uav_id] = 0.0
-
-        #sort as necessary:
-        self.__run_sort()
+        self.__uav_row_map[uav_id] = self.__dashboardUi.tableWidget.rowCount()-1
         
         self.init_row(uav_id)
 
