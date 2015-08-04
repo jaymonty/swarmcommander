@@ -43,32 +43,26 @@ class SCModule(object):
     #properties return read only attributes (like a getter)
     @property
     def master(self):
-        #TODO: do I want to do it this way?
         return self.__sc_state.master()
 
     @property
     def settings(self):
-        #TODO: do I want to do it this way?
         return self.__sc_state.settings
 
     @property
     def sitl_output(self):
-        #TODO: do I want to do it this way?
         return self.__sc_state.sitl_output
 
     @property
     def target_system(self):
-        #TODO: do I want to do it this way?
         return self.__sc_state.status.target_system
 
     @property
     def target_component(self):
-        #TODO: do I want to do it this way?
         return self.__sc_state.status.target_component
 
     @property
     def logdir(self):
-        #TODO: do I want to do it this way?
         return self.__sc_state.status.logdir
     
     #these methods are not really meant to be implemented by inheriting classes,
