@@ -110,8 +110,6 @@ class SC_CLI_Module(sc_module.SCModule):
                 return
             else:
                 self.stdscr.addstr("Killing throttle on those planes!!!\n")
-                #TODO: need a message from SC to ROS
-                #self.sc_state.network.gah!!
 
         elif args[1] == "status":
             for id in aircraft:
@@ -240,8 +238,6 @@ class SC_CLI_Module(sc_module.SCModule):
 
             #fire up mavproxy with the appropriate device and args
             subprocess.Popen( ["/usr/bin/xterm", "-e", "mavproxy.py --baudrate 57600 --master " + device + " --speech --aircraft sc_" +  plane_id] )
-            #TODO: include proper mission # and sortie #
-
 
     def cmd_module(self, args):
         '''"module" command processing'''
