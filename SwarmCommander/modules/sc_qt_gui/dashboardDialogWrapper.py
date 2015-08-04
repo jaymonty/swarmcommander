@@ -18,6 +18,8 @@ from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import FixedFormati
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SwarmSearchDialog
 from ap_lib import ap_enumerations as enums
 
+from acs_lib import acs_speech
+
 import time
 import math
 import os
@@ -30,6 +32,9 @@ class DashboardDialog(QDialog):
         QDialog.__init__(self)
 
         self.sc_state = sc_state
+
+        self.__speech = acs_speech.ACS_Speech()
+        self.__speech.initialize('F') #female voice
 
         self.behavior_order = None # Container for swarm behavior order info
 
@@ -209,18 +214,15 @@ class DashboardDialog(QDialog):
         row = self.__uav_row_map[id]
 
         # Color code (and possibly aural warning) for unexpected autopilot modes
-        if (uav_state.get_mode() == 4):
+        if uav_state.get_mode() == enums.AUTO:
             self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).\
                  setBackground(QBrush(QColor(255,255,255)))
-        elif (uav_state.get_mode() == 1):
+        elif uav_state.get_mode() == enums.MANUAL:
             self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).\
                  setBackground(QBrush(QColor(255,0,0)))
-#            TODO: NOTE:  Aural warning not working reliably--fix this later
-#            try:
-#                if uav_state.is_new_mode():
-#                    os.system("canberra-gtk-play --id='suspend-error' &")
-#            except:
-#                pass # Just in case the system call fails
+
+            if uav_state.is_new_mode():
+                self.__speech.say("MANUAL! on " + str(id))
         else:
             self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).\
                  setBackground(QBrush(QColor(255,255,0)))
