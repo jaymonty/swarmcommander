@@ -128,7 +128,7 @@
     <number>1</number>
    </property>
    <property name="maximum">
-    <number>255</number>
+    <number>2</number>
    </property>
   </widget>
   <widget class="QLabel" name="lbl_searchArea">
@@ -269,7 +269,7 @@
     <double>0.000001000000000</double>
    </property>
    <property name="value">
-    <double>35.720835999999998</double>
+    <double>35.720474000000003</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_Lon">
@@ -294,7 +294,7 @@
     <double>0.000001000000000</double>
    </property>
    <property name="value">
-    <double>-120.774039000000002</double>
+    <double>-120.774810000000002</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_Length">
@@ -310,19 +310,19 @@
     <string> meters</string>
    </property>
    <property name="decimals">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="minimum">
     <double>1.000000000000000</double>
    </property>
    <property name="maximum">
-    <double>38100.000000000000000</double>
+    <double>37950.000000000000000</double>
    </property>
    <property name="singleStep">
     <double>1.000000000000000</double>
    </property>
    <property name="value">
-    <double>600.000000000000000</double>
+    <double>900.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_Width">
@@ -338,19 +338,19 @@
     <string> meters</string>
    </property>
    <property name="decimals">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="minimum">
     <double>1.000000000000000</double>
    </property>
    <property name="maximum">
-    <double>38100.000000000000000</double>
+    <double>37950.000000000000000</double>
    </property>
    <property name="singleStep">
     <double>1.000000000000000</double>
    </property>
    <property name="value">
-    <double>450.000000000000000</double>
+    <double>600.000000000000000</double>
    </property>
   </widget>
  </widget>

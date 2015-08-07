@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'swarmSearchDialog.ui'
 #
-# Created: Thu Jun 18 14:25:40 2015
+# Created: Tue Aug 11 13:59:06 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -46,7 +46,7 @@ class Ui_swarmSearchDialog(object):
         self.searchAlgo_spinBox = QtWidgets.QSpinBox(swarmSearchDialog)
         self.searchAlgo_spinBox.setGeometry(QtCore.QRect(230, 80, 60, 27))
         self.searchAlgo_spinBox.setMinimum(1)
-        self.searchAlgo_spinBox.setMaximum(255)
+        self.searchAlgo_spinBox.setMaximum(2)
         self.searchAlgo_spinBox.setObjectName("searchAlgo_spinBox")
         self.lbl_searchArea = QtWidgets.QLabel(swarmSearchDialog)
         self.lbl_searchArea.setGeometry(QtCore.QRect(140, 120, 91, 20))
@@ -84,7 +84,7 @@ class Ui_swarmSearchDialog(object):
         self.doubleSpinBox_Lat.setMinimum(-90.0)
         self.doubleSpinBox_Lat.setMaximum(90.0)
         self.doubleSpinBox_Lat.setSingleStep(1e-06)
-        self.doubleSpinBox_Lat.setProperty("value", 35.720836)
+        self.doubleSpinBox_Lat.setProperty("value", 35.720474)
         self.doubleSpinBox_Lat.setObjectName("doubleSpinBox_Lat")
         self.doubleSpinBox_Lon = QtWidgets.QDoubleSpinBox(swarmSearchDialog)
         self.doubleSpinBox_Lon.setGeometry(QtCore.QRect(230, 180, 111, 27))
@@ -92,23 +92,23 @@ class Ui_swarmSearchDialog(object):
         self.doubleSpinBox_Lon.setMinimum(-180.0)
         self.doubleSpinBox_Lon.setMaximum(180.0)
         self.doubleSpinBox_Lon.setSingleStep(1e-06)
-        self.doubleSpinBox_Lon.setProperty("value", -120.774039)
+        self.doubleSpinBox_Lon.setProperty("value", -120.77481)
         self.doubleSpinBox_Lon.setObjectName("doubleSpinBox_Lon")
         self.doubleSpinBox_Length = QtWidgets.QDoubleSpinBox(swarmSearchDialog)
         self.doubleSpinBox_Length.setGeometry(QtCore.QRect(200, 230, 141, 27))
-        self.doubleSpinBox_Length.setDecimals(2)
+        self.doubleSpinBox_Length.setDecimals(0)
         self.doubleSpinBox_Length.setMinimum(1.0)
-        self.doubleSpinBox_Length.setMaximum(38100.0)
+        self.doubleSpinBox_Length.setMaximum(37950.0)
         self.doubleSpinBox_Length.setSingleStep(1.0)
-        self.doubleSpinBox_Length.setProperty("value", 600.0)
+        self.doubleSpinBox_Length.setProperty("value", 900.0)
         self.doubleSpinBox_Length.setObjectName("doubleSpinBox_Length")
         self.doubleSpinBox_Width = QtWidgets.QDoubleSpinBox(swarmSearchDialog)
         self.doubleSpinBox_Width.setGeometry(QtCore.QRect(200, 270, 141, 27))
-        self.doubleSpinBox_Width.setDecimals(2)
+        self.doubleSpinBox_Width.setDecimals(0)
         self.doubleSpinBox_Width.setMinimum(1.0)
-        self.doubleSpinBox_Width.setMaximum(38100.0)
+        self.doubleSpinBox_Width.setMaximum(37950.0)
         self.doubleSpinBox_Width.setSingleStep(1.0)
-        self.doubleSpinBox_Width.setProperty("value", 450.0)
+        self.doubleSpinBox_Width.setProperty("value", 600.0)
         self.doubleSpinBox_Width.setObjectName("doubleSpinBox_Width")
 
         self.retranslateUi(swarmSearchDialog)
