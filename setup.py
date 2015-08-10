@@ -48,8 +48,7 @@ setup(name='SwarmCommander',
       #(at least on Ubuntu as of this writing)
       install_requires=['pyserial'],
       scripts=['swarm_commander.py',
-               'SwarmCommander/tools/sc_map_prefetch.py',
-               '../SiK/Firmware/tools/atcommander.py'],
+               'SwarmCommander/tools/sc_map_prefetch.py'],
       package_data={'SwarmCommander':
                     ['data/images/*.png']}
       )
