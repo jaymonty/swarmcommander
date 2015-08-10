@@ -188,16 +188,10 @@ class SC_CLI_Module(sc_module.SCModule):
             self.stdscr.addstr("ID must be an integer.\n")
             return
 
-        if len(args) > 1:
-            if (args[1].lower() == "true" or args[1].lower() == "t"
-                    or args[1].lower() == "1"):
-                use_telem = True
-
         if len(args) > 0:
             if len(radio_files) < 1:
-                if use_telem == True:
-                    self.stdscr.addstr("No telem radio detected via USB.\n")
-                    return
+                self.stdscr.addstr("No telem radio detected via USB.\n")
+                return
             else:    
                 device = '/dev/serial/by-id/' + radio_files[0]
         
