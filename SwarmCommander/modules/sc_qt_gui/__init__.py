@@ -19,7 +19,7 @@ class SC_QtGUIModule(sc_module.SCModule):
         super(SC_QtGUIModule, self).__init__(sc_state, "qt_gui", "qt_gui module")
         self.__app = QApplication([])
         
-        self.__mapWidget = MapWidget(self.sc_state)
+        self.__mapWidget = MapWidget()
 
         self.__dashboardDialog = DashboardDialog(self.sc_state)
                                           
@@ -52,7 +52,8 @@ class SC_QtGUIModule(sc_module.SCModule):
         self.__dashboardDialog.update_uav_states()
 
         #update icons on map
-        self.__mapWidget.updateIcons()
+        for id, uav_state in self.sc_state.swarm_state.uav_states.items():
+            self.__mapWidget.updateIcon(id, uav_state)
 
     def time_to_update(self):
         #check for new textures for the map:
