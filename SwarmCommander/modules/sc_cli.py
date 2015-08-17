@@ -5,6 +5,8 @@
 """
 from SwarmCommander.modules.lib import sc_module
 
+from acs_lib import acs_map_tiler
+
 from atcommander import ATCommandSet
 
 import curses, os, subprocess, traceback
@@ -126,10 +128,6 @@ class SC_CLI_Module(sc_module.SCModule):
         usage = "usage: map <prefetch|show|hide|location>\n"
 
         #make sure we have the necessary modules loaded before trying these commands:
-        if self.sc_state.module('map_tiler') is None:
-            self.stdscr.addstr("Load map_tiler module first\n")
-            return
-
         if len(args) < 1:
             self.stdscr.addstr(usage)
             return
@@ -145,13 +143,17 @@ class SC_CLI_Module(sc_module.SCModule):
                 zoom = int(args[3])
 
             if self.sc_state.module('qt_gui') != None:
+                #TODO: this is broken right now: fix it
                 self.sc_state.module('qt_gui').set_map_location(lat, lon, zoom)
             else:
                 self.stdscr.addstr("Add qt_gui module first.\n")
 
         elif args[0] == "prefetch":
             #TODO: allow prefetching at an arbitrary location
-            self.sc_state.module('map_tiler').prefetch() 
+            #self.sc_state.module('map_tiler').prefetch()
+            #TODO: map module moved to acs_lib -- need to have a way
+            #to ask the Swarm Commander map to prefetch here!
+            self.stdscr.addstr("Prefetch disabled for now, sorry!")
         else:
             self.stdscr.addstr(usage)
 
