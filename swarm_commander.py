@@ -58,7 +58,7 @@ def main(stdscr):
     cli_thread.start()
 
     #load necessary modules---------
-    state.load_module('map_tiler')
+    #state.load_module('module_name')
     #-----------------
 
     #Now start Qt application in main thread.  Note that Qt doesn't like being
