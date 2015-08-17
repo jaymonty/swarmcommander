@@ -221,7 +221,8 @@ class DashboardDialog(QDialog):
             self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).\
                  setBackground(QBrush(QColor(255,0,0)))
 
-            if uav_state.is_new_mode():
+            #TODO; need a better "is_flying" alert than altitude:
+            if uav_state.is_new_mode() and uav_state.get_alt_rel() > 20.0:
                 self.__speech.say("MANUAL! on " + str(id))
         else:
             self.__dashboardUi.tableWidget.item(row, self.__MODE_COL).\
