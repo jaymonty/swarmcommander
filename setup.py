@@ -4,7 +4,7 @@ from setuptools import setup
 
 import sys, os
 
-version = "0.0.7"
+version = "0.1.0"
 
 #require python3
 #exit with message if we're not using Python 3:
@@ -36,7 +36,6 @@ setup(name='SwarmCommander',
       license='TBD',
       packages=['SwarmCommander',
                 'SwarmCommander.modules',
-                'SwarmCommander.modules.sc_map_tiler',
                 'SwarmCommander.modules.sc_qt_gui',
                 'SwarmCommander.modules.lib'],
       #note that we do not include all the real dependencies here (like matplotlib etc)
