@@ -16,6 +16,7 @@ from PyQt5.QtCore import Qt
 from SwarmCommander.modules.sc_qt_gui.mapWidget import Ui_MapWidget
 from SwarmCommander.modules.sc_qt_gui.mapGraphicsIcon import MapGraphicsIcon
 from acs_lib import acs_math
+from acs_lib import acs_map_tiler
 
 from collections import OrderedDict
 
@@ -39,8 +40,8 @@ class MapWidget(QDialog):
         self.__current_lat = 35.720428
         self.__current_lon = -120.769924
         self.__current_ground_width = 41000000. #meters(start w/ view of whole earth)
-
-        self.__tiler = sc_state.module("map_tiler")
+        #TODO: don't hard code location
+        self.__tiler = acs_map_tiler.ACS_MapTiler(35.720428, -120.769924)
 
         self.__current_detail_layer = 0 #corresponds to "zoom" in map_tiler module
         self.__detail_layers = []
