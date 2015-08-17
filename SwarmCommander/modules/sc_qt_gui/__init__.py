@@ -9,7 +9,7 @@ from SwarmCommander.modules.lib import sc_module
 
 from PyQt5.QtWidgets import QApplication, QDialog
 from PyQt5.QtCore import QTimer
-from SwarmCommander.modules.sc_qt_gui.mapWidgetWrapper import MapWidget
+from acs_dashboards.lib.acs_general_gui.acs_map.mapWidgetWrapper import MapWidget
 from SwarmCommander.modules.sc_qt_gui.dashboardDialogWrapper import DashboardDialog
 
 import sys

@@ -48,6 +48,6 @@ setup(name='SwarmCommander',
       install_requires=['pyserial'],
       scripts=['swarm_commander.py',
                'SwarmCommander/tools/sc_map_prefetch.py'],
-      package_data={'SwarmCommander':
-                    ['data/images/*.png']}
+      #package_data={'SwarmCommander':
+      #              ['data/images/*.png']}
       )
