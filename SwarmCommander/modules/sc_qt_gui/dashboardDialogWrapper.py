@@ -156,7 +156,7 @@ class DashboardDialog(QDialog):
             if id not in self.__uav_row_map.keys():
                 self.add_uav_to_dashboard(id)
 
-        now = time.clock()
+        now = time.time()
 
         for id, uav_state in self.sc_state.swarm_state.uav_states.items():
             if uav_state.get_mode() == -1:
@@ -184,8 +184,10 @@ class DashboardDialog(QDialog):
                (self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).text() \
                 in self.__do_not_display_states):
                 self.__dashboardUi.tableWidget.setRowHidden(row, True)
+                self.sc_state.module("qt_gui").mapWidget.hideUAVIcon(id)
             else:
                 self.__dashboardUi.tableWidget.setRowHidden(row, False)
+                self.sc_state.module("qt_gui").mapWidget.showUAVIcon(id)
 
         self.__run_sort()
 
@@ -277,7 +279,7 @@ class DashboardDialog(QDialog):
             self.__dashboardUi.tableWidget.item(row, self.__GPS_OK_COL).\
                  setBackground(QBrush(QColor(255,0,0)))
 
-        self.__uav_update_map[id] = time.clock()
+        self.__uav_update_map[id] = time.time()
 
     def rtl_button_pushed(self):
         net_mod = self.sc_state.network

@@ -19,11 +19,10 @@ class SC_QtGUIModule(sc_module.SCModule):
         super(SC_QtGUIModule, self).__init__(sc_state, "qt_gui", "qt_gui module")
         self.__app = QApplication([])
         
-        self.__mapWidget = MapWidget()
+        self.mapWidget = MapWidget()
+        self.mapWidget.show()
 
         self.__dashboardDialog = DashboardDialog(self.sc_state)
-                                          
-        self.__mapWidget.show()
         self.__dashboardDialog.show()
 
         #periodic updates...
@@ -39,10 +38,10 @@ class SC_QtGUIModule(sc_module.SCModule):
         self.__updaterFrequent.start();
 
         #zoom to default location:
-        self.__mapWidget.zoomTo(16, 35.716888, -120.7646408)
+        self.mapWidget.zoomTo(16, 35.716888, -120.7646408)
 
         #slots
-        self.__mapWidget.getView().just_selected_uav.connect(self.on_uav_select)
+        self.mapWidget.getView().just_selected_uav.connect(self.on_uav_select)
 
     def start_app(self):
         sys.exit(self.__app.exec_())
@@ -53,15 +52,15 @@ class SC_QtGUIModule(sc_module.SCModule):
 
         #update icons on map
         for id, uav_state in self.sc_state.swarm_state.uav_states.items():
-            self.__mapWidget.updateIcon(id, uav_state)
+            self.mapWidget.updateIcon(id, uav_state)
 
     def time_to_update(self):
         #check for new textures for the map:
-        self.__mapWidget.checkForNewTextures()
+        self.mapWidget.checkForNewTextures()
 
     def unload(self):
         #do any cleanup here
-        self.__mapWidget.done(0)
+        self.mapWidget.done(0)
         self.__dashboardDialog.done(0)
         
         QApplication.quit()
