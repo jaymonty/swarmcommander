@@ -16,6 +16,7 @@ from PyQt5.QtGui import QBrush, QColor
 from SwarmCommander.modules.sc_qt_gui.sequenceLandDialog import Ui_sequenceLandDialog
 from SwarmCommander.modules.sc_qt_gui.fixedFormationDialog import Ui_fixedFormationDialog
 from SwarmCommander.modules.sc_qt_gui.swarmSearchDialog import Ui_swarmSearchDialog
+import ap_lib.ap_enumerations as enums
 import time
 import math
 import os
@@ -50,11 +51,11 @@ class SequenceLandDialog(BehaviorDialog):
         self.__sequencedLandUi.btnbx_CancelOK.rejected.connect(self.cancelOk_btn_reject)
 
     def cancelOk_btn_accept(self):
-        ldn_wpt = None
-        if self.__sequencedLandUi.combo_landOption.currentText() == "RW 28 (East to West)":
-            lnd_wpt = 12
-        elif self.__sequencedLandUi.combo_landOption.currentText() == "RW 10 (West to East)":
-            lnd_wpt = 18
+        lnd_wpt = None
+        if self.__sequencedLandUi.combo_landOption.currentText() == "Land A (East to West)":
+            lnd_wpt = enums.LAND_A_WP
+        elif self.__sequencedLandUi.combo_landOption.currentText() == "Land B (West to East)":
+            lnd_wpt = enums.LAND_B_WP
         self.parent.behavior_order = lnd_wpt
         self.close()
 

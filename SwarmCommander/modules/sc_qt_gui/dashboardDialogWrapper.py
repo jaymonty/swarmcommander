@@ -26,8 +26,6 @@ import os
 
 class DashboardDialog(QDialog):
 
-    EGRESS_WP_INDEX = 5
-
     def __init__(self, sc_state):
         QDialog.__init__(self)
 
@@ -72,6 +70,9 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.setColumnWidth(self.__GPS_OK_COL, 35)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__MODE_COL, 80)
 
+        self.__dashboardUi.tableWidget.setColumnHidden(self.__LINK_COL, True)
+        self.__dashboardUi.tableWidget.setColumnHidden(self.__GPS_OK_COL, True)
+
         #sorting
         self.__current_sort_column = self.__ID_COL
         self.__current_sort_order = Qt.AscendingOrder
@@ -93,6 +94,13 @@ class DashboardDialog(QDialog):
 
         self.__dashboardUi.tableWidget.horizontalHeader().sectionDoubleClicked.connect(self.table_header_dbl_clicked)
         self.__dashboardUi.tableWidget.itemSelectionChanged.connect(self.table_selectionChanged)
+
+        self.__do_not_display_states = set()
+        self.__do_not_display_states.add(enums.STATE_STRINGS[enums.PRE_FLIGHT])
+        self.__do_not_display_states.add(enums.STATE_STRINGS[enums.FLIGHT_READY])
+        self.__do_not_display_states.add(enums.STATE_STRINGS[enums.ON_DECK])
+        self.__do_not_display_states.add(enums.STATE_STRINGS[enums.POST_FLIGHT])
+
 
     def __remap_uavs_to_rows(self):
         self.__uav_row_map = {}
@@ -155,20 +163,29 @@ class DashboardDialog(QDialog):
                 #haven't got a FlightStatus message yet:
                 continue
 
+            row = self.__uav_row_map[id]
             if (uav_state.get_last_status_update() == 0 or 
                 self.__uav_update_map[id] < uav_state.get_last_status_update()):
                 self.update_uav_row(id, uav_state)
                 #link green
-                self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
-                    self.__LINK_COL).setBackground(QBrush(QColor(0,255,0)))
+                self.__dashboardUi.tableWidget.item(row, self.__LINK_COL).\
+                     setBackground(QBrush(QColor(0,255,0)))
             elif now - uav_state.get_last_status_update() > 10.0:
                 #link red
-                self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
-                    self.__LINK_COL).setBackground(QBrush(QColor(255,0,0)))
+                self.__dashboardUi.tableWidget.item(row, self.__LINK_COL).\
+                     setBackground(QBrush(QColor(255,0,0)))
             elif now - uav_state.get_last_status_update() > 5.0:
                 #link yellow
-                self.__dashboardUi.tableWidget.item(self.__uav_row_map[id],
-                    self.__LINK_COL).setBackground(QBrush(QColor(255,255,0)))
+                self.__dashboardUi.tableWidget.item(row, self.__LINK_COL).\
+                     setBackground(QBrush(QColor(255,255,0)))
+
+            # Determine whether table row should be visible or hidden
+            if (now - uav_state.get_last_status_update() > 6.0) or \
+               (self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).text() \
+                in self.__do_not_display_states):
+                self.__dashboardUi.tableWidget.setRowHidden(row, True)
+            else:
+                self.__dashboardUi.tableWidget.setRowHidden(row, False)
 
         self.__run_sort()
 

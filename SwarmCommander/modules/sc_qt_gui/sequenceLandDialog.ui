@@ -75,12 +75,12 @@
    </property>
    <item>
     <property name="text">
-     <string>RW 28 (East to West)</string>
+     <string>Land A (East to West)</string>
     </property>
    </item>
    <item>
     <property name="text">
-     <string>RW 10 (West to East)</string>
+     <string>Land B (West to East)</string>
     </property>
    </item>
   </widget>

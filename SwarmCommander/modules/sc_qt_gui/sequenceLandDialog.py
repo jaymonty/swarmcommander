@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'sequenceLandDialog.ui'
 #
-# Created: Mon Jun 15 14:22:19 2015
+# Created: Wed Aug 12 13:26:41 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -46,6 +46,6 @@ class Ui_sequenceLandDialog(object):
         self.btnbx_CancelOK.setToolTip(_translate("sequenceLandDialog", "<html><head/><body><p><br/></p></body></html>"))
         self.lbl_sequenceLanding.setText(_translate("sequenceLandDialog", "Swarm Sequence Landing Parameters"))
         self.combo_landOption.setToolTip(_translate("sequenceLandDialog", "<html><head/><body><p>Landing option (Runway 28 or 10 for westerly or easterly landing respectively)</p></body></html>"))
-        self.combo_landOption.setItemText(0, _translate("sequenceLandDialog", "RW 28 (East to West)"))
-        self.combo_landOption.setItemText(1, _translate("sequenceLandDialog", "RW 10 (West to East)"))
+        self.combo_landOption.setItemText(0, _translate("sequenceLandDialog", "Land A (East to West)"))
+        self.combo_landOption.setItemText(1, _translate("sequenceLandDialog", "Land B (West to East)"))
 
