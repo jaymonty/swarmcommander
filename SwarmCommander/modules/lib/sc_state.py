@@ -6,10 +6,12 @@
 """
 
 from SwarmCommander.modules.lib import sc_module
+
+from acs_lib import acs_config
 from acs_lib import acs_swarm_state
 from acs_lib.acs_network import acs_network_ground
 
-import sys, pip, traceback, zipfile, zipimport, time
+import os, sys, pip, traceback, zipfile, zipimport, time
 
 class SCState(object):
     '''
@@ -24,7 +26,21 @@ class SCState(object):
 
         self.swarm_state = acs_swarm_state.ACS_SwarmState()
 
-        self.network = acs_network_ground.ACS_NetworkGround('eth0',5554,173)
+        self.config = acs_config.ACS_Config(
+                os.environ['HOME'] + "/.swarm_commander.ini")
+       
+        #defaults
+        id = 173
+        device = 'wlan1'
+        port = 5554
+        if self.config.get_acs_id() is not None:
+            id = self.config.get_acs_id()
+        if self.config.get_network_device() is not None:
+            device = self.config.get_network_device()
+        if self.config.get_network_port() is not None:
+            port = self.config.get_network_port()
+
+        self.network = acs_network_ground.ACS_NetworkGround(device,port,id)
 
         #modules wanting UAV updates
         self.__modules_wanting_uav_updates = []
@@ -166,4 +182,10 @@ class SCState(object):
         for comp in components[1:]:
             mod = getattr(mod, comp)
         return mod
-            
+         
+    def save_config(self):
+        self.config.set_network_device(self.network.get_device())
+        self.config.set_network_port(self.network.get_port())
+        self.config.set_acs_id(self.network.get_acs_id())
+
+        self.config.save()
