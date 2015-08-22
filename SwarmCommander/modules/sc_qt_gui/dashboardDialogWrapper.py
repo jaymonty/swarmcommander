@@ -405,3 +405,8 @@ class DashboardDialog(QDialog):
         selected_items = self.__dashboardUi.tableWidget.selectedItems()
         return [ int(item.text()) for item in selected_items if (item.column() == self.__ID_COL) ]
 
+    def closeEvent(self, evt):
+        self.sc_state.save_config()
+
+        #call parent closeEvent method:
+        QDialog.closeEvent(self, evt)

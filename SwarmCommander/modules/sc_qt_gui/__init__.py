@@ -59,6 +59,13 @@ class SC_QtGUIModule(sc_module.SCModule):
         self.mapWidget.checkForNewTextures()
 
     def unload(self):
+        #THIS NEEDS TO WORK (IT DOES CURRENTLY)
+        #The closeEvent handler of the dialog is what saves config:
+        self.__dashboardDialog.close()
+        
+        #Doesn't work -- dunno why:
+        #self.__mapWidget.close()
+
         #do any cleanup here
         self.mapWidget.done(0)
         self.__dashboardDialog.done(0)
