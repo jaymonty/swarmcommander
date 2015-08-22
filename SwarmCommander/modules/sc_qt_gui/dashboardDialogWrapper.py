@@ -72,6 +72,7 @@ class DashboardDialog(QDialog):
 
         self.__dashboardUi.tableWidget.setColumnHidden(self.__LINK_COL, True)
         self.__dashboardUi.tableWidget.setColumnHidden(self.__GPS_OK_COL, True)
+        self.__dashboardUi.tableWidget.setColumnHidden(self.__BATT_REM_COL, True)
 
         #sorting
         self.__current_sort_column = self.__ID_COL
@@ -180,7 +181,7 @@ class DashboardDialog(QDialog):
                      setBackground(QBrush(QColor(255,255,0)))
 
             # Determine whether table row should be visible or hidden
-            if (now - uav_state.get_last_status_update() > 6.0) or \
+            if (now - uav_state.get_last_status_update() > 60.0) or \
                (self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).text() \
                 in self.__do_not_display_states):
                 self.__dashboardUi.tableWidget.setRowHidden(row, True)
