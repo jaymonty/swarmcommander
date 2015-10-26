@@ -157,7 +157,7 @@
         <widget class="QComboBox" name="combo_swarmBehavior">
          <item>
           <property name="text">
-           <string>Fixed Follow</string>
+           <string>Line Formation</string>
           </property>
          </item>
          <item>
@@ -236,11 +236,6 @@
        <item>
         <property name="text">
          <string>Swarm Ready</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Egress</string>
         </property>
        </item>
        <item>

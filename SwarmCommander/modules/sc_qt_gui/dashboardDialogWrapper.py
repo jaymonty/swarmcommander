@@ -17,6 +17,7 @@ from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SequenceLand
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import FixedFormationDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SwarmSearchDialog
 from ap_lib import ap_enumerations as enums
+from ap_lib import bitmapped_bytes as bytes 
 
 from acs_lib import acs_speech
 
@@ -309,34 +310,42 @@ class DashboardDialog(QDialog):
         selected_behavior = enums.SWARM_BHVR_VALUES[self.__dashboardUi.combo_swarmBehavior.currentText()]
         self.behavior_order = None
 
-        if selected_behavior == enums.SWARM_FIXED_FORMATION:
+        if selected_behavior == enums.SWARM_LINEAR_FORMATION:
             dialog = FixedFormationDialog(self.sc_state, self)
             dialog.exec()
             if not self.behavior_order: return
+            parser = bytes.LinearFormationOrderParser()
+            parser.distance = self.behavior_order[0]
+            parser.angle = self.behavior_order[1]
+            parser.stack_formation = self.behavior_order[2]
+            params = parser.pack()
             for uav in subswarm_uavs:
-                net_mod.swarm_follow_for(uav, self.behavior_order[0], \
-                                              self.behavior_order[1], \
-                                              self.behavior_order[2])
+                net_mod.swarm_behavior_for(uav, enums.SWARM_LINEAR_FORMATION, params)
 
         elif selected_behavior == enums.SWARM_SEQUENCE_LAND:
             dialog = SequenceLandDialog(self.sc_state, self)
             dialog.exec()
             if not self.behavior_order: return
+            parser = bytes.LandingOrderParser()
+            parser.landing_wp_id = self.behavior_order
+            params = parser.pack()
             for uav in subswarm_uavs:
-                net_mod.swarm_sequence_land_for(uav, self.behavior_order)
+                net_mod.swarm_behavior_for(uav, enums.SWARM_SEQUENCE_LAND, params)
 
         elif selected_behavior == enums.SWARM_SEARCH:
             dialog = SwarmSearchDialog(self.sc_state, self)
             dialog.exec()
             if not self.behavior_order: return
+            parser = bytes.SearchOrderParser()
+            parser.areaLength = self.behavior_order[0]
+            parser.areaWidth = self.behavior_order[1]
+            parser.lat = self.behavior_order[2]
+            parser.lon = self.behavior_order[3]
+            parser.masterID = self.behavior_order[4]
+            parser.algorithmNumber = self.behavior_order[5]
+            params = parser.pack()
             for uav in subswarm_uavs:
-                net_mod.swarm_search_for(uav, self.behavior_order[0], \
-                                              self.behavior_order[1], \
-                                              self.behavior_order[2], \
-                                              self.behavior_order[3], \
-                                              self.behavior_order[4], \
-                                              self.behavior_order[5])
-
+                net_mod.swarm_behavior_for(uav, enums.SWARM_SEARCH, params)
 
     def suspend_swarm_behavior_pushed(self):
         net_mod = self.sc_state.network
@@ -362,13 +371,16 @@ class DashboardDialog(QDialog):
         for uav_id in subswarm_uavs:
             net_mod.pause_swarm_behavior_for(uav_id, pause_value)  # Pause or resume any active behavior
 
+    # Irrelevant button (placeholder for now), but might want to retain
+    # the functionality and implement it differently on the payload side
     def egress_subswarm_pushed(self):
-        net_mod = self.sc_state.network
-
-        subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_egressSubswarm.value()))
-        # Set the controller to 0 (autopilot only) and send UAV to the racetrack
-        for uav_id in subswarm_uavs:
-            net_mod.swarm_egress_for(uav_id)
+        pass
+#        net_mod = self.sc_state.network
+#
+#        subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_egressSubswarm.value()))
+#        # Set the controller to 0 (autopilot only) and send UAV to the racetrack
+#        for uav_id in subswarm_uavs:
+#            net_mod.swarm_egress_for(uav_id)
 
     def set_swarm_state_pushed(self):
         net_mod = self.sc_state.network
