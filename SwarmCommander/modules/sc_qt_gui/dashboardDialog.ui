@@ -50,11 +50,6 @@
        </column>
        <column>
         <property name="text">
-         <string>Ctrl Mode</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
          <string>Swarm State</string>
         </property>
        </column>

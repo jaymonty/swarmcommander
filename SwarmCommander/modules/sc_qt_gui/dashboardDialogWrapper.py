@@ -51,17 +51,15 @@ class DashboardDialog(QDialog):
         self.__ID_COL = 0
         self.__NAME_COL = 1
         self.__SUBSWARM_COL = 2
-        self.__CTRL_MODE_COL = 3
-        self.__SWARM_STATE_COL = 4
-        self.__SWARM_BHVR_COL = 5
-        self.__LINK_COL = 6
-        self.__BATT_REM_COL = 7
-        self.__GPS_OK_COL = 8
-        self.__MODE_COL = 9
+        self.__SWARM_STATE_COL = 3
+        self.__SWARM_BHVR_COL = 4
+        self.__LINK_COL = 5
+        self.__BATT_REM_COL = 6
+        self.__GPS_OK_COL = 7
+        self.__MODE_COL = 8
 
         self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 40)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__NAME_COL, 80)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__CTRL_MODE_COL, 120)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__SWARM_STATE_COL,100)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__SWARM_BHVR_COL, 110)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__SUBSWARM_COL, 50)
@@ -215,8 +213,6 @@ class DashboardDialog(QDialog):
                 QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__SUBSWARM_COL, 
                 QTableWidgetItem())
-        self.__dashboardUi.tableWidget.setItem(row, self.__CTRL_MODE_COL, 
-                QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__SWARM_STATE_COL, 
                 QTableWidgetItem())
         self.__dashboardUi.tableWidget.setItem(row, self.__SWARM_BHVR_COL, 
@@ -270,7 +266,6 @@ class DashboardDialog(QDialog):
 
         self.__dashboardUi.tableWidget.item(row, self.__SWARM_STATE_COL).setText(uav_state.get_swarm_state_str())
         self.__dashboardUi.tableWidget.item(row, self.__SWARM_BHVR_COL).setText(uav_state.get_swarm_behavior_str())
-        self.__dashboardUi.tableWidget.item(row, self.__CTRL_MODE_COL).setText(uav_state.get_ctl_mode_str())
 
         # Color code for GPS state
         if (uav_state.get_gps_ok()):

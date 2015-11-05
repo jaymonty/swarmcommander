@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Wed Jun 17 11:07:12 2015
+# Created: Thu Nov  5 11:42:33 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,7 +21,7 @@ class Ui_dashboardDialog(object):
         self.tableWidget.setMinimumSize(QtCore.QSize(735, 0))
         self.tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(10)
+        self.tableWidget.setColumnCount(9)
         self.tableWidget.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, item)
@@ -45,8 +45,6 @@ class Ui_dashboardDialog(object):
         self.tableWidget.setHorizontalHeaderItem(7, item)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(8, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(9, item)
         self.verticalLayout.addWidget(self.tableWidget)
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
@@ -148,18 +146,16 @@ class Ui_dashboardDialog(object):
         item = self.tableWidget.horizontalHeaderItem(2)
         item.setText(_translate("dashboardDialog", "SS_ID"))
         item = self.tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("dashboardDialog", "Ctrl Mode"))
-        item = self.tableWidget.horizontalHeaderItem(4)
         item.setText(_translate("dashboardDialog", "Swarm State"))
-        item = self.tableWidget.horizontalHeaderItem(5)
+        item = self.tableWidget.horizontalHeaderItem(4)
         item.setText(_translate("dashboardDialog", "Swarm Bhvr"))
-        item = self.tableWidget.horizontalHeaderItem(6)
+        item = self.tableWidget.horizontalHeaderItem(5)
         item.setText(_translate("dashboardDialog", "Link"))
-        item = self.tableWidget.horizontalHeaderItem(7)
+        item = self.tableWidget.horizontalHeaderItem(6)
         item.setText(_translate("dashboardDialog", "Batt"))
-        item = self.tableWidget.horizontalHeaderItem(8)
+        item = self.tableWidget.horizontalHeaderItem(7)
         item.setText(_translate("dashboardDialog", "GPS"))
-        item = self.tableWidget.horizontalHeaderItem(9)
+        item = self.tableWidget.horizontalHeaderItem(8)
         item.setText(_translate("dashboardDialog", "Mode"))
         self.btn_setSubswarm.setText(_translate("dashboardDialog", "                    Assign Selected UAVs to Subswarm:  "))
         self.lbl_selectSubswarm.setText(_translate("dashboardDialog", "Select Subswarm for Behavior Command:   "))
