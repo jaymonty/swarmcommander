@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'sequenceLandDialog.ui'
 #
-# Created: Wed Aug 12 13:26:41 2015
+# Created: Thu Nov  5 13:53:46 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!

@@ -167,6 +167,11 @@
          </item>
          <item>
           <property name="text">
+           <string>Greedy Shooter</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>Sequence Land</string>
           </property>
          </item>

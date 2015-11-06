@@ -16,6 +16,7 @@ from SwarmCommander.modules.sc_qt_gui.dashboardDialog import Ui_dashboardDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SequenceLandDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import FixedFormationDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SwarmSearchDialog
+from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import GreedyShooterDialog
 from ap_lib import ap_enumerations as enums
 from ap_lib import bitmapped_bytes as bytes 
 
@@ -346,6 +347,13 @@ class DashboardDialog(QDialog):
             params = parser.pack()
             for uav in subswarm_uavs:
                 net_mod.swarm_behavior_for(uav, enums.SWARM_SEARCH, params)
+
+        elif selected_behavior == enums.GREEDY_SHOOTER:
+            dialog = GreedyShooterDialog(self.sc_state, self)
+            dialog.exec()
+            if not self.behavior_order: return
+            for uav in subswarm_uavs:
+                net_mod.swarm_behavior_for(uav, enums.GREEDY_SHOOTER, b'')
 
     def suspend_swarm_behavior_pushed(self):
         net_mod = self.sc_state.network
