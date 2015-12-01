@@ -172,6 +172,16 @@
          </item>
          <item>
           <property name="text">
+           <string>Altitude Sort</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Lazy Alt Sort</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>Sequence Land</string>
           </property>
          </item>

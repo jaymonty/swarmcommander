@@ -17,6 +17,7 @@ from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SequenceLand
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import FixedFormationDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SwarmSearchDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import GreedyShooterDialog
+from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import AltitudeSorterDialog
 from ap_lib import ap_enumerations as enums
 from ap_lib import bitmapped_bytes as bytes 
 
@@ -354,6 +355,20 @@ class DashboardDialog(QDialog):
             if not self.behavior_order: return
             for uav in subswarm_uavs:
                 net_mod.swarm_behavior_for(uav, enums.GREEDY_SHOOTER, b'')
+
+        elif selected_behavior == enums.ALTITUDE_SORT:
+            dialog = AltitudeSorterDialog(self.sc_state, self)
+            dialog.exec()
+            if not self.behavior_order: return
+            for uav in subswarm_uavs:
+                net_mod.swarm_behavior_for(uav, enums.ALTITUDE_SORT, b'')
+
+        elif selected_behavior == enums.LAZY_ALTITUDE_SORT:
+            dialog = AltitudeSorterDialog(self.sc_state, self)
+            dialog.exec()
+            if not self.behavior_order: return
+            for uav in subswarm_uavs:
+                net_mod.swarm_behavior_for(uav, enums.LAZY_ALTITUDE_SORT, b'')
 
     def suspend_swarm_behavior_pushed(self):
         net_mod = self.sc_state.network

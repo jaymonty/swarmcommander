@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Thu Nov  5 11:42:33 2015
+# Created: Mon Nov 30 17:31:43 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -87,6 +87,8 @@ class Ui_dashboardDialog(object):
         self.combo_swarmBehavior.addItem("")
         self.combo_swarmBehavior.addItem("")
         self.combo_swarmBehavior.addItem("")
+        self.combo_swarmBehavior.addItem("")
+        self.combo_swarmBehavior.addItem("")
         self.gridLayout.addWidget(self.combo_swarmBehavior, 4, 1, 1, 1)
         self.spin_setSubswarm = QtWidgets.QSpinBox(dashboardDialog)
         self.spin_setSubswarm.setMaximum(50)
@@ -166,7 +168,9 @@ class Ui_dashboardDialog(object):
         self.combo_swarmBehavior.setItemText(0, _translate("dashboardDialog", "Line Formation"))
         self.combo_swarmBehavior.setItemText(1, _translate("dashboardDialog", "Swarm Search"))
         self.combo_swarmBehavior.setItemText(2, _translate("dashboardDialog", "Greedy Shooter"))
-        self.combo_swarmBehavior.setItemText(3, _translate("dashboardDialog", "Sequence Land"))
+        self.combo_swarmBehavior.setItemText(3, _translate("dashboardDialog", "Altitude Sort"))
+        self.combo_swarmBehavior.setItemText(4, _translate("dashboardDialog", "Lazy Alt Sort"))
+        self.combo_swarmBehavior.setItemText(5, _translate("dashboardDialog", "Sequence Land"))
         self.lbl_selectSwarmBehavior.setText(_translate("dashboardDialog", "Select Behavior to Initiate:   "))
         self.btn_pauseSwarmBehavior.setText(_translate("dashboardDialog", "Pause Active Swarm Behavior"))
         self.btn_resumeSwarmBehavior.setText(_translate("dashboardDialog", "Resume Paused Swarm Behavior"))

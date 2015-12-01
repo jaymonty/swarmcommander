@@ -17,6 +17,7 @@ from SwarmCommander.modules.sc_qt_gui.sequenceLandDialog import Ui_sequenceLandD
 from SwarmCommander.modules.sc_qt_gui.fixedFormationDialog import Ui_fixedFormationDialog
 from SwarmCommander.modules.sc_qt_gui.swarmSearchDialog import Ui_swarmSearchDialog
 from SwarmCommander.modules.sc_qt_gui.greedyShooterDialog import Ui_greedyShooterDialog
+from SwarmCommander.modules.sc_qt_gui.altitudeSorterDialog import Ui_altitudeSorterDialog
 import ap_lib.ap_enumerations as enums
 import time
 import math
@@ -120,6 +121,24 @@ class GreedyShooterDialog(BehaviorDialog):
         #slots
         self.__greedyShooterUi.btnbx_CancelOK.accepted.connect(self.cancelOk_btn_accept)
         self.__greedyShooterUi.btnbx_CancelOK.rejected.connect(self.cancelOk_btn_reject)
+
+    def cancelOk_btn_accept(self):
+        self.parent.behavior_order = True
+        self.close()
+
+# Dialog box for entering user-defined parameters
+# for the Altitude Sorter behaviors
+class AltitudeSorterDialog(BehaviorDialog):
+
+    def __init__(self, sc_state, parent_dialog):
+        BehaviorDialog.__init__(self, sc_state, parent_dialog)
+
+        self.__altitudeSorterUi = Ui_altitudeSorterDialog()
+        self.__altitudeSorterUi.setupUi(self)
+
+        #slots
+        self.__altitudeSorterUi.btnbx_CancelOK.accepted.connect(self.cancelOk_btn_accept)
+        self.__altitudeSorterUi.btnbx_CancelOK.rejected.connect(self.cancelOk_btn_reject)
 
     def cancelOk_btn_accept(self):
         self.parent.behavior_order = True
