@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Mon Nov 30 17:31:43 2015
+# Created: Mon Dec 28 13:47:19 2015
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,9 +66,6 @@ class Ui_dashboardDialog(object):
         self.btn_beginSwarmBehavior = QtWidgets.QPushButton(dashboardDialog)
         self.btn_beginSwarmBehavior.setObjectName("btn_beginSwarmBehavior")
         self.gridLayout.addWidget(self.btn_beginSwarmBehavior, 7, 0, 1, 1)
-        self.btn_egressSubswarm = QtWidgets.QPushButton(dashboardDialog)
-        self.btn_egressSubswarm.setObjectName("btn_egressSubswarm")
-        self.gridLayout.addWidget(self.btn_egressSubswarm, 9, 0, 1, 1)
         self.swarm_label = QtWidgets.QLabel(dashboardDialog)
         font = QtGui.QFont()
         font.setBold(True)
@@ -77,10 +74,6 @@ class Ui_dashboardDialog(object):
         self.swarm_label.setAlignment(QtCore.Qt.AlignCenter)
         self.swarm_label.setObjectName("swarm_label")
         self.gridLayout.addWidget(self.swarm_label, 0, 0, 1, 2)
-        self.spin_egressSubswarm = QtWidgets.QSpinBox(dashboardDialog)
-        self.spin_egressSubswarm.setMaximum(52)
-        self.spin_egressSubswarm.setObjectName("spin_egressSubswarm")
-        self.gridLayout.addWidget(self.spin_egressSubswarm, 9, 1, 1, 1)
         self.combo_swarmBehavior = QtWidgets.QComboBox(dashboardDialog)
         self.combo_swarmBehavior.setObjectName("combo_swarmBehavior")
         self.combo_swarmBehavior.addItem("")
@@ -163,7 +156,6 @@ class Ui_dashboardDialog(object):
         self.lbl_selectSubswarm.setText(_translate("dashboardDialog", "Select Subswarm for Behavior Command:   "))
         self.btn_suspendSwarmBehavior.setText(_translate("dashboardDialog", "Terminate Current Swarm Behavior"))
         self.btn_beginSwarmBehavior.setText(_translate("dashboardDialog", "Specify Selected Behavior Parameters"))
-        self.btn_egressSubswarm.setText(_translate("dashboardDialog", "                                                      Subswarm Egress:  "))
         self.swarm_label.setText(_translate("dashboardDialog", "Swarm Commands"))
         self.combo_swarmBehavior.setItemText(0, _translate("dashboardDialog", "Line Formation"))
         self.combo_swarmBehavior.setItemText(1, _translate("dashboardDialog", "Swarm Search"))

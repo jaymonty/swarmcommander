@@ -91,7 +91,6 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.btn_pauseSwarmBehavior.clicked.connect(self.pause_swarm_behavior_pushed)
         self.__dashboardUi.btn_resumeSwarmBehavior.clicked.connect(self.resume_swarm_behavior_pushed)
         self.__dashboardUi.btn_setSubswarm.clicked.connect(self.set_subswarm_pushed)
-        self.__dashboardUi.btn_egressSubswarm.clicked.connect(self.egress_subswarm_pushed)
         self.__dashboardUi.btn_setSwarmState.clicked.connect(self.set_swarm_state_pushed)
 
         self.__dashboardUi.tableWidget.horizontalHeader().sectionDoubleClicked.connect(self.table_header_dbl_clicked)
@@ -393,17 +392,6 @@ class DashboardDialog(QDialog):
         # Set the controller to 0 (autopilot only) and send UAV to the racetrack
         for uav_id in subswarm_uavs:
             net_mod.pause_swarm_behavior_for(uav_id, pause_value)  # Pause or resume any active behavior
-
-    # Irrelevant button (placeholder for now), but might want to retain
-    # the functionality and implement it differently on the payload side
-    def egress_subswarm_pushed(self):
-        pass
-#        net_mod = self.sc_state.network
-#
-#        subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_egressSubswarm.value()))
-#        # Set the controller to 0 (autopilot only) and send UAV to the racetrack
-#        for uav_id in subswarm_uavs:
-#            net_mod.swarm_egress_for(uav_id)
 
     def set_swarm_state_pushed(self):
         net_mod = self.sc_state.network
