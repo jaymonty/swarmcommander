@@ -55,7 +55,7 @@
        </column>
        <column>
         <property name="text">
-         <string>Swarm Bhvr</string>
+         <string>Swarm Behavior</string>
         </property>
        </column>
        <column>
@@ -158,12 +158,17 @@
          </item>
          <item>
           <property name="text">
-           <string>Altitude Sort</string>
+           <string>Eager Altitude Sort</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Lazy Alt Sort</string>
+           <string>Lazy Altitude Sort</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Independent Transit</string>
           </property>
          </item>
          <item>

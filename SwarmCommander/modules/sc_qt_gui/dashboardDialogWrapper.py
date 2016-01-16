@@ -18,6 +18,7 @@ from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import FixedFormati
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SwarmSearchDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import GreedyShooterDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import AltitudeSorterDialog
+from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import LatitudeLongitudeDialog
 from ap_lib import ap_enumerations as enums
 from ap_lib import bitmapped_bytes as bytes 
 
@@ -64,7 +65,7 @@ class DashboardDialog(QDialog):
         self.__dashboardUi.tableWidget.setColumnWidth(self.__ID_COL, 40)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__NAME_COL, 80)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__SWARM_STATE_COL,100)
-        self.__dashboardUi.tableWidget.setColumnWidth(self.__SWARM_BHVR_COL, 110)
+        self.__dashboardUi.tableWidget.setColumnWidth(self.__SWARM_BHVR_COL, 150)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__SUBSWARM_COL, 50)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__LINK_COL, 40)
         self.__dashboardUi.tableWidget.setColumnWidth(self.__BATT_REM_COL, 90)
@@ -303,8 +304,6 @@ class DashboardDialog(QDialog):
             net_mod.set_subswarm_for(selected_uav_id, selected_subswarm_id)
 
     def begin_swarm_behavior_pushed(self):
-        net_mod = self.sc_state.network
-
         subswarm_uavs = self.selectSubswarmUAVs(int(self.__dashboardUi.spin_selectSubswarm.value()))
         if subswarm_uavs == []: return  # Empty subswarm--nothing to do
 
@@ -320,8 +319,7 @@ class DashboardDialog(QDialog):
             parser.angle = self.behavior_order[1]
             parser.stack_formation = self.behavior_order[2]
             params = parser.pack()
-            for uav in subswarm_uavs:
-                net_mod.swarm_behavior_for(uav, enums.SWARM_LINEAR_FORMATION, params)
+            self._sendSwarmBehavior(subswarm_uavs, enums.SWARM_LINEAR_FORMATION, params)
 
         elif selected_behavior == enums.SWARM_SEQUENCE_LAND:
             dialog = SequenceLandDialog(self.sc_state, self)
@@ -330,8 +328,7 @@ class DashboardDialog(QDialog):
             parser = bytes.LandingOrderParser()
             parser.landing_wp_id = self.behavior_order
             params = parser.pack()
-            for uav in subswarm_uavs:
-                net_mod.swarm_behavior_for(uav, enums.SWARM_SEQUENCE_LAND, params)
+            self._sendSwarmBehavior(subswarm_uavs, enums.SWARM_SEQUENCE_LAND, params)
 
         elif selected_behavior == enums.SWARM_SEARCH:
             dialog = SwarmSearchDialog(self.sc_state, self)
@@ -345,29 +342,35 @@ class DashboardDialog(QDialog):
             parser.masterID = self.behavior_order[4]
             parser.algorithmNumber = self.behavior_order[5]
             params = parser.pack()
-            for uav in subswarm_uavs:
-                net_mod.swarm_behavior_for(uav, enums.SWARM_SEARCH, params)
+            self._sendSwarmBehavior(subswarm_uavs, enums.SWARM_SEARCH, params)
 
         elif selected_behavior == enums.GREEDY_SHOOTER:
             dialog = GreedyShooterDialog(self.sc_state, self)
             dialog.exec()
             if not self.behavior_order: return
-            for uav in subswarm_uavs:
-                net_mod.swarm_behavior_for(uav, enums.GREEDY_SHOOTER, b'')
+            self._sendSwarmBehavior(subswarm_uavs, enums.GREEDY_SHOOTER, b'')
 
         elif selected_behavior == enums.ALTITUDE_SORT:
             dialog = AltitudeSorterDialog(self.sc_state, self)
             dialog.exec()
             if not self.behavior_order: return
-            for uav in subswarm_uavs:
-                net_mod.swarm_behavior_for(uav, enums.ALTITUDE_SORT, b'')
+            self._sendSwarmBehavior(subswarm_uavs, enums.ALTITUDE_SORT, b'')
 
         elif selected_behavior == enums.LAZY_ALTITUDE_SORT:
             dialog = AltitudeSorterDialog(self.sc_state, self)
             dialog.exec()
             if not self.behavior_order: return
-            for uav in subswarm_uavs:
-                net_mod.swarm_behavior_for(uav, enums.LAZY_ALTITUDE_SORT, b'')
+            self._sendSwarmBehavior(subswarm_uavs, enums.LAZY_ALTITUDE_SORT, b'')
+
+        elif selected_behavior == enums.INDEPENDENT_TRANSIT:
+            dialog = LatitudeLongitudeDialog(self.sc_state, self)
+            dialog.exec()
+            if not self.behavior_order: return
+            parser = bytes.LatitudeLongitudeParser()
+            parser.latitude = self.behavior_order[0]
+            parser.longitude = self.behavior_order[1]
+            params = parser.pack()
+            self._sendSwarmBehavior(subswarm_uavs, enums.INDEPENDENT_TRANSIT, params)
 
     def suspend_swarm_behavior_pushed(self):
         net_mod = self.sc_state.network
@@ -428,3 +431,9 @@ class DashboardDialog(QDialog):
 
         #call parent closeEvent method:
         QDialog.closeEvent(self, evt)
+
+    def _sendSwarmBehavior(self, uavs, behavior, params):
+        net_mod = self.sc_state.network
+        for uav in uavs:
+            net_mod.swarm_behavior_for(uav, behavior, params)
+

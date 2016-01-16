@@ -18,6 +18,7 @@ from SwarmCommander.modules.sc_qt_gui.fixedFormationDialog import Ui_fixedFormat
 from SwarmCommander.modules.sc_qt_gui.swarmSearchDialog import Ui_swarmSearchDialog
 from SwarmCommander.modules.sc_qt_gui.greedyShooterDialog import Ui_greedyShooterDialog
 from SwarmCommander.modules.sc_qt_gui.altitudeSorterDialog import Ui_altitudeSorterDialog
+from SwarmCommander.modules.sc_qt_gui.latitudeLongitudeDialog import Ui_latitudeLongitudeDialog
 import ap_lib.ap_enumerations as enums
 import time
 import math
@@ -143,4 +144,27 @@ class AltitudeSorterDialog(BehaviorDialog):
     def cancelOk_btn_accept(self):
         self.parent.behavior_order = True
         self.close()
+
+# Dialog box for entering user-defined parameters
+# for Latitude Longitude behaviors
+class LatitudeLongitudeDialog(BehaviorDialog):
+
+    def __init__(self, sc_state, parent_dialog):
+        BehaviorDialog.__init__(self, sc_state, parent_dialog)
+
+        self.__latitudeLongitudeUi = Ui_latitudeLongitudeDialog()
+        self.__latitudeLongitudeUi.setupUi(self)
+
+        #slots
+        self.__latitudeLongitudeUi.btnbx_CancelOK.accepted.connect(self.cancelOk_btn_accept)
+        self.__latitudeLongitudeUi.btnbx_CancelOK.rejected.connect(self.cancelOk_btn_reject)
+
+    def cancelOk_btn_accept(self):
+        lat = self.__latitudeLongitudeUi.doubleSpinBox_Lat.value()
+        lon = self.__latitudeLongitudeUi.doubleSpinBox_Lon.value()
+
+        self.parent.behavior_order = ( lat, lon )
+        self.close()
+
+
 
