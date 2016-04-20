@@ -19,6 +19,7 @@ from SwarmCommander.modules.sc_qt_gui.swarmSearchDialog import Ui_swarmSearchDia
 from SwarmCommander.modules.sc_qt_gui.greedyShooterDialog import Ui_greedyShooterDialog
 from SwarmCommander.modules.sc_qt_gui.altitudeSorterDialog import Ui_altitudeSorterDialog
 from SwarmCommander.modules.sc_qt_gui.latitudeLongitudeDialog import Ui_latitudeLongitudeDialog
+from SwarmCommander.modules.sc_qt_gui.interceptDialog import Ui_interceptDialog
 import ap_lib.ap_enumerations as enums
 import time
 import math
@@ -167,4 +168,21 @@ class LatitudeLongitudeDialog(BehaviorDialog):
         self.close()
 
 
+# Dialog box for entering user-defined parameters
+# for Intercept behaviors
+class InterceptDialog(BehaviorDialog):
+
+    def __init__(self, sc_state, parent_dialog):
+        BehaviorDialog.__init__(self, sc_state, parent_dialog)
+
+        self.__interceptUi = Ui_interceptDialog()
+        self.__interceptUi.setupUi(self)
+
+        #slots
+        self.__interceptUi.btnbx_CancelOK.accepted.connect(self.cancelOk_btn_accept)
+        self.__interceptUi.btnbx_CancelOK.rejected.connect(self.cancelOk_btn_reject)
+
+    def cancelOk_btn_accept(self):
+        self.parent.behavior_order = self.__interceptUi.spinBox_TargetID.value()
+        self.close()
 

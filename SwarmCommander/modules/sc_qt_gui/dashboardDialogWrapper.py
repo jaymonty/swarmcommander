@@ -19,6 +19,7 @@ from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import SwarmSearchD
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import GreedyShooterDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import AltitudeSorterDialog
 from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import LatitudeLongitudeDialog
+from SwarmCommander.modules.sc_qt_gui.behaviorDialogWrappers import InterceptDialog
 from ap_lib import ap_enumerations as enums
 from ap_lib import bitmapped_bytes as bytes 
 
@@ -349,6 +350,15 @@ class DashboardDialog(QDialog):
             dialog.exec()
             if not self.behavior_order: return
             self._sendSwarmBehavior(subswarm_uavs, enums.GREEDY_SHOOTER, b'')
+
+        elif selected_behavior == enums.PN_INTERCEPTOR:
+            dialog = InterceptDialog(self.sc_state, self)
+            dialog.exec()
+            if not self.behavior_order: return
+            parser = bytes.UShortParser()
+            parser.value = self.behavior_order
+            params = parser.pack()
+            self._sendSwarmBehavior(subswarm_uavs, enums.PN_INTERCEPTOR, params)
 
         elif selected_behavior == enums.ALTITUDE_SORT:
             dialog = AltitudeSorterDialog(self.sc_state, self)
