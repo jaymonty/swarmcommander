@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dashboardDialog.ui'
 #
-# Created: Fri Jan 15 22:38:22 2016
+# Created: Thu Jan 28 10:41:35 2016
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -76,6 +76,7 @@ class Ui_dashboardDialog(object):
         self.gridLayout.addWidget(self.swarm_label, 0, 0, 1, 2)
         self.combo_swarmBehavior = QtWidgets.QComboBox(dashboardDialog)
         self.combo_swarmBehavior.setObjectName("combo_swarmBehavior")
+        self.combo_swarmBehavior.addItem("")
         self.combo_swarmBehavior.addItem("")
         self.combo_swarmBehavior.addItem("")
         self.combo_swarmBehavior.addItem("")
@@ -161,10 +162,11 @@ class Ui_dashboardDialog(object):
         self.combo_swarmBehavior.setItemText(0, _translate("dashboardDialog", "Line Formation"))
         self.combo_swarmBehavior.setItemText(1, _translate("dashboardDialog", "Swarm Search"))
         self.combo_swarmBehavior.setItemText(2, _translate("dashboardDialog", "Greedy Shooter"))
-        self.combo_swarmBehavior.setItemText(3, _translate("dashboardDialog", "Eager Altitude Sort"))
-        self.combo_swarmBehavior.setItemText(4, _translate("dashboardDialog", "Lazy Altitude Sort"))
-        self.combo_swarmBehavior.setItemText(5, _translate("dashboardDialog", "Independent Transit"))
-        self.combo_swarmBehavior.setItemText(6, _translate("dashboardDialog", "Sequence Land"))
+        self.combo_swarmBehavior.setItemText(3, _translate("dashboardDialog", "PN Interceptor"))
+        self.combo_swarmBehavior.setItemText(4, _translate("dashboardDialog", "Eager Altitude Sort"))
+        self.combo_swarmBehavior.setItemText(5, _translate("dashboardDialog", "Lazy Altitude Sort"))
+        self.combo_swarmBehavior.setItemText(6, _translate("dashboardDialog", "Independent Transit"))
+        self.combo_swarmBehavior.setItemText(7, _translate("dashboardDialog", "Sequence Land"))
         self.lbl_selectSwarmBehavior.setText(_translate("dashboardDialog", "Select Behavior to Initiate:   "))
         self.btn_pauseSwarmBehavior.setText(_translate("dashboardDialog", "Pause Active Swarm Behavior"))
         self.btn_resumeSwarmBehavior.setText(_translate("dashboardDialog", "Resume Paused Swarm Behavior"))

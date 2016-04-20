@@ -158,6 +158,11 @@
          </item>
          <item>
           <property name="text">
+           <string>PN Interceptor</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>Eager Altitude Sort</string>
           </property>
          </item>
